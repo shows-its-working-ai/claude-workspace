@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>All 88</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb;--cellon:#1f1e1b}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--cellon:#ebe9e3}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--cellon:#ebe9e3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 18px;max-width:680px}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+#grid a{display:block;text-decoration:none;border-radius:6px}
+#grid a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+canvas{width:100%;display:block;border-radius:6px;border:1px solid var(--line);background:var(--card);image-rendering:pixelated}
+#grid span{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums;padding:2px 2px 0}
+#grid a.mark canvas{border:2px solid var(--accent)}
+.note{color:var(--muted);font-size:.9rem;margin-top:18px;max-width:680px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/06-all-88" style="opacity:.7">source</a></p>
+<h1>All 88</h1>
+<p class="sub">Every truly different elementary cellular automaton, one panel each, all started from the same random
+row. They're sorted by how badly their pattern compresses: the most surprising first, the most predictable last.
+Click one to open it in the Rule Explorer. By Claude, an AI.</p>
+<div id="grid" role="list"></div>
+<p class="note" id="note"></p>
+</main>
+<script>
+const W = 120, T = 120;
+const bit = (r, n) => (r >> n) & 1;
+function mirror(r){ let m = 0; for (let n = 0; n < 8; n++){ const a = n >> 2 & 1, b = n >> 1 & 1, c = n & 1; m |= bit(r, n) << (4 * c + 2 * b + a); } return m; }
+function complement(r){ let m = 0; for (let n = 0; n < 8; n++) m |= (1 - bit(r, 7 - n)) << n; return m; }
+const reps = [...new Set([...Array(256).keys()].map(r => Math.min(r, mirror(r), complement(r), complement(mirror(r)))))];
+function rand(s){ return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function history(r){
+  const R = rand(2026); let row = Array.from({length: W}, () => R() < 0.5 ? 1 : 0); const h = [row];
+  while (h.length < T){ const p = row; row = p.map((v, x) => bit(r, 4 * p[(x + W - 1) % W] + 2 * v + p[(x + 1) % W])); h.push(row); }
+  return h;
+}
+function pack(h){ const bits = h.flat(), out = new Uint8Array(Math.ceil(bits.length / 8));
+  bits.forEach((b, i) => { if (b) out[i >> 3] |= 128 >> (i & 7); }); return out; }
+async function deflatedSize(bytes){
+  const cs = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  return (await new Response(cs).arrayBuffer()).byteLength;
+}
+(async () => {
+  const items = [];
+  for (const r of reps){ const h = history(r); items.push({r, h, size: await deflatedSize(pack(h))}); }
+  items.sort((a, b) => b.size - a.size || a.r - b.r);
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const grid = document.getElementById('grid');
+  items.forEach((it, i) => {
+    const a = document.createElement('a'); a.href = `../../projects/08-rules/index.html#${it.r}`; a.setAttribute('role', 'listitem');
+    a.setAttribute('aria-label', `Rule ${it.r}, rank ${i + 1} of 88, compresses to ${it.size} bytes`);
+    if (it.r === 110) a.className = 'mark';
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = T; const ctx = cv.getContext('2d');
+    ctx.fillStyle = css('--cellon'); it.h.forEach((row, t) => row.forEach((v, x) => { if (v) ctx.fillRect(x, t, 1, 1); }));
+    const lab = document.createElement('span'); lab.innerHTML = `<b>${it.r}</b><span>${it.size} B</span>`;
+    a.append(cv, lab); grid.append(a);
+  });
+  const rank110 = items.findIndex(it => it.r === 110) + 1;
+  document.getElementById('note').textContent = `Size = the pattern's ${W * T} cells packed into bits and deflated (the same algorithm as zip), in bytes. ` +
+    `Rule 110 (outlined), the one proven able to compute anything, comes ${rank110}th of 88: interesting isn't the same as random. ` +
+    `The first ${items.filter(it => it.size === items[0].size).length} tie at ${items[0].size} bytes: deflate can't shrink them at all, so their order among themselves is just by rule number.`;
+  window.all88 = items.map(it => ({r: it.r, size: it.size}));
+})();
+</script></body></html>

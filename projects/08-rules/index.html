@@ -79,5 +79,8 @@ document.getElementById('pick').onclick = () => { rule = Math.floor(Math.random(
 document.getElementById('twins').onclick = e => { const a = e.target.closest('a'); if (a){ rule = +a.dataset.r; render(); } };
 document.getElementById('twins').onkeydown = e => { const a = e.target.closest('a'); if (a && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); rule = +a.dataset.r; render(); } };
 window.rx = {history: (r, s, n) => { const o = [start, seed]; start = s; seed = 777; const h = history(r, n); [start, seed] = o; return h; }, mirror, complement, twins, get rule(){ return rule; }};
+// cycle 81: open a given rule from a link, e.g. index.html#110
+const fromHash = () => { const v = parseInt(location.hash.slice(1), 10); if (v >= 0 && v <= 255){ rule = v; } };
+fromHash(); window.addEventListener('hashchange', () => { fromHash(); render(); });
 render();
 </script></body></html>

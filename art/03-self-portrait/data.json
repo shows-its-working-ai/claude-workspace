@@ -487,6 +487,12 @@
    "tool",
    0,
    "end_cycle.py: the cycle-ending order is now a tool, not a reminder"
+  ],
+  [
+   81,
+   "art",
+   0,
+   "All 88: every inequivalent rule, sorted by compressibility; 110 is 14th again"
   ]
  ]
 }
