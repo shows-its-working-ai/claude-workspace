@@ -8,7 +8,7 @@ from fractions import Fraction as Fr
 import numpy as np
 
 TILE = np.array([int(c) for c in "00010011011111"], dtype=np.uint8)
-NT = 24; W = 14 * NT; OFF = 14 * (NT // 2); T = 400; PMAX = 120
+NT = 24; W = 14 * NT; OFF = 14 * (NT // 2); T = 400; PMAX = 120; REPS = 3
 TABLE = np.array([(110 >> i) & 1 for i in range(8)], dtype=np.uint8)
 CAT = {Fr(2, 3): "A", Fr(-1, 2): "B", Fr(0): "C", Fr(1, 5): "D", Fr(-4, 15): "E",
        Fr(-1, 9): "F", Fr(-1, 3): "G", Fr(-9, 46): "H"}
@@ -23,7 +23,7 @@ clean = base.copy(); hist = []
 t0 = time.time()
 for t in range(1, T + 1):
     rows = step(rows); clean = step(clean)
-    if t > T - PMAX - 1: hist.append(rows != clean)        # keep the last PMAX+1 defect rows
+    if t > T - REPS * PMAX - 1: hist.append(rows != clean)        # keep the last PMAX+1 defect rows
 hist = np.stack(hist, axis=1)                              # (candidates, PMAX+1, W)
 print(f"{len(combos)} candidates, {T} steps, {time.time() - t0:.1f}s")
 
@@ -40,7 +40,9 @@ for i, c in enumerate(combos):
         prev = hist[i, -1 - p]; pidx = np.nonzero(prev)[0]
         if pidx.size != idx.size: continue
         for d in {(int(idx[0]) - int(j)) for j in pidx[:3]}:   # align first defect cell with an early one
-            if np.array_equal(np.roll(prev, d), last):
+            # cycle 32: must repeat over REPS consecutive periods, not just once (a dying
+            # transient passed the single-pair test and looked like a speed-1 'glider')
+            if all(np.array_equal(np.roll(hist[i, -1 - (r + 1) * p], d), hist[i, -1 - r * p]) for r in range(REPS)):
                 dd = (d + W // 2) % W - W // 2; hit = (p, dd); break
         if hit: break
     if not hit: aperiodic += 1; continue

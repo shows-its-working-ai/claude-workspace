@@ -193,6 +193,12 @@
    "research",
    1,
    "5 of 8 glider families found exactly; a noisy 'H' rejected"
+  ],
+  [
+   32,
+   "research",
+   1,
+   "850k-seed search; a fake light-speed glider exposed a weak test"
   ]
  ]
 }

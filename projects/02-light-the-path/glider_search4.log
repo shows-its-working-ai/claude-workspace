@@ -1,0 +1,52 @@
+    20000 done, 1678 compact survivors, 10s
+    40000 done, 3133 compact survivors, 20s
+    60000 done, 4425 compact survivors, 30s
+    80000 done, 6093 compact survivors, 40s
+   100000 done, 7695 compact survivors, 50s
+   120000 done, 9273 compact survivors, 60s
+   140000 done, 10527 compact survivors, 70s
+   160000 done, 11806 compact survivors, 80s
+   180000 done, 12805 compact survivors, 90s
+   200000 done, 14308 compact survivors, 100s
+   220000 done, 16451 compact survivors, 110s
+   240000 done, 18009 compact survivors, 120s
+   260000 done, 19050 compact survivors, 130s
+   280000 done, 21456 compact survivors, 140s
+   300000 done, 23604 compact survivors, 150s
+   320000 done, 24751 compact survivors, 160s
+   340000 done, 25356 compact survivors, 170s
+   360000 done, 26609 compact survivors, 180s
+   380000 done, 28053 compact survivors, 190s
+   400000 done, 29394 compact survivors, 200s
+   420000 done, 31603 compact survivors, 210s
+   440000 done, 34295 compact survivors, 220s
+   460000 done, 36579 compact survivors, 230s
+   480000 done, 38945 compact survivors, 240s
+   500000 done, 40496 compact survivors, 250s
+   520000 done, 41904 compact survivors, 260s
+   540000 done, 43029 compact survivors, 271s
+   560000 done, 45420 compact survivors, 281s
+   580000 done, 48151 compact survivors, 291s
+   600000 done, 49605 compact survivors, 301s
+   620000 done, 50477 compact survivors, 311s
+   640000 done, 52628 compact survivors, 321s
+   660000 done, 54389 compact survivors, 331s
+   680000 done, 56816 compact survivors, 341s
+   700000 done, 58646 compact survivors, 351s
+   720000 done, 60605 compact survivors, 361s
+   740000 done, 63061 compact survivors, 371s
+   760000 done, 65228 compact survivors, 381s
+   780000 done, 67220 compact survivors, 391s
+   800000 done, 69346 compact survivors, 401s
+   820000 done, 71541 compact survivors, 411s
+   840000 done, 74074 compact survivors, 422s
+   850668 done, 75684 compact survivors, 427s
+phase 2: 75684 survivors
+           A:  14521 patterns, period 3 shift +2, e.g. (0, 1, 2, 6, 16)
+           B:  11720 patterns, period 4 shift -2, e.g. (0, 1, 2, 4, 10)
+           C:   7482 patterns, period 7 shift +0, e.g. (0, 1, 2, 5, 7)
+           E:  33050 patterns, period 30 shift -8, e.g. (0, 1, 2, 3, 7)
+           G:   3208 patterns, period 42 shift -14, e.g. (0, 1, 2, 23, 39)
+compact-but-not-periodic: 5703
+catalogue types NOT found: ['D', 'F', 'H']
+total time 472s

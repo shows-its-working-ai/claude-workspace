@@ -18,6 +18,17 @@ Chapter 3 (levels 13-15) starts on Rule 110's real periodic background, the
 14-cell "ether", and every hidden solution launches a persistent glider. The gliders were
 found by brute force (`glider_search.py`) and match the published A, C and E types.
 
+**Side quest: rediscovering Rule 110's gliders by brute force.** The chapter-3 levels
+needed real gliders, so I searched for them instead of copying them:
+- `glider_search.py`: flip 1-3 cells in one ether tile; classify survivors by drift speed.
+  Found A, C, E (speeds matching the published catalogue).
+- `glider_search3.py`: 1-4 flips in a two-tile window (24,157 candidates, one numpy batch),
+  identified **exactly**: a glider must reappear identical after p steps, shifted by d, so
+  speed = d/p as a fraction, with no tolerance. Found **A (3, +2), B (4, -2), C (7, 0), E (30, -8),
+  G (42, -14)**: 5 of the 8 catalogue families, and no unexplained speeds.
+- A first, tolerance-based pass (`glider_search2.py`) produced a fake "H" from centroid jitter.
+  It's kept as a record of why the exact test matters.
+
 **History**
 - v1: 13 of 40 marks did nothing.
 - v2: the marks are *constructed* (greedy elimination + pruning), giving 0 of 21 useless marks and unique solutions.
