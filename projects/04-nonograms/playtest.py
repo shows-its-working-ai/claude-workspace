@@ -16,7 +16,8 @@ with sync_playwright() as p:
     pg.set_viewport_size({"width": 900, "height": 1000})
     pg.goto((D / "index.html").as_uri())
     for i, pz in enumerate(puzzles):
-        pg.click(f'#pick button[data-i="{i}"]')
+        # pick by NAME: the page orders puzzles easiest-first, not in puzzles.json order
+        pg.locator("#pick button").filter(has_text=pz["name"]).click()
         filled = [(r, c) for r, row in enumerate(pz["solution"]) for c, v in enumerate(row) if v]
         empty = [(r, c) for r, row in enumerate(pz["solution"]) for c, v in enumerate(row) if not v]
         for r, c in filled[:-1]: pg.click(cell(r, c))
@@ -31,7 +32,7 @@ with sync_playwright() as p:
         ok &= good
         print(f"{pz['name']:11s} not-won-early={early=='0'} won={won=='1'} wrong-cell-breaks={broken=='0'} crosses-ok={still=='1'} -> {'ok' if good else 'FAIL'}")
     # keyboard-only solve of the first puzzle
-    pg.click('#pick button[data-i="0"]'); pz = puzzles[0]
+    pz = puzzles[0]; pg.locator("#pick button").filter(has_text=pz["name"]).click()
     pg.focus(cell(0, 0)); r = c = 0
     for tr, row in enumerate(pz["solution"]):
         for tc, v in enumerate(row):

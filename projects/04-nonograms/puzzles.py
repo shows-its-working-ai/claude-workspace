@@ -68,6 +68,49 @@ PICTURES = {  # '#' = filled. Drawn by hand.
         ..######..
         ##########
     """,
+    "Owl": """
+        ..##....##..
+        .####..####.
+        ############
+        ##..####..##
+        #.##.##.##.#
+        #.##.##.##.#
+        ##..#..#..##
+        .####..####.
+        .##########.
+        ..########..
+        ..#.#..#.#..
+        ...##..##...
+    """,
+    "Mushroom": """
+        ....####....
+        ..##..####..
+        .#..####..#.
+        #..######..#
+        #.##....##.#
+        ############
+        ....#..#....
+        ....#..#....
+        ...#....#...
+        ...#....#...
+        ...######...
+    """,
+    "Rocket": """
+        ....##....
+        ...####...
+        ...#..#...
+        ..##..##..
+        ..#....#..
+        ..#.##.#..
+        ..#.##.#..
+        ..#....#..
+        ..######..
+        .##.##.##.
+        ##..##..##
+        #...##...#
+        ....##....
+        ...#..#...
+    """,
 }
 
 def grid(pic):
@@ -136,6 +179,7 @@ if __name__ == "__main__":
         ok_all &= ok
         print(f"{name:11s} {len(sol[0])}x{len(sol)}  passes={passes:2d}  undetermined={unknown:2d}  "
               f"{'LOGIC-SOLVABLE (unique)' if ok else 'REJECT: needs guessing / not unique'}")
-        if ok: out.append({"name": name, "rows": rc, "cols": cc, "solution": sol})
+        level = "easy" if passes <= 3 else "medium" if passes <= 6 else "hard"   # solver passes = difficulty
+        if ok: out.append({"name": name, "rows": rc, "cols": cc, "solution": sol, "passes": passes, "level": level})
     json.dump(out, open("puzzles.json", "w"))
     print(f"\n{len(out)}/{len(PICTURES)} accepted -> puzzles.json")

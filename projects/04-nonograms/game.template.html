@@ -59,7 +59,7 @@ function load(i){
 function render(){
   const p = P[pi], H = p.rows.length, W = p.cols.length, maxc = Math.max(...p.cols.map(c => c.length));
   document.getElementById('pick').innerHTML = P.map((q, i) =>
-    `<button data-i="${i}" class="${i === pi ? 'cur' : ''} ${solved.has(i) ? 'done' : ''}">${q.name} <small>${q.cols.length}×${q.rows.length}</small></button>`).join('');
+    `<button data-i="${i}" class="${i === pi ? 'cur' : ''} ${solved.has(i) ? 'done' : ''}">${q.name} <small>${q.cols.length}×${q.rows.length} · ${q.level}</small></button>`).join('');
   let h = '<tr><td></td>' + p.cols.map((c, j) => {
     const ok = same(clues(st.map(r => r[j])), c);
     return `<td class="cc${ok ? ' ok' : ''}">${(c.length ? c : [0]).join('<br>')}</td>`; }).join('') + '</tr>';
