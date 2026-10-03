@@ -331,6 +331,12 @@
    "research",
    0,
    "aperiodic collision leftovers were slow wreckage, not guns (prediction held)"
+  ],
+  [
+   55,
+   "research",
+   0,
+   "36-cell E-speed object is not two Es (prediction failed); unidentified"
   ]
  ]
 }
