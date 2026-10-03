@@ -18,6 +18,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("all speeds regrouped; B-bar identified", "projects/02-light-the-path", ["all_groups.py"], ["B-BAR CONFIRMED"], True),
     ("Ant: 100 random starts all reach a highway", "projects/09-ant", ["random_starts.py"], ["CONTROL empty grid: 9977 OK", "100/100"], True),
     ("Ant survey: all 22 multi-colour rules", "art/07-ant-gallery", ["survey.py"], ["SURVEY DONE", "counting distinct behaviours FAILED (2)"], True),
+    ("no blank canvases (as displayed, every page)", ".", ["check_canvases.py"], ["CANVASES OK"], False),
     ("site links + back links", ".", ["check_site.py"], ["ALL LINKS OK"], False),
     ("contrast (WCAG, both themes)", ".", ["tools/contrast.py", "."], ["0 failing pairs"], False),
     ("keyboard: Confluence + Beat Rates", ".", ["check_keyboard.py"], ["ALL PASS"], False),

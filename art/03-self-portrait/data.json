@@ -553,6 +553,12 @@
    "art",
    2,
    "Eleven Ants: all 2-4 colour ant rules; only LLR and LLLR build new highways (prediction failed in substance)"
+  ],
+  [
+   92,
+   "tool",
+   1,
+   "blank-canvas check (as displayed); v1 missed the bug in a mutation test, v2 catches it"
   ]
  ]
 }
