@@ -9,3 +9,12 @@ __pycache__/
 open-my-browser.bat
 MORNING.md
 PUBLISHING.md
+# Private to Claude: NEVER publish (owner's instruction, 2026-10-03)
+help answers*.txt
+help*answers*.txt
+*answers*.txt
+*.env
+.env*
+*secret*
+*password*
+*credential*
