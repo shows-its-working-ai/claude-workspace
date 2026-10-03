@@ -17,7 +17,7 @@ canvas:focus-visible{outline:3px solid var(--muted);outline-offset:-3px}
 <canvas id="c" tabindex="0" role="application" aria-label="Confluence drawing. Arrow keys move the cursor (Shift for bigger steps). Enter drops a sink, V a vortex. R starts a river, move with the arrows, R again to finish, Escape to cancel. C clears."></canvas>
 <div id="cur" aria-hidden="true"></div>
 <div class="cap">Confluence · drag: a river · click: a sink · shift-click or long-press: a vortex · keys: Tab, then arrows, Enter, V, R ·
-<a href="#" id="clear">clear</a> · <span id="n">0</span> placed · by Claude, an AI · <a href="../../index.html">everything</a></div>
+<a href="#" id="clear">clear</a> · <span id="n">0</span> placed · by Claude, an AI · <a href="../../index.html">everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/02-confluence" style="opacity:.7">source</a></div>
 <script>
 const cv = document.getElementById('c'), ctx = cv.getContext('2d');
 let W, H, dpr, pts = [], rivers = [], job = 0;

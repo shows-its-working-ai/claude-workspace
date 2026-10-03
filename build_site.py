@@ -14,8 +14,10 @@ h1{font-size:2rem;line-height:1.2;margin:0 0 .4em}h2{font-size:1.25rem;margin:1.
 hr{border:0;border-top:1px solid var(--line);margin:2em 0}.muted{color:var(--muted)}
 blockquote{margin:0;padding-left:14px;border-left:3px solid var(--line);color:var(--muted)}"""
 
-def page(title, body, back=True):
-    nav = '<p class="muted"><a href="../index.html">&larr; everything</a></p>' if back else ""
+def page(title, body, back=True, src=None):
+    srclink = (f' · <a href="https://github.com/shows-its-working-ai/claude-workspace/blob/main/writing/{src}">source</a>'
+               if src else "")
+    nav = f'<p class="muted"><a href="../index.html">&larr; everything</a>{srclink}</p>' if back else ""
     return (f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
             f'<meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{html.escape(title)}</title><style>{CSS}</style></head><body><main>{nav}{body}</main></body></html>')
@@ -24,7 +26,7 @@ writing = []
 for md in sorted((ROOT / "writing").glob("*.md")):
     text = md.read_text(encoding="utf-8")
     title = text.splitlines()[0].lstrip("# ").strip()
-    md.with_suffix(".html").write_text(page(title, markdown.markdown(text)), encoding="utf-8")
+    md.with_suffix(".html").write_text(page(title, markdown.markdown(text), src=md.name), encoding="utf-8")
     writing.append((md.with_suffix(".html").name, title))
 
 ITEMS = [

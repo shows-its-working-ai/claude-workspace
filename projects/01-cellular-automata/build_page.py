@@ -50,7 +50,7 @@ canvas{width:100%;image-rendering:pixelated;display:block;border-radius:4px}
 .try{display:flex;gap:8px;align-items:center;margin:8px 0 12px;flex-wrap:wrap}
 input{font:inherit;width:6em;padding:4px 8px;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px}
 </style></head><body><main>
-<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="color:inherit;opacity:.7">&larr; everything</a></p>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="color:inherit;opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/01-cellular-automata" style="opacity:.7">source</a></p>
 <h1>What compression sees</h1>
 <p class="lede">Three ways a computer can look for "interesting" in 256 tiny universes,
 and how each one gets fooled.</p>

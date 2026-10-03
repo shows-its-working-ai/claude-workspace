@@ -361,6 +361,12 @@
    "art",
    0,
    "Pendulum Wave: n groups at 60/n s, checked against exact fractions"
+  ],
+  [
+   60,
+   "site",
+   1,
+   "every page links to its own tracked source; checked"
   ]
  ]
 }
