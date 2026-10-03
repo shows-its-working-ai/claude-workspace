@@ -33,8 +33,16 @@ with sync_playwright() as p:
         q.goto((D / "index.html").as_uri() + h)
         shared = "Shared picture" in q.inner_text("#pick")
         msg = q.inner_text("#msg"); injected = q.locator("img").count()
-        good = not shared and "couldn't be read" in msg and injected == 0 and q.locator(".cell").count() > 0
+        good = not shared and "That shared link" in msg and injected == 0 and q.locator(".cell").count() > 0
         ok &= good; print(f"  hostile/malformed {h[:34]:34s} -> rejected={not shared} fallback_ok={q.locator('.cell').count() > 0} injected={injected} -> {'ok' if good else 'FAIL'}")
+        q.close()
+    # Cycle 45: well-FORMED but bad clues must now be caught by the solver, with the right reason.
+    for h, reason in (("#c=1_1_0_0_0~1_1_0_0_0", "more than one answer"),     # a 2x2 swap: two pictures fit
+                      ("#c=5_0_0_0_0~2_1_1_1_0", "no picture can satisfy")):  # sums agree, but impossible
+        q = ctx.new_page(); q.on("pageerror", lambda e: errs.append(str(e)))
+        q.goto((D / "index.html").as_uri() + h)
+        good = "Shared picture" not in q.inner_text("#pick") and reason in q.inner_text("#msg")
+        ok &= good; print(f"  well-formed but bad {h:28s} -> '{reason}' reported: {good}")
         q.close()
     print("js errors / dialogs:", errs); ok &= not errs
     ctx.close()

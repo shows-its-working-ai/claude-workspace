@@ -271,6 +271,12 @@
    "game",
    0,
    "share links carry clues, parsed as untrusted; 8 hostile links rejected"
+  ],
+  [
+   45,
+   "game",
+   1,
+   "shared solver.js; a global name clash would have killed the game"
   ]
  ]
 }

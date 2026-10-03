@@ -46,6 +46,7 @@ column, in order. Every puzzle here was proven solvable by logic alone: no guess
 <p class="note">The pictures are small drawings of mine. Three of my first six were rejected by the
 solver because their clues allowed more than one picture; I redrew them until logic alone was enough.</p>
 </main>
+<script src="solver.js"></script>
 <script>
 const P = [{"name": "Teacup", "rows": [[1, 1], [1, 1], [1, 1], [], [7], [1, 2], [1, 2], [6]], "cols": [[4], [1, 1], [3, 1, 1], [1, 1], [1, 1], [3, 1, 1], [3], [2]], "level": "easy"}, {"name": "Key", "rows": [[3], [2, 2], [1, 6], [2, 2, 1, 1], [3, 3]], "cols": [[3], [2, 2], [1, 1], [2, 2], [3], [1], [1], [3], [1, 1], [3]], "level": "easy"}, {"name": "Sailboat", "rows": [[1], [2], [3], [4], [5], [1], [10], [8], [6]], "cols": [[1], [2], [3], [3], [9], [4, 3], [3, 3], [2, 3], [1, 2], [1]], "level": "easy"}, {"name": "Cat", "rows": [[1, 1], [2, 2], [9], [1, 3, 1], [9], [3, 3], [7], [5]], "cols": [[6], [2, 3], [1, 4], [3, 2], [3, 2], [3, 2], [1, 4], [2, 3], [6], []], "level": "easy"}, {"name": "Snail", "rows": [[5], [2, 2], [2, 3, 2], [1, 2, 1, 1], [1, 1, 2, 1, 1], [2, 2, 1], [7, 2], [12]], "cols": [[1], [4, 1], [2, 3], [2, 2, 2], [1, 2, 2], [1, 1, 2], [1, 3, 2], [2, 1, 2], [2, 3], [4, 1], [2], [4]], "level": "easy"}, {"name": "Lighthouse", "rows": [[2], [4], [6], [1, 1], [4], [1, 1], [4], [1, 1], [6], [10]], "cols": [[1], [1], [1, 3], [6, 2], [3, 1, 1, 2], [3, 1, 1, 2], [6, 2], [1, 3], [1], [1]], "level": "easy"}, {"name": "Owl", "rows": [[2, 2], [4, 4], [12], [2, 4, 2], [1, 2, 2, 2, 1], [1, 2, 2, 2, 1], [2, 1, 1, 2], [4, 4], [10], [8], [1, 1, 1, 1], [2, 2]], "cols": [[5], [3, 3], [3, 2, 4], [3, 2, 3, 1], [3, 6], [4, 2], [4, 2], [3, 6], [3, 2, 3, 1], [3, 2, 4], [3, 3], [5]], "level": "easy"}, {"name": "Mushroom", "rows": [[4], [2, 4], [1, 4, 1], [1, 6, 1], [1, 2, 2, 1], [12], [1, 1], [1, 1], [1, 1], [1, 1], [6]], "cols": [[3], [1, 1], [1, 2], [1, 3, 3], [1, 2, 3, 1], [1, 2, 1, 1], [4, 1, 1], [4, 3, 1], [1, 3, 3], [1, 2], [1, 1], [3]], "level": "medium"}, {"name": "Rocket", "rows": [[2], [4], [1, 1], [2, 2], [1, 1], [1, 2, 1], [1, 2, 1], [1, 1], [6], [2, 2, 2], [2, 2, 2], [1, 2, 1], [2], [1, 1]], "cols": [[2], [2], [7], [3, 1, 1], [2, 2, 5], [2, 2, 5], [3, 1, 1], [7], [2], [2]], "level": "hard"}];
 let pi = 0, st = [], mode = 1, cur = [0, 0];
@@ -111,11 +112,22 @@ function parseShared(hash){
   if (!rows.every(c => fits(c, cols.length)) || !cols.every(c => fits(c, rows.length))) return null;
   const sum = a => a.flat().reduce((x, y) => x + y, 0);
   if (sum(rows) !== sum(cols) || sum(rows) === 0) return null;     // filled count must agree
-  return {name: 'Shared picture', rows, cols, level: 'shared'};
+  // Cycle 45: well-formed isn't enough. Run the (cross-checked) solver: accept only clues that logic
+  // alone fully determines, so a hand-made link can't be impossible or have several answers.
+  let solved;
+  try { solved = lineSolve(rows, cols); } catch (e) { return {error: 'impossible'}; }
+  if (solved.grid.flat().some(v => v === null)) return {error: 'ambiguous'};
+  const passes = solved.passes, level = passes <= 3 ? 'easy' : passes <= 6 ? 'medium' : 'hard';
+  return {name: 'Shared picture', rows, cols, level};
 }
 if (location.hash.startsWith('#c=')){
   const shared = parseShared(location.hash);
-  if (shared){ P.unshift(shared); load(0); }
-  else { load(0); document.getElementById('msg').textContent = "That shared link couldn't be read, so here's a regular puzzle."; }
+  if (shared && !shared.error){ P.unshift(shared); load(0); }
+  else {
+    load(0);
+    const why = !shared ? "couldn't be read" : shared.error === 'impossible' ? "has clues no picture can satisfy"
+              : "has more than one answer (not solvable by logic alone)";
+    document.getElementById('msg').textContent = `That shared link ${why}, so here's a regular puzzle.`;
+  }
 } else load(0);
 </script></body></html>
