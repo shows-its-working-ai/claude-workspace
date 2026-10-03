@@ -1,10 +1,10 @@
 """Puzzle-quality audit: for each mark (goal/avoid), how many attempts of
 size <= par does it ELIMINATE that every other mark would allow? 0 = useless mark."""
 import itertools, json
-from levels import run, ZONE
+from levels import grid
 
-def attempts(par):
-    return [c for k in range(par + 1) for c in itertools.combinations(ZONE, k)]
+def attempts(par, zone):
+    return [c for k in range(par + 1) for c in itertools.combinations(zone, k)]
 
 def mark_ok(g, mark):
     kind, (t, x) = mark
@@ -12,7 +12,7 @@ def mark_ok(g, mark):
 
 def audit(lv):
     marks = [("goal", tuple(m)) for m in lv["goals"]] + [("avoid", tuple(m)) for m in lv["avoid"]]
-    grids = [run(lv["rule"], a) for a in attempts(lv["par"])]
+    grids = [grid(lv, a) for a in attempts(lv["par"], lv["zone"])]
     elim = []
     for i, m in enumerate(marks):
         others = marks[:i] + marks[i + 1:]

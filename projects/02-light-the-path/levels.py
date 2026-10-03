@@ -9,17 +9,19 @@ hidden solution, then the solver checks EVERY subset of the zone up to size 4:
   - at most MAX_SOLUTIONS minimal solutions (so it's a puzzle, not a lottery),
   - v2: EVERY mark is necessary (quality.audit: each eliminates >= 1 attempt
     of size <= par that all the other marks allow). v1 had 13/40 useless marks.
+
+Chapter 1 is frozen in levels_ch1.json (8 levels, 31x18). Chapter 2 ("Gliders")
+is generated here: Rule 110 on a bigger board. Geometry is per level.
 """
 import itertools
 import json
 import random
 
-W, T = 31, 18
-ZONE = list(range(10, 21))           # 11 editable cells in the middle of row 0
 MAX_SOLUTIONS = 3
-PLAN = [(90, 1), (90, 2), (150, 2), (30, 1), (30, 2), (110, 2), (110, 3), (54, 3)]
+CH2 = {"W": 41, "T": 28, "zone": list(range(13, 27))}      # 14 editable cells
+CH2_PLAN = [(110, 2), (110, 3), (110, 3), (110, 4)]
 
-def run(rule, toggles):
+def run(rule, toggles, W, T):
     row = [0] * W
     for x in toggles:
         row[x] ^= 1
@@ -29,27 +31,31 @@ def run(rule, toggles):
         rows.append([(rule >> (4 * r[x - 1] + 2 * r[x] + r[(x + 1) % W])) & 1 for x in range(W)])
     return rows
 
+def grid(level, toggles):
+    return run(level["rule"], toggles, level["W"], level["T"])
+
 def wins(level, toggles):
-    g = run(level["rule"], toggles)
+    g = grid(level, toggles)
     return all(g[t][x] for t, x in level["goals"]) and not any(g[t][x] for t, x in level["avoid"])
 
 def solve(level, max_k=4):
     for k in range(max_k + 1):
-        sols = [c for c in itertools.combinations(ZONE, k) if wins(level, c)]
+        sols = [c for c in itertools.combinations(level["zone"], k) if wins(level, c)]
         if sols:
             return k, sols
     return None, []
 
-def make(rule, par, rng):
+def make(rule, par, rng, geo):
     """v2: CONSTRUCT the marks. Greedily add the mark that kills the most
     still-winning wrong attempts (ties broken randomly), then prune any mark
     that kills nothing on its own, so every remaining mark is necessary."""
     from quality import audit
-    attempts = [c for k in range(par + 1) for c in itertools.combinations(ZONE, k)]
-    grids = {a: run(rule, a) for a in attempts}
+    W, T, zone = geo["W"], geo["T"], geo["zone"]
+    attempts = [c for k in range(par + 1) for c in itertools.combinations(zone, k)]
+    grids = {a: run(rule, a, W, T) for a in attempts}
     cells = [(t, x) for t in range(T // 2, T) for x in range(W)]
     for _ in range(500):
-        hidden = tuple(sorted(rng.sample(ZONE, par)))
+        hidden = tuple(sorted(rng.sample(zone, par)))
         g = grids[hidden]
         cand = [("goals" if g[t][x] else "avoid", (t, x)) for t, x in cells]
         ok = lambda a, m: grids[a][m[1][0]][m[1][1]] == (m[0] == "goals")
@@ -63,7 +69,7 @@ def make(rule, par, rng):
             alive = [a for a in alive if ok(a, best)]
         if len(alive) > MAX_SOLUTIONS - 1 or not any(m[0] == "goals" for m in marks):
             continue
-        level = {"rule": rule, "par": par, "W": W, "T": T, "zone": ZONE,
+        level = {"rule": rule, "par": par, "W": W, "T": T, "zone": zone,
                  "goals": [m[1] for m in marks if m[0] == "goals"],
                  "avoid": [m[1] for m in marks if m[0] == "avoid"]}
         while True:  # prune redundant marks
@@ -80,11 +86,14 @@ def make(rule, par, rng):
     raise RuntimeError(f"no level for rule {rule} par {par}")
 
 if __name__ == "__main__":
-    rng = random.Random(2026)
-    levels = [make(rule, par, rng) for rule, par in PLAN]
+    ch1 = json.load(open("levels_ch1.json"))
+    rng = random.Random(110)
+    ch2 = [make(rule, par, rng, CH2) for rule, par in CH2_PLAN]
+    levels = ch1 + ch2
     for i, lv in enumerate(levels, 1):
-        # independent re-check of the stored answers
+        # independent re-check of the stored answers, for EVERY level
         assert all(wins(lv, s) for s in lv["solutions"])
         assert solve(lv)[0] == lv["par"] and not wins(lv, ())
-        print(f"level {i}: rule {lv['rule']:3d} par {lv['par']}  minimal solutions {len(lv['solutions'])}")
+        print(f"level {i:2d}: rule {lv['rule']:3d} {lv['W']}x{lv['T']} par {lv['par']}  "
+              f"minimal solutions {len(lv['solutions'])}  marks {len(lv['goals']) + len(lv['avoid'])}")
     json.dump(levels, open("levels.json", "w"))
