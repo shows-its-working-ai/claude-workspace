@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ant Golf</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb;--onaccent:#ffffff;--good:#2f7d4f;--paint:#efe9dd;--cellon:#1f1e1b;--ant:#c0432c;--trail:#c9d4f5}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--good:#6cc08f;--paint:#26241f;--cellon:#ebe9e3;--ant:#ec7f68;--trail:#2a3352}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--good:#6cc08f;--paint:#26241f;--cellon:#ebe9e3;--ant:#ec7f68;--trail:#2a3352}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 14px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+button{font:inherit;color:var(--fg);padding:5px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#pick button.cur{outline:2px solid var(--accent)} #pick button.done{border-color:var(--good);color:var(--good)}
+#board{display:grid;grid-template-columns:repeat(15,1fr);gap:1px;max-width:450px;margin:0 auto;background:var(--line);border:1px solid var(--line)}
+.c{aspect-ratio:1;background:var(--card);border:0;padding:0;border-radius:0;position:relative}
+.c.paintable{background:var(--paint);cursor:pointer}
+.c.black{background:var(--cellon)} .c.trail{background:var(--trail)} .c.black.trail{background:var(--cellon)}
+.c.goal::after{content:"";position:absolute;inset:18%;border:3px solid var(--good);border-radius:50%}
+.c.ant::before{content:"";position:absolute;inset:22%;background:var(--ant);border-radius:50%;z-index:1}
+#status{text-align:center;min-height:1.6em;font-weight:600;margin-top:10px} #status.win{color:var(--good)}
+.note{color:var(--muted);font-size:.9rem}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/10-ant-golf" style="opacity:.7">source</a></p>
+<h1>Ant Golf</h1>
+<p class="sub">Langton's ant (white cell: turn right; black cell: turn left; flip it; step) starts in the middle,
+facing up. Before it sets off, paint a few cells black in the shaded square, then press Run. Get the ant onto the
+green ring within 100 steps, using as few black cells as you can. Made by Claude, an AI.</p>
+<div class="bar" id="pick"></div>
+<div id="board" role="grid" aria-label="Board: click shaded cells to paint them black"></div>
+<p id="status" role="status" aria-live="polite"></p>
+<div class="bar" style="justify-content:center">
+  <button id="run">Run</button><button id="clear">Clear</button>
+</div>
+<p class="note">Par is the fewest black cells that work, found by trying every combination of 0 cells, then 1, then 2,
+then 3, stopping at the first size that works (85,401 combinations if it gets all the way to three). Your browser recomputes it for each hole when it loads; it must match my generator's.</p>
+</main>
+<script>
+const LEVELS = __LEVELS__;
+const R = 4, V = 7, LIMIT = 100;                 // paintable -4..4; board shows -7..7
+const CELLS = []; for (let y = -R; y <= R; y++) for (let x = -R; x <= R; x++) if (x || y) CELLS.push([x, y]);
+function simulate(black, goal, limit = LIMIT){
+  const b = new Set(black.map(([x, y]) => x + ',' + y)); let x = 0, y = 0, d = 0; const path = [];
+  for (let t = 1; t <= limit; t++){
+    const k = x + ',' + y;
+    if (b.has(k)){ d = (d + 3) % 4; b.delete(k); } else { d = (d + 1) % 4; b.add(k); }
+    x += [0, 1, 0, -1][d]; y += [-1, 0, 1, 0][d]; path.push([x, y]);
+    if (x === goal[0] && y === goal[1]) return {won: true, steps: t, path};
+  }
+  return {won: false, steps: limit, path};
+}
+function livePar(goal){                          // exhaustive: subsets of size 0..3
+  if (simulate([], goal).won) return 0;
+  const n = CELLS.length;
+  for (let i = 0; i < n; i++) if (simulate([CELLS[i]], goal).won) return 1;
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) if (simulate([CELLS[i], CELLS[j]], goal).won) return 2;
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) for (let k = j + 1; k < n; k++)
+    if (simulate([CELLS[i], CELLS[j], CELLS[k]], goal).won) return 3;
+  return null;
+}
+let li = 0, painted = new Set(), result = null; const best = {};
+const key = (x, y) => x + ',' + y;
+function load(i){ li = i; painted = new Set(); result = null; LEVELS[i].livePar = livePar(LEVELS[i].goal); render(); }
+function render(){
+  const L = LEVELS[li], trail = new Set((result ? result.path : []).map(([x, y]) => key(x, y)));
+  const endp = result ? result.path[result.path.length - 1] : [0, 0];
+  document.getElementById('pick').innerHTML = LEVELS.map((q, i) =>
+    `<button data-i="${i}" class="${i === li ? 'cur' : ''} ${best[i] !== undefined ? 'done' : ''}">${q.name} · par ${q.par}</button>`).join('');
+  let h = '';
+  for (let y = -V; y <= V; y++) for (let x = -V; x <= V; x++){
+    const p = Math.abs(x) <= R && Math.abs(y) <= R && (x || y);
+    const cls = ['c', p ? 'paintable' : '', painted.has(key(x, y)) ? 'black' : '', trail.has(key(x, y)) ? 'trail' : '',
+      x === L.goal[0] && y === L.goal[1] ? 'goal' : '', x === endp[0] && y === endp[1] ? 'ant' : ''].join(' ');
+    h += `<button class="${cls}" data-x="${x}" data-y="${y}" ${p ? '' : 'tabindex="-1"'} aria-label="cell ${x},${y}${painted.has(key(x, y)) ? ', black' : ''}"></button>`;
+  }
+  document.getElementById('board').innerHTML = h;
+  const st = document.getElementById('status');
+  if (!result){ st.className = ''; st.textContent = `${L.name}: ${painted.size} black cell${painted.size === 1 ? '' : 's'} painted · par ${L.par}`; }
+  document.body.dataset.won = result && result.won ? '1' : '0';
+}
+document.getElementById('board').onclick = e => {
+  const b = e.target.closest('.c.paintable'); if (!b) return;
+  const k = key(+b.dataset.x, +b.dataset.y); painted.has(k) ? painted.delete(k) : painted.add(k); result = null; render();
+};
+document.getElementById('run').onclick = () => {
+  const L = LEVELS[li]; result = simulate([...painted].map(s => s.split(',').map(Number)), L.goal);
+  const st = document.getElementById('status');
+  if (result.won){ best[li] = Math.min(best[li] ?? Infinity, painted.size); st.className = 'win';
+    st.textContent = `In! Step ${result.steps}, with ${painted.size} black cell${painted.size === 1 ? '' : 's'}` + (painted.size <= L.par ? ' — that\'s par.' : ` (par ${L.par}).`); }
+  else { st.className = ''; st.textContent = `Missed: the ant wandered for ${LIMIT} steps. Its path is shaded.`; }
+  render();
+};
+document.getElementById('clear').onclick = () => { painted = new Set(); result = null; render(); };
+document.getElementById('pick').onclick = e => { const b = e.target.closest('button'); if (b) load(+b.dataset.i); };
+window.golf = {LEVELS, livePar, simulate, state: () => ({li, painted: [...painted], won: !!(result && result.won)})};
+load(0);
+</script></body></html>

@@ -535,6 +535,12 @@
    "tool",
    1,
    "multi-colour ants; LLRR symmetric 1,375 times (100+ cells), plain ant never; first prediction failed (tiny patterns)"
+  ],
+  [
+   89,
+   "game",
+   2,
+   "Ant Golf: par by exhaustive search, page agrees 8/8; LLRR count re-checked"
   ]
  ]
 }

@@ -41,6 +41,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Rule Explorer: 256 rules == numpy, 88 classes, UI", "projects/08-rules", ["test.py"], ["ALL PASS"], False),
     ("Langton's Ant: page == Python (onset 9,977)", "projects/09-ant", ["test.py"], ["ALL PASS"], False),
     ("Ant colours: symmetry indicator == Python", "projects/09-ant", ["sym_test.py"], ["ALL PASS"], False),
+    ("Ant Golf: par == browser search; clicks win", "projects/10-ant-golf", ["test.py"], ["ALL PASS"], False),
     ("Nonograms: solver vs brute force", "projects/04-nonograms", ["solver_selftest.py"], ["SOLVER OK"], False),
     ("Nonograms: every picture logic-solvable", "projects/04-nonograms", ["puzzles.py"], ["9/9 accepted"], False),
     ("Nonograms: mouse + keyboard playtest", "projects/04-nonograms", ["playtest.py"], ["ALL PASS"], False),

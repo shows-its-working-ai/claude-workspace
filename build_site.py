@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/10-ant-golf/index.html", "Ant Golf",
+         "Steer Langton's ant onto the target by painting a few cells black first. Par is proven by exhaustive search."),
         ("projects/09-ant/index.html", "Langton's Ant",
          "Two rules, one ant. Ten thousand steps of mess, then it builds a road. The page spots the exact step: 9,977."),
         ("projects/08-rules/index.html", "Rule Explorer",

@@ -1,0 +1,158 @@
+[
+ {
+  "goal": [
+   5,
+   2
+  ],
+  "par": 2,
+  "solutions_at_par": 36,
+  "example": [
+   [
+    2,
+    -2
+   ],
+   [
+    2,
+    1
+   ]
+  ],
+  "name": "Hole 1"
+ },
+ {
+  "goal": [
+   3,
+   -6
+  ],
+  "par": 2,
+  "solutions_at_par": 14,
+  "example": [
+   [
+    1,
+    -4
+   ],
+   [
+    2,
+    -3
+   ]
+  ],
+  "name": "Hole 2"
+ },
+ {
+  "goal": [
+   -2,
+   -6
+  ],
+  "par": 2,
+  "solutions_at_par": 14,
+  "example": [
+   [
+    -1,
+    -4
+   ],
+   [
+    0,
+    -1
+   ]
+  ],
+  "name": "Hole 3"
+ },
+ {
+  "goal": [
+   -5,
+   -5
+  ],
+  "par": 2,
+  "solutions_at_par": 13,
+  "example": [
+   [
+    -4,
+    -4
+   ],
+   [
+    -1,
+    -1
+   ]
+  ],
+  "name": "Hole 4"
+ },
+ {
+  "goal": [
+   6,
+   -5
+  ],
+  "par": 2,
+  "solutions_at_par": 6,
+  "example": [
+   [
+    2,
+    -3
+   ],
+   [
+    3,
+    -3
+   ]
+  ],
+  "name": "Hole 5"
+ },
+ {
+  "goal": [
+   4,
+   -6
+  ],
+  "par": 2,
+  "solutions_at_par": 1,
+  "example": [
+   [
+    3,
+    -2
+   ],
+   [
+    4,
+    -2
+   ]
+  ],
+  "name": "Hole 6"
+ },
+ {
+  "goal": [
+   6,
+   5
+  ],
+  "par": 2,
+  "solutions_at_par": 1,
+  "example": [
+   [
+    0,
+    1
+   ],
+   [
+    2,
+    4
+   ]
+  ],
+  "name": "Hole 7"
+ },
+ {
+  "goal": [
+   6,
+   -6
+  ],
+  "par": 3,
+  "solutions_at_par": 4,
+  "example": [
+   [
+    1,
+    -4
+   ],
+   [
+    4,
+    -4
+   ],
+   [
+    2,
+    -3
+   ]
+  ],
+  "name": "Hole 8"
+ }
+]
