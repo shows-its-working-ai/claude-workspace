@@ -52,7 +52,7 @@ for r in rows:
     tiles.append(
         f'<button class="cell{" pred" if r["predicted"] else ""}" style="--c:var(--k{kidx[r["kind"]]})" '
         f'data-tip="{html.escape(json.dumps(r))}" aria-label="{html.escape(label)}">'
-        f'<span class="tile">{dots}</span><span class="num{" five" if r["n"] % 5 == 0 or r["n"] in (1, len(rows)) else ""}">{r["n"]}</span></button>')
+        f'<span class="tile">{dots}</span><span class="num{" five" if r["n"] % 5 == 0 or r["n"] == 1 or (r["n"] == len(rows) and r["n"] % 5 >= 3) else ""}">{r["n"]}</span></button>')
 
 legend = "".join(f'<span class="lg"><span class="sw" style="background:var(--k{i})"></span>{k}</span>'
                  for i, k in enumerate(data["kinds"]))

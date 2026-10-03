@@ -15,6 +15,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("every page links to its own tracked source", ".", ["check_sources.py"], ["SOURCES OK"], False),
     ("C2/C3 seeds identified by published patterns", "projects/02-light-the-path", ["c_variants.py"], ["C VARIANTS OK"], True),
     ("true E vs E-bar among search seeds", "projects/02-light-the-path", ["e_or_ebar.py"], ["TRUE E FOUND"], True),
+    ("all speeds regrouped; B-bar identified", "projects/02-light-the-path", ["all_groups.py"], ["B-BAR CONFIRMED"], True),
     ("site links + back links", ".", ["check_site.py"], ["ALL LINKS OK"], False),
     ("contrast (WCAG, both themes)", ".", ["tools/contrast.py", "."], ["0 failing pairs"], False),
     ("keyboard: Confluence + Beat Rates", ".", ["check_keyboard.py"], ["ALL PASS"], False),
