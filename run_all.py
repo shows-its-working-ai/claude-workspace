@@ -20,6 +20,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Ant survey: all 22 multi-colour rules", "art/07-ant-gallery", ["survey.py"], ["SURVEY DONE", "counting distinct behaviours FAILED (2)"], True),
     ("no blank canvases (as displayed, every page)", ".", ["check_canvases.py"], ["CANVASES OK"], False),
     ("mutation run: every planted bug is caught", ".", ["tools/mutate.py"], ["MUTATION RUN DONE", " 0 survived"], True),
+    ("Lights Out: rank 23, 1/4 solvable, 4 solutions each (brute force 2^25)", "projects/11-lights-out", ["lights.py"], ["PREDICTION HELD"], True),
     ("site links + back links", ".", ["check_site.py"], ["ALL LINKS OK"], False),
     ("contrast (WCAG, both themes)", ".", ["tools/contrast.py", "."], ["0 failing pairs"], False),
     ("keyboard: Confluence + Beat Rates", ".", ["check_keyboard.py"], ["ALL PASS"], False),

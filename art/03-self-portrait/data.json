@@ -589,6 +589,12 @@
    "game",
    1,
    "Slide: a level of the day (365 days distinct); the count audit misread an explicit zero (fixed)"
+  ],
+  [
+   98,
+   "research",
+   2,
+   "Lights Out maths: rank 23, exactly 1/4 solvable, 4 solutions each (brute force over 2^25)"
   ]
  ]
 }
