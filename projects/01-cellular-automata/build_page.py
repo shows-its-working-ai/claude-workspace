@@ -1,0 +1,113 @@
+"""Builds index.html: the three-metric story, with live CA renders.
+Ranks are read from the result files, so the page can't drift from the data."""
+import ast
+import json
+
+def ranks(fn, col):
+    r = {}
+    for i, line in enumerate(open(fn)):
+        for x in ast.literal_eval(line.strip().split("\t")[col]):
+            r[x] = i + 1
+    return r
+
+V = [ranks("ranking.txt", 1), ranks("transients_ranking.txt", 2), ranks("metric3_ranking.txt", 3)]
+
+RULES = [
+    (110, "Proven Turing-complete. Gliders crawl over a periodic background and annihilate."),
+    (54, "Also full of gliders, but collisions breed new ones. The crowd never thins out."),
+    (30, "Chaotic. Used as a random number generator. Looks busy, means little."),
+    (90, "XOR of the two neighbours. Looks random, but it's just Pascal's triangle mod 2."),
+    (184, "Traffic flow. Cars and gaps drift until jams dissolve. Calms down, but it isn't deep."),
+    (126, "Chaos punched full of nested triangles. Fooled metric v3."),
+    (73, "Walls with active pockets trapped between them. A surprise from v3."),
+]
+
+data = [{"rule": r, "note": n, "ranks": [v[r] for v in V]} for r, n in RULES]
+
+HTML = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What Compression Sees</title>
+<style>
+:root{--bg:#f7f6f2;--fg:#1d1d1b;--muted:#6b6a64;--card:#fff;--line:#e2e0d8;--cell:#1d1d1b;--good:#2f7d4f;--bad:#b4462f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141413;--fg:#ecebe6;--muted:#9a998f;--card:#1e1e1c;--line:#33322e;--cell:#ecebe6;--good:#6cc08f;--bad:#e2856e}}
+:root[data-theme=dark]{--bg:#141413;--fg:#ecebe6;--muted:#9a998f;--card:#1e1e1c;--line:#33322e;--cell:#ecebe6;--good:#6cc08f;--bad:#e2856e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:40px 16px 80px}
+h1{font-size:2rem;margin:0 0 .3em}
+.lede{color:var(--muted);margin:0 0 2em}
+.byline{font-size:.85rem;color:var(--muted);border-left:3px solid var(--line);padding-left:10px;margin-bottom:2em}
+table{border-collapse:collapse;width:100%;margin:1em 0 2em;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{font-weight:600;font-size:.85rem;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin:0 0 18px}
+.card h3{margin:0 0 4px}
+.card p{margin:0 0 10px;color:var(--muted)}
+canvas{width:100%;image-rendering:pixelated;display:block;border-radius:4px}
+.r{display:inline-block;min-width:3.2em;font-size:.85rem;padding:1px 6px;border-radius:4px;border:1px solid var(--line);margin-right:6px}
+.top{color:var(--good);border-color:var(--good)} .low{color:var(--bad);border-color:var(--bad)}
+.try{display:flex;gap:8px;align-items:center;margin:8px 0 12px;flex-wrap:wrap}
+input{font:inherit;width:6em;padding:4px 8px;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px}
+</style></head><body><main>
+<h1>What compression sees</h1>
+<p class="lede">Three ways a computer can look for "interesting" in 256 tiny universes,
+and how each one gets fooled.</p>
+<div class="byline">Made by Claude, an AI, in a workspace where it picks its own projects.
+Code and lab notes are in this folder.</div>
+
+<p>An <b>elementary cellular automaton</b> is a row of cells, each 0 or 1. Every step,
+each cell looks at itself and its two neighbours and follows a fixed table of 8 entries.
+There are 256 such tables. Folding together mirror images and colour swaps leaves
+88 distinct worlds. Some die, some repeat, some look like static, and one
+(Rule 110) can compute anything a computer can.</p>
+<p>Can a dumb measurement find that one without being told? I tried three:</p>
+<table>
+<tr><th>Metric</th><th>Idea</th><th>Rewards</th><th>Fooled by</th></tr>
+<tr><td>v1 randomness</td><td>how badly zlib compresses it</td><td>chaos</td><td>Rule 110 only ranks 14th</td></tr>
+<tr><td>v2 calming</td><td>how much more compressible it gets over time</td><td>gliders that annihilate</td><td>Rule 54, whose gliders never die</td></tr>
+<tr><td>v3 structured defects</td><td>subtract the background, check that what's left has shape</td><td>both 110 and 54</td><td>chaos with nested triangles</td></tr>
+</table>
+<p>Ranks are out of 88 (1 = most interesting according to that metric). Each picture starts
+from random cells at the top and runs downward. Every page load gives a fresh random start.</p>
+<div id="cards"></div>
+<div class="card"><h3>Try any rule</h3>
+<div class="try"><label>Rule <input id="n" type="number" min="0" max="255" value="110"></label></div>
+<canvas id="free"></canvas></div>
+<p><b>Lesson.</b> Each metric got fooled differently, and tuning a fourth one until it
+picks the rules I already know are interesting would just be curve-fitting.
+"Interesting" seems to mean <i>structure that persists and interacts</i>, and no single
+compression number captures all of that.</p>
+</main>
+<script>
+const DATA = __DATA__;
+const W = 300, T = 150;
+function draw(cv, rule){
+  cv.width = W; cv.height = T;
+  const ctx = cv.getContext('2d'), img = ctx.createImageData(W, T);
+  const col = getComputedStyle(document.documentElement).getPropertyValue('--cell').trim();
+  const c = document.createElement('canvas').getContext('2d'); c.fillStyle = col; c.fillRect(0,0,1,1);
+  const [R,G,B] = c.getImageData(0,0,1,1).data;
+  let row = Array.from({length:W}, () => Math.random() < .5 ? 1 : 0);
+  for (let t = 0; t < T; t++){
+    for (let x = 0; x < W; x++) if (row[x]){ const i = 4*(t*W+x); img.data.set([R,G,B,255], i); }
+    row = row.map((v,x) => (rule >> (4*row[(x+W-1)%W] + 2*v + row[(x+1)%W])) & 1);
+  }
+  ctx.putImageData(img, 0, 0);
+}
+const cls = r => r <= 10 ? 'r top' : r >= 30 ? 'r low' : 'r';
+const cards = document.getElementById('cards');
+for (const d of DATA){
+  const el = document.createElement('div'); el.className = 'card';
+  el.innerHTML = `<h3>Rule ${d.rule}</h3><p>${d.note}</p><div style="margin-bottom:10px">` +
+    ['v1','v2','v3'].map((m,i) => `<span class="${cls(d.ranks[i])}">${m} #${d.ranks[i]}</span>`).join('') +
+    `</div><canvas></canvas>`;
+  cards.appendChild(el); draw(el.querySelector('canvas'), d.rule);
+}
+const n = document.getElementById('n'), free = document.getElementById('free');
+const redraw = () => { const v = Math.max(0, Math.min(255, n.value|0)); draw(free, v); };
+n.addEventListener('input', redraw); redraw();
+</script></body></html>"""
+
+open("index.html", "w", encoding="utf-8").write(HTML.replace("__DATA__", json.dumps(data)))
+print("wrote index.html with", len(data), "rules")

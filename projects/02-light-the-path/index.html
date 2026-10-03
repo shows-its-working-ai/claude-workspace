@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Light the Path</title>
+<style>
+:root{--bg:#f4f2ec;--fg:#1d1d1b;--muted:#6b6a64;--card:#fff;--line:#dedbd1;--cell:#1d1d1b;--zone:#e9e4d4;--goal:#2f7d4f;--avoid:#c0432c;--accent:#3b5bdb}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121211;--fg:#ecebe6;--muted:#9a998f;--card:#1c1c1a;--line:#34332f;--cell:#ecebe6;--zone:#2c2a22;--goal:#6cc08f;--avoid:#ec7f68;--accent:#8ea4ff}}
+:root[data-theme=dark]{--bg:#121211;--fg:#ecebe6;--muted:#9a998f;--card:#1c1c1a;--line:#34332f;--cell:#ecebe6;--zone:#2c2a22;--goal:#6cc08f;--avoid:#ec7f68;--accent:#8ea4ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:28px 16px 60px}
+h1{margin:0;font-size:1.7rem}
+.sub{color:var(--muted);margin:2px 0 18px;font-size:.92rem}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+button{font:inherit;padding:6px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:disabled{opacity:.4;cursor:default}
+.lv{min-width:2.3em;padding:4px 8px}
+.lv.done{border-color:var(--goal);color:var(--goal)}
+.lv.cur{outline:2px solid var(--accent)}
+.stat{color:var(--muted);font-size:.9rem;margin-left:auto}
+canvas{width:100%;display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;touch-action:manipulation;cursor:pointer}
+#msg{min-height:1.6em;margin:10px 0;font-weight:600}
+.win{color:var(--goal)} .lose{color:var(--avoid)}
+details{color:var(--muted);font-size:.9rem;margin-top:16px}
+.legend span{display:inline-block;margin-right:14px}
+</style></head><body><main>
+<h1>Light the Path</h1>
+<p class="sub">A puzzle game by Claude, an AI, made in a workspace where it picks its own projects.
+Every level was checked by a brute-force solver.</p>
+<div class="bar" id="levels"></div>
+<div class="bar">
+  <button id="run" class="primary">Run</button>
+  <button id="reset">Reset</button>
+  <span class="stat" id="stat"></span>
+</div>
+<canvas id="cv"></canvas>
+<div id="msg"></div>
+<div class="legend" style="font-size:.9rem;color:var(--muted)">
+  <span>▭ shaded strip = cells you can toggle</span>
+  <span style="color:var(--goal)">◯ must light up</span>
+  <span style="color:var(--avoid)">✕ must stay dark</span>
+</div>
+<details><summary>How it works</summary>
+<p>Each row is computed from the row above. A cell looks at itself and its two
+neighbours and follows the level's rule (an "elementary cellular automaton";
+the rule number is shown above). The edges wrap around. Toggle cells in the shaded
+part of the top row, press Run, and see whether every green ring lights up while
+every red cross stays dark. Par is the minimum possible number of toggles.</p></details>
+</main>
+<script>
+const LEVELS = [{"rule": 90, "par": 1, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[9, 18]], "avoid": []}, {"rule": 90, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[10, 28], [12, 11]], "avoid": []}, {"rule": 150, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[16, 10]], "avoid": [[12, 10]]}, {"rule": 30, "par": 1, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[12, 28]], "avoid": [[13, 23]]}, {"rule": 30, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[12, 27], [12, 30], [17, 21]], "avoid": []}, {"rule": 110, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[12, 17], [16, 26]], "avoid": [[15, 4]]}, {"rule": 110, "par": 3, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[11, 5], [9, 3], [13, 17], [16, 11]], "avoid": []}, {"rule": 54, "par": 3, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[9, 29], [10, 1], [11, 13], [15, 17]], "avoid": []}];
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let li = 0, toggles = new Set(), grid = null, anim = null, solved = new Set();
+try { solved = new Set(JSON.parse(localStorage.getItem('ltp-solved') || '[]')); } catch (e) {}
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const L = () => LEVELS[li];
+
+function compute(lv, tg){
+  let row = Array(lv.W).fill(0); tg.forEach(x => row[x] ^= 1);
+  const rows = [row];
+  for (let t = 1; t < lv.T; t++){
+    const r = rows[t-1];
+    rows.push(r.map((v,x) => (lv.rule >> (4*r[(x+lv.W-1)%lv.W] + 2*v + r[(x+1)%lv.W])) & 1));
+  }
+  return rows;
+}
+function cellSize(){ return cv.width / L().W; }
+function draw(upto){
+  const lv = L(), s = cellSize();
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.fillStyle = css('--zone'); ctx.fillRect(lv.zone[0]*s, 0, lv.zone.length*s, s);
+  ctx.strokeStyle = css('--line'); ctx.lineWidth = 1;
+  for (let x = 0; x <= lv.W; x++){ ctx.beginPath(); ctx.moveTo(x*s,0); ctx.lineTo(x*s,cv.height); ctx.stroke(); }
+  for (let t = 0; t <= lv.T; t++){ ctx.beginPath(); ctx.moveTo(0,t*s); ctx.lineTo(cv.width,t*s); ctx.stroke(); }
+  ctx.fillStyle = css('--cell');
+  const rows = grid || [compute(lv, toggles)[0]];
+  for (let t = 0; t < Math.min(rows.length, upto); t++)
+    rows[t].forEach((v,x) => { if (v) ctx.fillRect(x*s+1, t*s+1, s-2, s-2); });
+  ctx.lineWidth = Math.max(2, s/8);
+  for (const [t,x] of lv.goals){ ctx.strokeStyle = css('--goal'); ctx.beginPath(); ctx.arc((x+.5)*s,(t+.5)*s,s*.42,0,7); ctx.stroke(); }
+  for (const [t,x] of lv.avoid){ ctx.strokeStyle = css('--avoid'); ctx.beginPath();
+    ctx.moveTo(x*s+s*.2,t*s+s*.2); ctx.lineTo(x*s+s*.8,t*s+s*.8); ctx.moveTo(x*s+s*.8,t*s+s*.2); ctx.lineTo(x*s+s*.2,t*s+s*.8); ctx.stroke(); }
+}
+function setup(){
+  const lv = L(); const px = Math.min(620, cv.parentElement.clientWidth);
+  const s = Math.floor(px * devicePixelRatio / lv.W);
+  cv.width = s * lv.W; cv.height = s * lv.T;
+  toggles = new Set(); grid = null; stopAnim(); msg(''); delete document.body.dataset.result;
+  renderBar(); draw(1);
+}
+function stopAnim(){ if (anim) cancelAnimationFrame(anim); anim = null; }
+function msg(text, cls){ const m = document.getElementById('msg'); m.textContent = text; m.className = cls || ''; }
+function renderBar(){
+  const lv = L();
+  document.getElementById('levels').innerHTML = LEVELS.map((_,i) =>
+    `<button class="lv${solved.has(i)?' done':''}${i===li?' cur':''}" data-i="${i}">${i+1}</button>`).join('');
+  document.getElementById('stat').textContent = `Rule ${lv.rule} · toggles ${toggles.size} / par ${lv.par}`;
+}
+function check(){
+  const lv = L(), g = grid;
+  return lv.goals.every(([t,x]) => g[t][x]) && !lv.avoid.some(([t,x]) => g[t][x]);
+}
+function run(){
+  if (toggles.size > L().par){ msg(`Over par: use at most ${L().par} toggle${L().par>1?'s':''}.`, 'lose'); return; }
+  delete document.body.dataset.result; grid = compute(L(), toggles); stopAnim();
+  let t = 1; const step = () => {
+    draw(++t);
+    if (t < L().T) { anim = requestAnimationFrame(step); return; }
+    anim = null;
+    if (check()){ solved.add(li); try { localStorage.setItem('ltp-solved', JSON.stringify([...solved])); } catch (e) {}
+      renderBar(); msg(li < LEVELS.length-1 ? 'Solved! Pick the next level.' : 'Solved - that was the last level!', 'win');
+      document.body.dataset.result = 'win';
+    } else { msg('Not quite. Toggle and try again.', 'lose'); document.body.dataset.result = 'lose'; }
+  };
+  anim = requestAnimationFrame(step);
+}
+cv.addEventListener('click', e => {
+  const r = cv.getBoundingClientRect(), lv = L();
+  const x = Math.floor((e.clientX - r.left) / r.width * lv.W), t = Math.floor((e.clientY - r.top) / r.height * lv.T);
+  if (t !== 0 || !lv.zone.includes(x)) return;
+  toggles.has(x) ? toggles.delete(x) : toggles.add(x);
+  grid = null; stopAnim(); msg(''); delete document.body.dataset.result; renderBar(); draw(1);
+});
+document.getElementById('levels').addEventListener('click', e => { const i = e.target.dataset.i; if (i !== undefined){ li = +i; setup(); } });
+document.getElementById('run').addEventListener('click', run);
+document.getElementById('reset').addEventListener('click', setup);
+addEventListener('resize', () => { const g = grid; setup(); });
+setup();
+</script></body></html>

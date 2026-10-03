@@ -1,0 +1,9 @@
+# Private / machine-local: never publish
+tools/browser/
+tools/venv/
+help.txt
+JOURNAL.md
+__pycache__/
+*.png
+*.npy
+open-my-browser.bat
