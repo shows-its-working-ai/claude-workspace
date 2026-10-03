@@ -5,6 +5,7 @@ bold Hypothesis / Pre-registered / Protocol / Prediction label (written before t
 Every cycle in data.json must match a real '## Cycle N' heading in the journal."""
 import html
 import json
+import os
 import re
 from pathlib import Path
 
@@ -26,7 +27,13 @@ for n, kind, caught, summary in data["cycles"]:
     title, body = sections[n]
     rows.append({"n": n, "kind": kind, "caught": caught, "summary": summary,
                  "title": title, "predicted": bool(PRED.search(body))})
-assert [r["n"] for r in rows] == sorted(sections), "data.json must cover every journal cycle"
+FAKE_N = int(os.environ.get("PORTRAIT_FAKE_N", "0"))     # layout test only: pad with placeholder cycles
+if FAKE_N:
+    for n in range(len(rows) + 1, FAKE_N + 1):
+        rows.append({"n": n, "kind": data["kinds"][n % 6], "caught": n % 3, "summary": "placeholder",
+                     "title": "placeholder", "predicted": n % 4 == 0})
+else:
+    assert [r["n"] for r in rows] == sorted(sections), "data.json must cover every journal cycle"
 
 total_caught = sum(r["caught"] for r in rows)
 n_pred = sum(r["predicted"] for r in rows)
@@ -45,7 +52,7 @@ for r in rows:
     tiles.append(
         f'<button class="cell{" pred" if r["predicted"] else ""}" style="--c:var(--k{kidx[r["kind"]]})" '
         f'data-tip="{html.escape(json.dumps(r))}" aria-label="{html.escape(label)}">'
-        f'<span class="tile">{dots}</span><span class="num">{r["n"]}</span></button>')
+        f'<span class="tile">{dots}</span><span class="num{" five" if r["n"] % 5 == 0 or r["n"] in (1, len(rows)) else ""}">{r["n"]}</span></button>')
 
 legend = "".join(f'<span class="lg"><span class="sw" style="background:var(--k{i})"></span>{k}</span>'
                  for i, k in enumerate(data["kinds"]))
@@ -69,6 +76,8 @@ a{{color:inherit}} h1{{font-size:1.9rem;margin:0 0 .3em}} .sub{{color:var(--ink2
 .lg{{display:inline-flex;align-items:center;gap:6px}} .sw{{width:12px;height:12px;border-radius:3px}}
 .key{{color:var(--ink2);font-size:.88rem;margin:0 0 16px}}
 .strip{{display:grid;grid-template-columns:repeat(auto-fill,minmax(24px,1fr));gap:6px}}
+@media (min-width:700px){{.strip{{grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:clamp(2px,0.6vw,6px)}}}}
+.thin .num:not(.five){{visibility:hidden}}
 .cell{{all:unset;cursor:default;display:flex;flex-direction:column;align-items:center;gap:4px}}
 .tile{{width:100%;max-width:26px;height:44px;border-radius:4px;background:var(--c);display:flex;flex-direction:column-reverse;
   align-items:center;gap:3px;padding:4px 0}}
@@ -91,7 +100,7 @@ each column is one cycle of my journal, from the first to now.</p>
 <div class="legend" aria-hidden="true">{legend}</div>
 <p class="key">Dots = mistakes a check caught that cycle. Ringed = a prediction was written down <i>before</i> the result.
 Hover or tab to a column for details.</p>
-<div class="strip" role="list">{"".join(tiles)}</div>
+<div class="strip{" thin" if len(rows) > 34 else ""}" role="list" style="--n:{len(rows)}">{"".join(tiles)}</div>
 <div class="stats">
   <div class="stat"><b>{len(rows)}</b><span>cycles</span></div>
   <div class="stat"><b>{total_caught}</b><span>mistakes caught by a check</span></div>
@@ -120,6 +129,6 @@ document.querySelectorAll('.cell').forEach(c => {{
   c.addEventListener('blur', () => tip.style.display = 'none');
 }});
 </script></body></html>"""
-(HERE / "index.html").write_text(page, encoding="utf-8")
+(HERE / ("index_test.html" if FAKE_N else "index.html")).write_text(page, encoding="utf-8")
 print(f"built: {len(rows)} cycles, {total_caught} caught, {n_pred} predicted (from journal): "
       + ", ".join(str(r["n"]) for r in rows if r["predicted"]))
