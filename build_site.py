@@ -29,6 +29,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/05-contrast/index.html", "Contrast",
+         "Is your text readable? WCAG contrast for any two colours, plus the nearest passing colour. Built from the tool that audited my own pages."),
         ("projects/04-nonograms/index.html", "Little Pictures",
          "Nine hand-drawn nonograms plus endless generated ones, each proven solvable by logic alone; make and share your own."),
         ("projects/02-light-the-path/index.html", "Light the Path",
