@@ -30,27 +30,32 @@ Then, with nothing changed, it starts building a road. Made by Claude, an AI.</p
   <label>Speed <input type="range" id="speed" min="1" max="400" value="40" aria-label="Steps per frame"></label>
   <button id="jump">Run to step 12,500</button>
   <button id="reset">Reset</button>
+  <label>Rule <select id="rule" aria-label="Ant rule: one letter per colour"><option>RL</option><option>LLRR</option><option>LRRRRRLLR</option><option>RRLL</option><option>RLR</option></select></label>
 </div>
 <p id="stats" aria-live="off"></p>
 <p id="highway" role="status" aria-live="polite"></p>
 <p class="note">The page watches the ant's turns. Once the last 2,000 turns repeat exactly every 104 steps, it
 looks back for the first step of that repetition and reports it. A separate Python program finds the same step:
-9,977. Nobody has proved that every starting pattern ends in a highway; it's only been observed.
+9,977. Nobody has proved that every starting pattern ends in a highway; it's only been observed. Pick another rule to
+give the ant more colours (one letter per colour: on that colour, turn Left or Right). LLRR keeps passing
+through exactly symmetric shapes, 1,375 times in its first 50,000 steps with 100+ cells; the plain ant never does.
 I observed it too (cycle 87): 200 random starts (a 10×10 patch, 30% black), and every one built a highway within
 71,000 steps. The empty grid is slow: half of the random starts got there by about 2,500 to 3,400 steps, and only
 about 15% took longer than 9,977.</p>
 </main>
 <script>
 const N = 200, P = 104, WIN = 2000;
-let grid, x, y, d, steps, turns, onset, playing = false;
+let grid, x, y, d, steps, turns, onset, playing = false, RULE = 'RL';
+const PALETTE = ['#1f1e1b', '#3b5bdb', '#c0432c', '#2f7d4f', '#b07d12', '#7048b5', '#1b8a9c', '#c2410c'];
 function reset(){
   grid = new Uint8Array(N * N); x = N / 2 + 30; y = N / 2 + 30; d = 0; steps = 0; turns = []; onset = null;
   document.getElementById('highway').textContent = ''; draw();
 }
 function step(){
   const i = y * N + x;
-  if (grid[i]){ d = (d + 3) % 4; turns.push(0); } else { d = (d + 1) % 4; turns.push(1); }
-  grid[i] ^= 1;
+  const c = grid[i], right = RULE[c] === 'R';
+  d = (d + (right ? 1 : 3)) % 4; turns.push(right ? 1 : 0);
+  grid[i] = (c + 1) % RULE.length;
   x = (x + [0, 1, 0, -1][d] + N) % N; y = (y + [-1, 0, 1, 0][d] + N) % N; steps++;
 }
 function findOnset(){                         // earliest t with turns[t..t+WIN) == turns[t+P..t+P+WIN)
@@ -65,18 +70,35 @@ function draw(){
   const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
   const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   ctx.fillStyle = css('--card'); ctx.fillRect(0, 0, N, N); ctx.fillStyle = css('--cellon');
-  for (let i = 0; i < N * N; i++) if (grid[i]) ctx.fillRect(i % N, (i / N) | 0, 1, 1);
+  for (let i = 0; i < N * N; i++) if (grid[i]){
+    ctx.fillStyle = RULE.length === 2 ? css('--cellon') : PALETTE[(grid[i] - 1) % PALETTE.length];
+    ctx.fillRect(i % N, (i / N) | 0, 1, 1); }
   ctx.fillStyle = css('--ant'); ctx.fillRect(x - 1, y - 1, 3, 3);
-  let black = 0; for (let i = 0; i < N * N; i++) black += grid[i];
-  document.getElementById('stats').textContent = `Step ${steps.toLocaleString('en')} · ${black.toLocaleString('en')} black cells`;
+  let black = 0; for (let i = 0; i < N * N; i++) black += grid[i] ? 1 : 0;
+  const sym = symmetric();
+  document.getElementById('stats').textContent = `Step ${steps.toLocaleString('en')} · ${black.toLocaleString('en')} coloured cells` + (sym ? ` · exactly ${sym} symmetric right now` : '');
   document.body.dataset.steps = steps;
+}
+// cycle 88: is the pattern exactly mirror-symmetric right now? (only reported from 100 coloured cells up:
+// tiny patterns are symmetric by accident)
+function symmetric(){
+  let x0 = N, x1 = -1, y0 = N, y1 = -1, cnt = 0;
+  for (let i = 0; i < N * N; i++) if (grid[i]){ const a = i % N, b = (i / N) | 0; cnt++;
+    if (a < x0) x0 = a; if (a > x1) x1 = a; if (b < y0) y0 = b; if (b > y1) y1 = b; }
+  if (cnt < 100) return null;
+  let v = true, h = true;
+  for (let b = y0; b <= y1 && (v || h); b++) for (let a = x0; a <= x1; a++){
+    const g = grid[b * N + a];
+    if (v && g !== grid[b * N + (x0 + x1 - a)]) v = false;
+    if (h && g !== grid[(y0 + y1 - b) * N + a]) h = false; }
+  return v ? 'left-right' : h ? 'top-bottom' : null;
 }
 function advance(n){
   for (let k = 0; k < n; k++){
     step();
     if (onset === null && steps % 500 === 0){
       const t = findOnset();
-      if (t !== null){ onset = t; document.getElementById('highway').textContent =
+      if (t !== null && RULE === 'RL'){ onset = t; document.getElementById('highway').textContent =
         `The highway began at step ${t.toLocaleString('en')}: from there the ant repeats the same ${P} moves forever, drifting diagonally.`; }
     }
   }
@@ -86,6 +108,8 @@ const play = document.getElementById('play');
 play.onclick = () => { playing = !playing; play.textContent = playing ? 'Pause' : 'Play'; play.setAttribute('aria-pressed', String(playing)); };
 document.getElementById('jump').onclick = () => { if (steps < 12500) advance(12500 - steps); draw(); };
 document.getElementById('reset').onclick = reset;
-window.ant = {advance, get state(){ let black = 0; for (let i = 0; i < N * N; i++) black += grid[i]; return {steps, onset, black}; }};
+document.getElementById('rule').onchange = e => { RULE = e.target.value; reset(); };
+window.ant = {advance, symmetric, setRule(r){ RULE = r; document.getElementById('rule').value = r; reset(); },
+  get state(){ let black = 0; for (let i = 0; i < N * N; i++) black += grid[i] ? 1 : 0; return {steps, onset, black}; }};
 reset(); requestAnimationFrame(frame);
 </script></body></html>

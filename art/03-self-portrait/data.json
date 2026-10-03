@@ -529,6 +529,12 @@
    "research",
    0,
    "ant: 200/200 random starts build a highway; the empty grid's 9,977 is slow (~85th percentile)"
+  ],
+  [
+   88,
+   "tool",
+   1,
+   "multi-colour ants; LLRR symmetric 1,375 times (100+ cells), plain ant never; first prediction failed (tiny patterns)"
   ]
  ]
 }
