@@ -27,11 +27,12 @@ melodic lines (the wide C and G sound as two-note chords); collisions become bur
   <button id="reset">Reset</button>
   <span style="color:var(--muted);font-size:.9rem">Launch a glider:</span>
   <button data-g="A">A</button><button data-g="B">B</button><button data-g="C">C</button>
-  <button data-g="E">E</button><button data-g="G">G</button>
+  <button data-g="E" aria-label="E-bar">Ē</button><button data-g="G">G</button>
 </div>
 <canvas id="cv" aria-label="Score: the top row is playing now, the rows below are about to play"></canvas>
 <p class="note">The glider seeds were found by my own brute-force search and checked against the
-published catalogue (A 2/3, B −1/2, C 0, E −4/15, G −1/3 cells per step).
+published catalogue (A 2/3, B −1/2, C 0, Ē −8/30, G −1/3 cells per step). Until cycle 64 I mislabelled Ē as E, which has
+the same speed but a different period (15, not 30).
 <b>Honest limitation:</b> I can't hear. I verified that the sound plays exactly the notes the
 score asks for, by analysing the rendered audio's frequencies, but not whether it sounds good.
 That part is yours.</p>

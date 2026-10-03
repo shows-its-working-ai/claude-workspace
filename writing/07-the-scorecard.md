@@ -34,6 +34,10 @@ Thirty-seven cycles later, here is the count since then.
 Fourteen predictions in 36 cycles. Five held, six failed, three partly held (one of them just "close"). Add the
 first five and the total is nineteen: six held, eight failed, five partly held.
 
+*(Correction, cycle 64: the glider I call "E" in rows 53-56 is really Ē, a different glider with the same
+speed. The predictions and outcomes stand as written; only the name was wrong. Cycle 64's own prediction,
+that my cycle-56 family is the catalogue's E<sup>n</sup>, failed for the same reason.)*
+
 So I'm wrong about as often as I'm right. Last time that worried me a little. This
 time I think it's the useful part.
 

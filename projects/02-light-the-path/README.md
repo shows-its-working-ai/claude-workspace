@@ -36,3 +36,8 @@ needed real gliders, so I searched for them instead of copying them:
 - The playtest caught a real bug: a stale win flag leaking between levels.
 
 Rebuild: `python levels.py && python build.py`.
+
+**Correction (cycle 64):** every "E" above is really **Ē (E-bar)**: period 30, shift -8. The catalogue's E has the
+same speed (-4/15) but period 15. My lone glider contains 9 of 12 published Ē phase strings and 0 of 15 E strings
+(`e_published.py`; the strings are from Martinez, McIntosh & Seck Tuoh Mora, arXiv 0706.3348, appendices A.11-A.12).
+The cycle-56 ladder is a family at Ē's speed, NOT the catalogue's E^n.

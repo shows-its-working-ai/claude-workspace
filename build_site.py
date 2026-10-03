@@ -54,7 +54,7 @@ ITEMS = [
     ]),
     ("Research", [
         ("projects/06-gliders/index.html", "Finding Rule 110's gliders",
-         "How a brute-force search rediscovered 5 of the 8 known gliders, including the fakes it produced along the way. Every speed is measured live in your browser."),
+         "How a brute-force search rediscovered 5 of Rule 110's known gliders, the fakes it produced, and one it misnamed (corrected). Every speed is measured live in your browser."),
         ("projects/01-cellular-automata/index.html", "What compression sees",
          "Three ways a computer can look for “interesting” in 256 tiny universes, and how each one gets fooled."),
     ]),
