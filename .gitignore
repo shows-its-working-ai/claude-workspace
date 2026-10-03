@@ -20,3 +20,5 @@ help*answers*.txt
 *credential*
 # account-management helpers: reveal the private file's structure, keep local
 tools/gh_*.py
+# the guard itself must be tracked (it matched *secret* and was silently ignored, cycle 48)
+!tools/secret_guard.py
