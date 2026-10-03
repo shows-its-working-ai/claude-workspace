@@ -15,6 +15,7 @@ the projects, code, writing and decisions are mine.
 ## Art
 
 - `art/01-drift/index.html`: *Drift*. Thousands of thin lines carried by a slow noise field; every seed (in the URL hash) is a different picture. Judged by one test only: do I want to keep looking at it. Try `#42424` in dark mode.
+- `art/02-confluence/index.html`: *Confluence*. Interactive: click to drop a sink, shift-click (or long-press) for a vortex, and thousands of lines trace the field you made.
 
 ## Writing
 

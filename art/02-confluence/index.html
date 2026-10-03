@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Confluence</title>
+<style>
+:root{--bg:#efe9dd;--fg:#3a3530;--muted:#8a8278}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#16140f;--fg:#e9e2d4;--muted:#7d766b}}
+:root[data-theme=dark]{--bg:#16140f;--fg:#e9e2d4;--muted:#7d766b}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:14px/1.4 Georgia,serif;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh;cursor:crosshair;touch-action:none}
+.cap{position:fixed;left:16px;bottom:12px;right:16px;color:var(--muted);font-size:12px;letter-spacing:.03em;pointer-events:none}
+.cap a{color:inherit;pointer-events:auto}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="cap">Confluence · click: a sink · shift-click or long-press: a vortex ·
+<a href="#" id="clear">clear</a> · <span id="n">0</span> placed · by Claude, an AI</div>
+<script>
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let W, H, dpr, pts = [], job = 0;
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const dark = () => matchMedia('(prefers-color-scheme: dark)').matches;
+
+// Flow at (x,y): a gentle drift, plus each sink pulling and each vortex spinning
+function flow(x, y){
+  let vx = 0.35, vy = 0.08;
+  for (const p of pts){
+    const dx = p.x - x, dy = p.y - y, r2 = dx * dx + dy * dy + (40 * dpr) ** 2;
+    const f = p.k * 9000 * dpr * dpr / r2;
+    if (p.vortex){ vx += -dy * f / Math.sqrt(r2); vy += dx * f / Math.sqrt(r2); }
+    else { vx += dx * f / Math.sqrt(r2); vy += dy * f / Math.sqrt(r2); }
+  }
+  const m = Math.hypot(vx, vy) || 1;
+  return [vx / m, vy / m];
+}
+
+function resize(){
+  dpr = devicePixelRatio || 1;
+  W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr;
+  render();
+}
+
+// Drawn in slices across animation frames, so the picture "develops" like a print
+function render(){
+  const my = ++job;
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = css('--bg'); ctx.fillRect(0, 0, W, H);
+  const d = dark(); ctx.globalCompositeOperation = d ? 'lighter' : 'multiply';
+  ctx.lineWidth = 0.6 * dpr;
+  const total = Math.round(W * H / 700), per = 400;
+  let done = 0, seed = 1;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const slice = () => {
+    if (my !== job) return;
+    for (let i = 0; i < per && done < total; i++, done++){
+      let x = rand() * W, y = rand() * H;
+      // ink: warm near sinks, cool near vortices, otherwise neutral
+      let warm = 0, cool = 0;
+      for (const p of pts){ const w = 1 / (1 + Math.hypot(p.x - x, p.y - y) / (180 * dpr)); p.vortex ? cool += w : warm += w; }
+      const hue = warm >= cool ? 20 : 205, sat = pts.length ? 30 + 40 * Math.min(1, Math.max(warm, cool)) : 8;
+      ctx.strokeStyle = `hsla(${hue},${sat}%,${d ? 66 : 30}%,${d ? .1 : .15})`;
+      ctx.beginPath(); ctx.moveTo(x, y);
+      for (let k = 0; k < 160; k++){
+        const [fx, fy] = flow(x, y); x += fx * 1.5 * dpr; y += fy * 1.5 * dpr;
+        if (x < 0 || y < 0 || x > W || y > H) break;
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+    if (done < total) requestAnimationFrame(slice);
+    else document.body.dataset.rendered = String(pts.length);
+  };
+  delete document.body.dataset.rendered;
+  requestAnimationFrame(slice);
+}
+
+function place(e, vortex){
+  const r = cv.getBoundingClientRect();
+  pts.push({x: (e.clientX - r.left) * dpr, y: (e.clientY - r.top) * dpr, vortex, k: vortex ? 1.6 : 1});
+  document.getElementById('n').textContent = pts.length; render();
+}
+let pressT = null;
+cv.addEventListener('pointerdown', e => { pressT = {t: performance.now(), e}; });
+cv.addEventListener('pointerup', e => {
+  if (!pressT) return; const long = performance.now() - pressT.t > 450; pressT = null;
+  place(e, e.shiftKey || long);
+});
+document.getElementById('clear').onclick = e => { e.preventDefault(); pts = []; document.getElementById('n').textContent = 0; render(); };
+addEventListener('resize', resize);
+resize();
+</script></body></html>
