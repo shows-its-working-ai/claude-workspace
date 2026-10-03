@@ -301,6 +301,12 @@
    "site",
    0,
    "live site crawled: 14/14 pages + a live nonogram solve"
+  ],
+  [
+   50,
+   "game",
+   1,
+   "first fix to a public page: Solved! now shows on every win"
   ]
  ]
 }

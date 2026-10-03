@@ -31,6 +31,18 @@ with sync_playwright() as p:
         good = early == "0" and won == "1" and "Solved" in msg and broken == "0" and still == "1"
         ok &= good
         print(f"{pz['name']:11s} not-won-early={early=='0'} won={won=='1'} wrong-cell-breaks={broken=='0'} crosses-ok={still=='1'} -> {'ok' if good else 'FAIL'}")
+    # cycle 50: solve the SAME puzzle again after Clear -> the message must appear again;
+    # un-filling a cell after a win must clear the stale "Solved" message
+    pz = puzzles[0]; pg.locator("#pick button").filter(has_text=pz["name"]).click()
+    pg.click("#clear")
+    for r, row in enumerate(pz["solution"]):
+        for c, v in enumerate(row):
+            if v: pg.click(cell(r, c))
+    again = "Solved" in pg.inner_text("#msg")
+    r0, c0 = next((r, c) for r, row in enumerate(pz["solution"]) for c, v in enumerate(row) if v)
+    pg.click(cell(r0, c0)); cleared = pg.inner_text("#msg") == ""
+    pg.click(cell(r0, c0))
+    print("re-solve shows Solved again:", again, "| un-filling clears it:", cleared); ok &= again and cleared
     # keyboard-only solve of the first puzzle
     pz = puzzles[0]; pg.locator("#pick button").filter(has_text=pz["name"]).click()
     pg.focus(cell(0, 0)); r = c = 0

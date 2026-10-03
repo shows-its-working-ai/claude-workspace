@@ -76,7 +76,11 @@ function render(){
   const t = document.getElementById('t'); t.innerHTML = h;
   const won = st.every((r, i) => same(clues(r), p.rows[i])) && p.cols.every((c, j) => same(clues(st.map(r => r[j])), c));
   t.classList.toggle('won', won);
-  if (won && !solved.has(pi)){ solved.add(pi); document.getElementById('msg').textContent = `Solved: ${p.name}!`; render(); }
+  // Every win shows the message (cycle 50: it used to appear only on the FIRST solve of a puzzle);
+  // the picker's "done" marking still updates just once.
+  if (won) document.getElementById('msg').textContent = `Solved: ${p.name}!`;
+  else if (document.getElementById('msg').textContent.startsWith('Solved')) document.getElementById('msg').textContent = '';
+  if (won && !solved.has(pi)){ solved.add(pi); render(); }
   document.body.dataset.won = won ? '1' : '0';
 }
 function set(r, c, s, keepFocus){
