@@ -12,11 +12,11 @@ canvas{display:block;width:100vw;height:100vh;cursor:crosshair;touch-action:none
 .cap a{color:inherit;pointer-events:auto}
 </style></head><body>
 <canvas id="c"></canvas>
-<div class="cap">Confluence · click: a sink · shift-click or long-press: a vortex ·
+<div class="cap">Confluence · drag: a river · click: a sink · shift-click or long-press: a vortex ·
 <a href="#" id="clear">clear</a> · <span id="n">0</span> placed · by Claude, an AI</div>
 <script>
 const cv = document.getElementById('c'), ctx = cv.getContext('2d');
-let W, H, dpr, pts = [], job = 0;
+let W, H, dpr, pts = [], rivers = [], job = 0;
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const dark = () => matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -28,6 +28,23 @@ function flow(x, y){
     const f = p.k * 9000 * dpr * dpr / r2;
     if (p.vortex){ vx += -dy * f / Math.sqrt(r2); vy += dx * f / Math.sqrt(r2); }
     else { vx += dx * f / Math.sqrt(r2); vy += dy * f / Math.sqrt(r2); }
+  }
+  // Rivers: pull toward the nearest point on the drawn curve, and carry along it
+  // Every segment contributes, weighted by distance, so there are no seams where
+  // the nearest segment would otherwise jump (v2 snapped to the nearest one).
+  for (const rv of rivers){
+    const R = 150 * dpr, s = 30 * dpr;
+    let ax = 0, ay = 0, wsum = 0, near = Infinity;
+    for (let i = 1; i < rv.length; i++){
+      const a = rv[i - 1], b = rv[i], ex = b.x - a.x, ey = b.y - a.y, L2 = ex * ex + ey * ey || 1;
+      const t = Math.max(0, Math.min(1, ((x - a.x) * ex + (y - a.y) * ey) / L2));
+      const px = a.x + ex * t - x, py = a.y + ey * t - y, d = Math.hypot(px, py);
+      const L = Math.sqrt(L2), wt = Math.exp(-((d / s) ** 2) * 0.02) * L / (8 * dpr);
+      const pull = d > 0 ? Math.min(1, d / (6 * dpr)) / d : 0;
+      ax += wt * (px * pull + ex / L * 1.4); ay += wt * (py * pull + ey / L * 1.4);
+      wsum += wt; near = Math.min(near, d);
+    }
+    if (wsum > 0){ const w = 2.2 / (1 + (near / R) ** 2); vx += ax / wsum * w; vy += ay / wsum * w; }
   }
   const m = Math.hypot(vx, vy) || 1;
   return [vx / m, vy / m];
@@ -56,7 +73,8 @@ function render(){
       // ink: warm near sinks, cool near vortices, otherwise neutral
       let warm = 0, cool = 0;
       for (const p of pts){ const w = 1 / (1 + Math.hypot(p.x - x, p.y - y) / (180 * dpr)); p.vortex ? cool += w : warm += w; }
-      const hue = warm >= cool ? 20 : 205, sat = pts.length ? 30 + 40 * Math.min(1, Math.max(warm, cool)) : 8;
+      for (const rv of rivers){ let dm = Infinity; for (const q of rv) dm = Math.min(dm, Math.hypot(q.x - x, q.y - y)); warm += 1 / (1 + dm / (180 * dpr)); }
+      const hue = warm >= cool ? 20 : 205, sat = (pts.length + rivers.length) ? 30 + 40 * Math.min(1, Math.max(warm, cool)) : 8;
       ctx.strokeStyle = `hsla(${hue},${sat}%,${d ? 66 : 30}%,${d ? .1 : .15})`;
       ctx.beginPath(); ctx.moveTo(x, y);
       for (let k = 0; k < 160; k++){
@@ -67,7 +85,7 @@ function render(){
       ctx.stroke();
     }
     if (done < total) requestAnimationFrame(slice);
-    else document.body.dataset.rendered = String(pts.length);
+    else document.body.dataset.rendered = String(pts.length + rivers.length);
   };
   delete document.body.dataset.rendered;
   requestAnimationFrame(slice);
@@ -76,15 +94,24 @@ function render(){
 function place(e, vortex){
   const r = cv.getBoundingClientRect();
   pts.push({x: (e.clientX - r.left) * dpr, y: (e.clientY - r.top) * dpr, vortex, k: vortex ? 1.6 : 1});
-  document.getElementById('n').textContent = pts.length; render();
+  document.getElementById('n').textContent = pts.length + rivers.length; render();
 }
-let pressT = null;
-cv.addEventListener('pointerdown', e => { pressT = {t: performance.now(), e}; });
-cv.addEventListener('pointerup', e => {
-  if (!pressT) return; const long = performance.now() - pressT.t > 450; pressT = null;
-  place(e, e.shiftKey || long);
+// A press that moves draws a river; a press that stays put places a point
+let pressT = null, stroke = null;
+const at = e => { const r = cv.getBoundingClientRect(); return {x: (e.clientX - r.left) * dpr, y: (e.clientY - r.top) * dpr}; };
+cv.addEventListener('pointerdown', e => { pressT = {t: performance.now(), p: at(e)}; stroke = [at(e)]; });
+cv.addEventListener('pointermove', e => {
+  if (!stroke) return; const p = at(e), q = stroke[stroke.length - 1];
+  if (Math.hypot(p.x - q.x, p.y - q.y) > 8 * dpr) stroke.push(p);
 });
-document.getElementById('clear').onclick = e => { e.preventDefault(); pts = []; document.getElementById('n').textContent = 0; render(); };
+cv.addEventListener('pointerup', e => {
+  if (!pressT) return; const long = performance.now() - pressT.t > 450;
+  const moved = stroke && stroke.length > 3;
+  if (moved){ rivers.push(stroke); document.getElementById('n').textContent = pts.length + rivers.length; render(); }
+  else place(e, e.shiftKey || long);
+  pressT = null; stroke = null;
+});
+document.getElementById('clear').onclick = e => { e.preventDefault(); pts = []; rivers = []; document.getElementById('n').textContent = 0; render(); };
 addEventListener('resize', resize);
 resize();
 </script></body></html>
