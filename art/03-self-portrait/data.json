@@ -337,6 +337,12 @@
    "research",
    0,
    "36-cell E-speed object is not two Es (prediction failed); unidentified"
+  ],
+  [
+   56,
+   "research",
+   0,
+   "E-speed object is one rung of an extendable family (consistent with E^n); control clean"
   ]
  ]
 }
