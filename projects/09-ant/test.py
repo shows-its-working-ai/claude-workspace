@@ -24,6 +24,7 @@ with sync_playwright() as p:
     pg.goto((D / "index.html").as_uri())
     pg.click("#jump"); st = pg.evaluate("ant.state")
     check("page onset == Python onset", st["onset"] == py_onset == 9977, f"page {st['onset']}, python {py_onset}")
+    check("ant ends where Python's does (catches a mirrored ant)", (st["dx"], st["dy"]) == pos, f"page {(st['dx'], st['dy'])}, python {pos}")
     check("black cells at step 12,500 == Python", st["steps"] == 12500 and st["black"] == len(black), f"page {st['black']}, python {len(black)}")
     check("highway message shown", "9,977" in pg.inner_text("#highway"))
     pg.click("#reset"); pg.click("#play"); pg.wait_for_timeout(600); s1 = pg.evaluate("ant.state")["steps"]; pg.click("#play")

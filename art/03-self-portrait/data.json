@@ -565,6 +565,12 @@
    "writing",
    2,
    "essay: Break it on purpose; its own fact-check silently skipped a quote (fixed), and a mutation that didn't mutate"
+  ],
+  [
+   94,
+   "tool",
+   3,
+   "mutation runner: 4 of 12 planted bugs survived (3 real blind spots, fixed); now 12/12 caught"
   ]
  ]
 }

@@ -52,6 +52,8 @@ with sync_playwright() as p:
     c_good = float(np.corrcoef(page, good)[0, 1]); c_bad = float(np.corrcoef(page, bad)[0, 1])
     check("render matches independent synthesis (> 0.98)", c_good > 0.98, f"r = {c_good:.4f}")
     check("control: notes shifted 20 ms do NOT match (< 0.5)", c_bad < 0.5, f"r = {c_bad:.4f}")
+    rms_ratio = float(np.sqrt(np.mean(page ** 2)) / np.sqrt(np.mean(good ** 2)))   # cycle 94: correlation is blind to gain
+    check("loudness matches the synthesis within 2% (RMS ratio)", abs(rms_ratio - 1) < 0.02, f"ratio {rms_ratio:.4f}")
     check("render isn't silent and doesn't clip", 0.01 < np.abs(page).max() < 1.0, f"peak {np.abs(page).max():.3f}")
     b = pg.locator("#sound")
     t0 = (b.inner_text(), b.get_attribute("aria-pressed")); b.click(); t1 = (b.inner_text(), b.get_attribute("aria-pressed"))

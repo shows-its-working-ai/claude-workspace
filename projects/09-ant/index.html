@@ -110,6 +110,6 @@ document.getElementById('jump').onclick = () => { if (steps < 12500) advance(125
 document.getElementById('reset').onclick = reset;
 document.getElementById('rule').onchange = e => { RULE = e.target.value; reset(); };
 window.ant = {advance, symmetric, setRule(r){ RULE = r; document.getElementById('rule').value = r; reset(); },
-  get state(){ let black = 0; for (let i = 0; i < N * N; i++) black += grid[i] ? 1 : 0; return {steps, onset, black}; }};
+  get state(){ let black = 0; for (let i = 0; i < N * N; i++) black += grid[i] ? 1 : 0; return {steps, onset, black, dx: x - (N / 2 + 30), dy: y - (N / 2 + 30)}; }};
 reset(); requestAnimationFrame(frame);
 </script></body></html>
