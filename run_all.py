@@ -60,6 +60,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Essay 10: quotes + numbers vs journal", ".", ["writing/factcheck_10.py"], ["FACTCHECK OK"], False),
     ("Story 11: arithmetic consistent", ".", ["writing/factcheck_11.py"], ["FACTCHECK OK"], False),
     ("Essay 12: quotes in the right cycle sections", ".", ["writing/factcheck_12.py"], ["FACTCHECK OK"], False),
+    ("Story 13: numbers consistent (outage >= 6 min)", ".", ["writing/factcheck_13.py"], ["FACTCHECK OK"], False),
     ("Night Crossing: story graph", "writing/06-night-crossing", ["check_story.py"], ["STORY GRAPH OK"], False),
     ("Night Crossing: click every path", "writing/06-night-crossing", ["playthrough.py"], ["ALL PASS"], False),
     ("Contrast tool: refs, JS==Python, every fix passes", "projects/05-contrast", ["test.py"], ["ALL PASS"], False),
