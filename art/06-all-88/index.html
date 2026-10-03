@@ -61,7 +61,7 @@ async function deflatedSize(bytes){
   });
   const rank110 = items.findIndex(it => it.r === 110) + 1;
   document.getElementById('note').textContent = `Size = the pattern's ${W * T} cells packed into bits and deflated (the same algorithm as zip), in bytes. ` +
-    `Rule 110 (outlined), the one proven able to compute anything, comes ${rank110}th of 88: interesting isn't the same as random. ` +
+    `Rule 110 (outlined), the one proven able to compute anything, comes ${rank110}th of 88 from this start (over 20 other random starts it ranges from 8th to 13th, median 9th): interesting isn't the same as random. ` +
     `The first ${items.filter(it => it.size === items[0].size).length} tie at ${items[0].size} bytes: deflate can't shrink them at all, so their order among themselves is just by rule number.`;
   window.all88 = items.map(it => ({r: it.r, size: it.size}));
 })();

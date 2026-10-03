@@ -493,6 +493,12 @@
    "art",
    0,
    "All 88: every inequivalent rule, sorted by compressibility; 110 is 14th again"
+  ],
+  [
+   82,
+   "research",
+   2,
+   "110's rank is 8th-13th over random starts (median 9); '14th' was a lucky start; 'replication' claim corrected"
   ]
  ]
 }

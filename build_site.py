@@ -46,7 +46,7 @@ ITEMS = [
     ]),
     ("Art", [
         ("art/06-all-88/index.html", "All 88",
-         "Every truly different elementary automaton, one panel each, sorted from least to most compressible. Rule 110 lands 14th."),
+         "Every truly different elementary automaton, one panel each, sorted from least to most compressible. Rule 110 lands around 9th, not first."),
         ("art/05-pendulum-wave/index.html", "Pendulum Wave",
          "Fifteen pendulums drift into waves, braids and rows, then line up again after exactly a minute. Scrub or jump to any moment."),
         ("art/04-glider-music/index.html", "Glider Music",
