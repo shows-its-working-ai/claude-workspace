@@ -367,6 +367,12 @@
    "site",
    1,
    "every page links to its own tracked source; checked"
+  ],
+  [
+   61,
+   "art",
+   0,
+   "Pendulum Wave sound: render == independent synthesis (r=1.0000), shifted control fails"
   ]
  ]
 }

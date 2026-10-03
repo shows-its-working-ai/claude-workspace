@@ -28,6 +28,7 @@ Made by Claude, an AI.</p>
 <canvas id="c" width="700" height="460" aria-label="Fifteen pendulum bobs swinging, seen from above"></canvas>
 <div class="bar">
   <button id="play" aria-pressed="true">Pause</button>
+  <button id="sound" aria-pressed="false">Sound off</button>
   <span id="clock" aria-live="off">0.0 s</span>
   <input type="range" id="scrub" min="0" max="60" step="0.1" value="0" aria-label="Time in the 60-second cycle">
 </div>
@@ -39,7 +40,9 @@ Made by Claude, an AI.</p>
 <p class="note">Pendulum <i>k</i> (0 to 14) swings 51 + <i>k</i> times a minute. After <i>t</i> seconds they have
 done (51 + <i>k</i>)·<i>t</i>/60 swings each, so at <i>t</i> = 60/<i>n</i> the fractional parts take exactly
 <i>n</i> values: the row splits into <i>n</i> groups that move together. The lengths that would do this for
-real, with small swings, run from <span id="lmax"></span> down to <span id="lmin"></span>.</p>
+real, with small swings, run from <span id="lmax"></span> down to <span id="lmin"></span>.
+With sound on, each bob plays a soft note (a pentatonic scale, low to high) as it passes the centre line, so
+the groups can be heard as well as seen.</p>
 </main>
 <script>
 const N = 15, PERIOD = 60, G = 9.81;
@@ -77,7 +80,7 @@ function draw(){
 }
 function frame(now){
   if (playing && last !== null) t = (t + Math.min(0.1, (now - last) / 1000)) % PERIOD;
-  last = now; draw(); requestAnimationFrame(frame);
+  last = now; draw(); scheduleAudio(); requestAnimationFrame(frame);
 }
 const play = document.getElementById('play');
 function setPlaying(p){ playing = p; play.textContent = p ? 'Pause' : 'Play'; play.setAttribute('aria-pressed', String(p)); }
@@ -86,5 +89,48 @@ play.onclick = () => setPlaying(!playing);
 document.getElementById('scrub').oninput = e => { t = +e.target.value; draw(); };
 document.querySelectorAll('.jumps button').forEach(b => b.onclick = () => { t = +b.dataset.t; setPlaying(false); draw(); });
 window.pwSetTime = s => { t = s; setPlaying(false); draw(); };
+// ---- sound (cycle 61): each bob plays a soft note as it crosses the centre line. Off by default. ----
+const SCALE = [0, 2, 4, 7, 9];                                   // major pentatonic, 3 octaves from C4
+const pitch = k => 261.63 * 2 ** ((SCALE[k % 5] + 12 * Math.floor(k / 5)) / 12);
+// crossings in (t0, t1]: the bob is at the centre when its phase is 1/4 or 3/4, i.e. t = (j/2 + 1/4)/f
+function crossings(t0, t1){
+  const ev = [];
+  for (let k = 0; k < N; k++){
+    const f = freq(k);
+    for (let j = Math.ceil(2 * (t0 * f - 0.25)); (j / 2 + 0.25) / f <= t1; j++){
+      const tc = (j / 2 + 0.25) / f; if (tc > t0) ev.push({t: tc, k});
+    }
+  }
+  return ev.sort((a, b) => a.t - b.t);
+}
+const VOICE = {gain: 0.06, attack: 0.005, len: 0.3};
+function voice(ac, when, k){
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.frequency.value = pitch(k);
+  g.gain.setValueAtTime(0, when); g.gain.linearRampToValueAtTime(VOICE.gain, when + VOICE.attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + VOICE.len);
+  o.connect(g).connect(ac.destination); o.start(when); o.stop(when + VOICE.len);
+}
+let ac = null, soundOn = false, cursor = 0;
+const sb = document.getElementById('sound');
+sb.onclick = () => {
+  soundOn = !soundOn; sb.textContent = soundOn ? 'Sound on' : 'Sound off'; sb.setAttribute('aria-pressed', String(soundOn));
+  if (soundOn){ ac = ac || new AudioContext(); ac.resume(); cursor = t; }
+};
+function scheduleAudio(){                                        // called every frame; schedules 0.1 s ahead
+  if (!soundOn || !playing || !ac) { cursor = t; return; }
+  if (cursor < t - 0.2 || cursor > t + 0.2) cursor = t;            // after a scrub/jump, don't replay the gap
+  const until = t + 0.1;
+  for (const e of crossings(cursor, until)){ voice(ac, ac.currentTime + Math.max(0, e.t - t), e.k); window.pw.played++; }
+  cursor = until;
+}
+// Offline render of [t0, t0+dur): the SAME crossings() and voice() as live playback, for the test.
+window.pwRender = async (t0, dur, rate = 22050) => {
+  const oc = new OfflineAudioContext(1, Math.round(rate * dur), rate);
+  for (const e of crossings(t0, t0 + dur)) if (e.t - t0 < dur) voice(oc, e.t - t0, e.k);
+  return Array.from((await oc.startRendering()).getChannelData(0));
+};
+Object.assign(window.pw, {crossings, pitch, VOICE, played: 0});
+
 requestAnimationFrame(frame);
 </script></body></html>
