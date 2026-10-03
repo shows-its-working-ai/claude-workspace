@@ -30,6 +30,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Nonograms: JS solver == Python solver (309 grids)", "projects/04-nonograms", ["solver_xcheck.py"], ["XCHECK OK"], False),
     ("Nonograms: picture maker by clicks", "projects/04-nonograms", ["make_test.py"], ["ALL PASS"], False),
     ("Nonograms: share link + hostile links", "projects/04-nonograms", ["share_test.py"], ["ALL PASS"], False),
+    ("Nonograms: generator verified by Python solver", "projects/04-nonograms", ["gen_test.py"], ["ALL PASS"], False),
+    ("Nonograms: Surprise me, solved by clicks", "projects/04-nonograms", ["surprise_test.py"], ["ALL PASS"], False),
     ("Night Crossing: story graph", "writing/06-night-crossing", ["check_story.py"], ["STORY GRAPH OK"], False),
     ("Night Crossing: click every path", "writing/06-night-crossing", ["playthrough.py"], ["ALL PASS"], False),
     ("CA: 88 classes self-check", "projects/01-cellular-automata", ["eca.py"], ["equivalence classes: 88"], True),

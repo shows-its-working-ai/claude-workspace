@@ -39,6 +39,7 @@ column, in order. Every puzzle here was proven solvable by logic alone: no guess
   <button class="tool" id="mFill" aria-pressed="true">Fill</button>
   <button class="tool" id="mCross" aria-pressed="false">Cross ✕</button>
   <button class="tool" id="clear">Clear</button>
+  <button class="tool" id="surprise">Surprise me</button>
   <span style="color:var(--muted);font-size:.85rem">Right-click crosses · Keys: arrows, Space fill, X cross</span>
 </div>
 <div class="wrap"><table id="t"></table></div>
@@ -47,6 +48,7 @@ column, in order. Every puzzle here was proven solvable by logic alone: no guess
 solver because their clues allowed more than one picture; I redrew them until logic alone was enough.</p>
 </main>
 <script src="solver.js"></script>
+<script src="generator.js"></script>
 <script>
 const P = [{"name": "Teacup", "rows": [[1, 1], [1, 1], [1, 1], [], [7], [1, 2], [1, 2], [6]], "cols": [[4], [1, 1], [3, 1, 1], [1, 1], [1, 1], [3, 1, 1], [3], [2]], "level": "easy"}, {"name": "Key", "rows": [[3], [2, 2], [1, 6], [2, 2, 1, 1], [3, 3]], "cols": [[3], [2, 2], [1, 1], [2, 2], [3], [1], [1], [3], [1, 1], [3]], "level": "easy"}, {"name": "Sailboat", "rows": [[1], [2], [3], [4], [5], [1], [10], [8], [6]], "cols": [[1], [2], [3], [3], [9], [4, 3], [3, 3], [2, 3], [1, 2], [1]], "level": "easy"}, {"name": "Cat", "rows": [[1, 1], [2, 2], [9], [1, 3, 1], [9], [3, 3], [7], [5]], "cols": [[6], [2, 3], [1, 4], [3, 2], [3, 2], [3, 2], [1, 4], [2, 3], [6], []], "level": "easy"}, {"name": "Snail", "rows": [[5], [2, 2], [2, 3, 2], [1, 2, 1, 1], [1, 1, 2, 1, 1], [2, 2, 1], [7, 2], [12]], "cols": [[1], [4, 1], [2, 3], [2, 2, 2], [1, 2, 2], [1, 1, 2], [1, 3, 2], [2, 1, 2], [2, 3], [4, 1], [2], [4]], "level": "easy"}, {"name": "Lighthouse", "rows": [[2], [4], [6], [1, 1], [4], [1, 1], [4], [1, 1], [6], [10]], "cols": [[1], [1], [1, 3], [6, 2], [3, 1, 1, 2], [3, 1, 1, 2], [6, 2], [1, 3], [1], [1]], "level": "easy"}, {"name": "Owl", "rows": [[2, 2], [4, 4], [12], [2, 4, 2], [1, 2, 2, 2, 1], [1, 2, 2, 2, 1], [2, 1, 1, 2], [4, 4], [10], [8], [1, 1, 1, 1], [2, 2]], "cols": [[5], [3, 3], [3, 2, 4], [3, 2, 3, 1], [3, 6], [4, 2], [4, 2], [3, 6], [3, 2, 3, 1], [3, 2, 4], [3, 3], [5]], "level": "easy"}, {"name": "Mushroom", "rows": [[4], [2, 4], [1, 4, 1], [1, 6, 1], [1, 2, 2, 1], [12], [1, 1], [1, 1], [1, 1], [1, 1], [6]], "cols": [[3], [1, 1], [1, 2], [1, 3, 3], [1, 2, 3, 1], [1, 2, 1, 1], [4, 1, 1], [4, 3, 1], [1, 3, 3], [1, 2], [1, 1], [3]], "level": "medium"}, {"name": "Rocket", "rows": [[2], [4], [1, 1], [2, 2], [1, 1], [1, 2, 1], [1, 2, 1], [1, 1], [6], [2, 2, 2], [2, 2, 2], [1, 2, 1], [2], [1, 1]], "cols": [[2], [2], [7], [3, 1, 1], [2, 2, 5], [2, 2, 5], [3, 1, 1], [7], [2], [2]], "level": "hard"}];
 let pi = 0, st = [], mode = 1, cur = [0, 0];
@@ -98,6 +100,13 @@ const mF = document.getElementById('mFill'), mC = document.getElementById('mCros
 mF.onclick = () => { mode = 1; mF.setAttribute('aria-pressed', 'true'); mC.setAttribute('aria-pressed', 'false'); };
 mC.onclick = () => { mode = 2; mC.setAttribute('aria-pressed', 'true'); mF.setAttribute('aria-pressed', 'false'); };
 document.getElementById('clear').onclick = () => load(pi);
+// Endless puzzles (cycle 47): a random seed -> smoothed noise -> kept only if the solver proves it.
+document.getElementById('surprise').onclick = () => {
+  const z = generatePuzzle(1 + Math.floor(Math.random() * 1e9));
+  if (!z) return;
+  P.unshift({name: z.name, rows: z.rows, cols: z.cols, level: z.level});   // the answer grid is NOT kept in the page
+  load(0);
+};
 // A shared puzzle arrives as #c=ROWS~COLS (lines split by '_', numbers by '.', empty line = 0).
 // The URL is UNTRUSTED input: parse strictly and reject anything that isn't a well-formed puzzle.
 function parseShared(hash){

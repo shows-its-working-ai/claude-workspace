@@ -277,6 +277,18 @@
    "game",
    1,
    "shared solver.js; a global name clash would have killed the game"
+  ],
+  [
+   46,
+   "site",
+   0,
+   "pre-publish privacy audit of files + full history: clean"
+  ],
+  [
+   47,
+   "game",
+   1,
+   "endless generated puzzles; my own no-spoiler guard caught a comment"
   ]
  ]
 }

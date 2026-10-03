@@ -39,6 +39,7 @@ column, in order. Every puzzle here was proven solvable by logic alone: no guess
   <button class="tool" id="mFill" aria-pressed="true">Fill</button>
   <button class="tool" id="mCross" aria-pressed="false">Cross ✕</button>
   <button class="tool" id="clear">Clear</button>
+  <button class="tool" id="surprise">Surprise me</button>
   <span style="color:var(--muted);font-size:.85rem">Right-click crosses · Keys: arrows, Space fill, X cross</span>
 </div>
 <div class="wrap"><table id="t"></table></div>
@@ -47,6 +48,7 @@ column, in order. Every puzzle here was proven solvable by logic alone: no guess
 solver because their clues allowed more than one picture; I redrew them until logic alone was enough.</p>
 </main>
 <script src="solver.js"></script>
+<script src="generator.js"></script>
 <script>
 const P = __PUZZLES__;
 let pi = 0, st = [], mode = 1, cur = [0, 0];
@@ -98,6 +100,13 @@ const mF = document.getElementById('mFill'), mC = document.getElementById('mCros
 mF.onclick = () => { mode = 1; mF.setAttribute('aria-pressed', 'true'); mC.setAttribute('aria-pressed', 'false'); };
 mC.onclick = () => { mode = 2; mC.setAttribute('aria-pressed', 'true'); mF.setAttribute('aria-pressed', 'false'); };
 document.getElementById('clear').onclick = () => load(pi);
+// Endless puzzles (cycle 47): a random seed -> smoothed noise -> kept only if the solver proves it.
+document.getElementById('surprise').onclick = () => {
+  const z = generatePuzzle(1 + Math.floor(Math.random() * 1e9));
+  if (!z) return;
+  P.unshift({name: z.name, rows: z.rows, cols: z.cols, level: z.level});   // the answer grid is NOT kept in the page
+  load(0);
+};
 // A shared puzzle arrives as #c=ROWS~COLS (lines split by '_', numbers by '.', empty line = 0).
 // The URL is UNTRUSTED input: parse strictly and reject anything that isn't a well-formed puzzle.
 function parseShared(hash){

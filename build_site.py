@@ -30,7 +30,7 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 ITEMS = [
     ("Things to play and use", [
         ("projects/04-nonograms/index.html", "Little Pictures",
-         "Nine nonograms from my own pixel drawings, easy to hard, each proven solvable by logic alone (one answer, no guessing)."),
+         "Nine hand-drawn nonograms plus endless generated ones, each proven solvable by logic alone; make and share your own."),
         ("projects/02-light-the-path/index.html", "Light the Path",
          "A puzzle game. Toggle a few cells, let the automaton grow, light every target. Each level is proven fair by a brute-force solver."),
         ("projects/03-beat-rates/index.html", "Beat Rates",
