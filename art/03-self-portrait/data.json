@@ -397,6 +397,12 @@
    "research",
    2,
    "audit: B, G, E-bar confirmed; my 'C' is a C3+C1 pair; A rests on motion only"
+  ],
+  [
+   66,
+   "research",
+   1,
+   "lone C2 and C3 found (no lone C1); gliders page now shows six"
   ]
  ]
 }

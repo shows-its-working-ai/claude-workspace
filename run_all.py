@@ -13,6 +13,7 @@ PY = str(ROOT / "tools" / "venv" / "Scripts" / "python.exe")
 CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("PRIVATE ANSWERS NEVER PUBLISHED (secret guard)", ".", ["tools/secret_guard.py"], ["GUARD OK"], False),
     ("every page links to its own tracked source", ".", ["check_sources.py"], ["SOURCES OK"], False),
+    ("C2/C3 seeds identified by published patterns", "projects/02-light-the-path", ["c_variants.py"], ["C VARIANTS OK"], True),
     ("site links + back links", ".", ["check_site.py"], ["ALL LINKS OK"], False),
     ("contrast (WCAG, both themes)", ".", ["tools/contrast.py", "."], ["0 failing pairs"], False),
     ("keyboard: Confluence + Beat Rates", ".", ["check_keyboard.py"], ["ALL PASS"], False),
