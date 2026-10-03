@@ -319,6 +319,12 @@
    "research",
    0,
    "gliders explainer: every speed measured live, three-way agreement"
+  ],
+  [
+   53,
+   "research",
+   0,
+   "700 glider collisions: no D/F/H (prediction failed); classifier controlled"
   ]
  ]
 }
