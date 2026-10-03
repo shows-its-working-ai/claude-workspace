@@ -1,0 +1,116 @@
+[
+ {
+  "density": 4,
+  "reachable": 0.14615,
+  "good": 0.0001,
+  "mean_par": 2.27163872733493
+ },
+ {
+  "density": 6,
+  "reachable": 0.17575,
+  "good": 0.0003,
+  "mean_par": 2.663157894736842
+ },
+ {
+  "density": 8,
+  "reachable": 0.2006,
+  "good": 0.0008,
+  "mean_par": 2.8559322033898304
+ },
+ {
+  "density": 10,
+  "reachable": 0.22865,
+  "good": 0.00205,
+  "mean_par": 3.1834681828121583
+ },
+ {
+  "density": 12,
+  "reachable": 0.24635,
+  "good": 0.00275,
+  "mean_par": 3.3953724375887964
+ },
+ {
+  "density": 14,
+  "reachable": 0.2749,
+  "good": 0.0047,
+  "mean_par": 3.5502000727537286
+ },
+ {
+  "density": 16,
+  "reachable": 0.2817,
+  "good": 0.0059,
+  "mean_par": 3.7286119985800497
+ },
+ {
+  "density": 18,
+  "reachable": 0.2982,
+  "good": 0.00795,
+  "mean_par": 3.8734071093226023
+ },
+ {
+  "density": 20,
+  "reachable": 0.3022,
+  "good": 0.01135,
+  "mean_par": 4.038385175380543
+ },
+ {
+  "density": 22,
+  "reachable": 0.3054,
+  "good": 0.0116,
+  "mean_par": 4.034708578912901
+ },
+ {
+  "density": 24,
+  "reachable": 0.3045,
+  "good": 0.0113,
+  "mean_par": 4.076847290640394
+ },
+ {
+  "density": 26,
+  "reachable": 0.30035,
+  "good": 0.01205,
+  "mean_par": 4.1208589978358585
+ },
+ {
+  "density": 28,
+  "reachable": 0.29855,
+  "good": 0.0134,
+  "mean_par": 4.08038854463239
+ },
+ {
+  "density": 30,
+  "reachable": 0.28825,
+  "good": 0.0135,
+  "mean_par": 4.04163052905464
+ },
+ {
+  "density": 32,
+  "reachable": 0.2755,
+  "good": 0.01215,
+  "mean_par": 3.921597096188748
+ },
+ {
+  "density": 34,
+  "reachable": 0.2562,
+  "good": 0.0107,
+  "mean_par": 3.9231069476971117
+ },
+ {
+  "density": 36,
+  "reachable": 0.24035,
+  "good": 0.0086,
+  "mean_par": 3.765342209278136
+ },
+ {
+  "density": 38,
+  "reachable": 0.22,
+  "good": 0.0069,
+  "mean_par": 3.626590909090909
+ },
+ {
+  "density": 40,
+  "reachable": 0.20695,
+  "good": 0.0067,
+  "mean_par": 3.571394056535395
+ }
+]
