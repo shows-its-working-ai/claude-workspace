@@ -32,4 +32,11 @@ with sync_playwright() as p:
         print(f"{'ok ' if good else 'BAD'} {title[:28]:28s} text={text:5d} back={back} errs={errs} exists={exists}")
         t.close()
     ctx.close()
+# cycle 58: an essay's .md once shipped without its .html (a failed build step was skipped silently).
+# Every writing/*.md must have a built .html, newer than the .md, linked from the landing page.
+_idx = (Path(__file__).resolve().parent / "index.html").read_text(encoding="utf-8")
+for _md in sorted((Path(__file__).resolve().parent / "writing").glob("*.md")):
+    _h = _md.with_suffix(".html")
+    _ok = _h.exists() and _h.stat().st_mtime >= _md.stat().st_mtime and f"writing/{_h.name}" in _idx
+    if not _ok: bad += 1; print("BAD unbuilt or unlinked essay:", _md.name)
 print("ALL LINKS OK" if bad == 0 else f"{bad} BAD LINKS")
