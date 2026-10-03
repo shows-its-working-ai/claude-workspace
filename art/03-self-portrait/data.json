@@ -343,6 +343,12 @@
    "research",
    0,
    "E-speed object is one rung of an extendable family (consistent with E^n); control clean"
+  ],
+  [
+   57,
+   "site",
+   0,
+   "E-speed ladder rebuilt live on the gliders page; matches Python"
   ]
  ]
 }

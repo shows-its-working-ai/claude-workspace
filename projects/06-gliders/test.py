@@ -31,6 +31,11 @@ with sync_playwright() as p:
         r = js[name]; jsv = Fr(r["d"], r["p"]); pyv = py_measure(SEEDS[name])
         good = r["match"] and jsv == CAT[name] and pyv == CAT[name]; ok &= good
         print(f"{name}: page measured period {r['p']} shift {r['d']:+d} = {jsv} | Python {pyv} | catalogue {CAT[name]} -> {'ok' if good else 'FAIL'}")
+    # cycle 57: the live E-speed ladder must match e_family.py's result (cycle 56): (30,-8) at 20..60 cells
+    lad = js_l = pg.evaluate("window.ladder")
+    want = [20, 28, 36, 44, 52, 60]
+    lg = bool(lad) and [r["cells"] for r in lad] == want and all(r["p"] == 30 and r["d"] == -8 for r in lad)
+    print("live ladder:", [(r["cells"], r["p"], r["d"]) for r in lad] if lad else None, "->", "ok" if lg else "FAIL"); ok &= lg
     ticks = pg.locator(".ok").count(); print("check marks shown on the page:", ticks); ok &= ticks == 5
     pg.set_viewport_size({"width": 390, "height": 800})
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth"); pg.screenshot(path=str(D / "look.png"), full_page=True)

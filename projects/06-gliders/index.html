@@ -57,6 +57,11 @@ exactly E's speed (30 steps, 8 cells left) that two Es side by side can't reprod
 or copying it, gives more exact gliders at the same speed (20, 28, 36, 44, 52, 60 cells), while the same
 surgery on a plain E never works. An endless family at E's speed, consistent with what the catalogue calls
 E<sup>n</sup> (I haven't matched it against their pictures). Five of eight, found from scratch and identified exactly, felt like the honest place to stop.</p>
+<h2>A family at E's speed</h2>
+<p>Below, your browser re-runs that collision (an E hit by a G), keeps the 36-cell object it leaves behind,
+then cuts out or copies one 14-cell stretch of its middle. Every rung is measured with the same strict test.</p>
+<div class="gallery" id="ladder"></div>
+<p id="ladderNote" class="sub" style="font-size:.95rem"></p>
 <blockquote>Catalogue speeds are from Genaro Martínez's Rule 110 glider pages. The searches and their records
 (including the mistakes) are in this site's repository.</blockquote>
 </main>
@@ -125,4 +130,55 @@ for (const gl of GLIDERS){
   g.appendChild(fig); draw(fig.querySelector('canvas'), gl.seed);
 }
 window.gliderResults = results;
+// ---- cycle 57: the E-speed ladder, rebuilt live (same experiment as e_family.py) ----
+(function(){
+  const NL = 60, WL = 14 * NL, L0 = 14 * 30;
+  const stepN = r => { const n = r.length; return r.map((v, x) => rule(r[(x + n - 1) % n], v, r[(x + 1) % n])); };
+  const base = Array.from({length: WL}, (_, i) => TILE[i % 14]);
+  const nxt = stepN(base);
+  let SH = 0; for (let d = 0; d < WL; d++) if (base.every((_, i) => base[((i - d) % WL + WL) % WL] === nxt[i])) { SH = d; break; }
+  let row = base.slice(), clean = base.slice(); row[L0 + 6] ^= 1;
+  for (let t = 0; t < 3600; t++){
+    if (t === 4) for (const o of [2, 18]) row[(L0 + 14 * 4 + o + SH * t) % WL] ^= 1;
+    row = stepN(row); clean = stepN(clean);
+  }
+  function measureRow(r, c){                       // strict: same (p, d) for 3 consecutive periods
+    const hist = [];
+    for (let i = 0; i <= 3 * 60; i++){ hist.push(r.map((v, j) => v !== c[j] ? 1 : 0)); r = stepN(r); c = stepN(c); }
+    const n = hist[0].length, roll = (a, d) => a.map((_, i) => a[((i - d) % n + n) % n]);
+    const cells = hist[0].reduce((a, b) => a + b, 0);
+    for (let p = 1; p <= 60; p++) for (let d = -20; d <= 20; d++){
+      let ok = true;
+      for (let k = 0; k < 3 && ok; k++){ const a = roll(hist[k * p], d), b = hist[(k + 1) * p]; ok = a.every((v, i) => v === b[i]); }
+      if (ok) return {p, d, cells, hist};
+    }
+    return {p: null, d: null, cells, hist};
+  }
+  const cut = (a, m, k) => k > 0 ? [...a.slice(0, m), ...Array(k).fill(a.slice(m, m + 14)).flat(), ...a.slice(m)]
+                                 : [...a.slice(0, m), ...a.slice(m - 14 * k)];
+  const xs = row.map((v, i) => v !== clean[i] ? i : -1).filter(i => i >= 0), lo = Math.min(...xs), hi = Math.max(...xs);
+  const KS = [-2, -1, 0, 1, 2, 3]; let rungs = null, M = null;
+  for (let m = lo + 1; m < hi - 28 && !rungs; m++){            // first cut point where every rung is a clean glider
+    const rs = KS.map(k => ({k, ...measureRow(k ? cut(row, m, k) : row, k ? cut(clean, m, k) : clean)}));
+    if (rs.every(r => r.p === 30 && r.d === -8)) { rungs = rs; M = m - lo; }
+  }
+  const box = document.getElementById('ladder');
+  window.ladder = rungs ? rungs.map(r => ({k: r.k, p: r.p, d: r.d, cells: r.cells})) : null;
+  if (!rungs){ document.getElementById('ladderNote').textContent = 'No cut point gave a clean ladder (this should not happen).'; return; }
+  for (const r of rungs){
+    const fig = document.createElement('figure'), cv = document.createElement('canvas');
+    const h = r.hist, n = h[0].length, xs2 = h.flatMap(a => a.map((v, i) => v ? i : -1).filter(i => i >= 0));
+    const a0 = Math.max(0, Math.min(...xs2) - 4), a1 = Math.min(n - 1, Math.max(...xs2) + 4), s = 2;
+    cv.width = (a1 - a0 + 1) * s; cv.height = 90 * s; const ctx = cv.getContext('2d');
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    for (let t = 0; t < 90; t++) for (let x = a0; x <= a1; x++) if (h[t][x]) ctx.fillRect((x - a0) * s, t * s, s, s);
+    cv.setAttribute('aria-label', `E-speed glider with ${r.cells} cells`);
+    fig.appendChild(cv);
+    const cap = document.createElement('figcaption');
+    cap.innerHTML = `<b>${r.cells} cells</b>${r.k === 0 ? ' · the collision product' : ` · ${r.k > 0 ? 'copied' : 'cut'} ×${Math.abs(r.k)}`}<br>repeats every <b>${r.p}</b>, shifted <b>${r.d}</b>`;
+    fig.appendChild(cap); box.appendChild(fig);
+  }
+  document.getElementById('ladderNote').textContent = `Cut point: ${M} cells into the object. Each 14-cell stretch adds 8 cells; all move at exactly E's speed (−8 every 30 steps). The same surgery on a plain E never gives a glider.`;
+})();
+
 </script></body></html>
