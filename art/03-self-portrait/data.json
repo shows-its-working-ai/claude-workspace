@@ -523,6 +523,12 @@
    "tool",
    2,
    "Langton's Ant: highway onset 9,977 (prediction held); page == Python"
+  ],
+  [
+   87,
+   "research",
+   0,
+   "ant: 200/200 random starts build a highway; the empty grid's 9,977 is slow (~85th percentile)"
   ]
  ]
 }
