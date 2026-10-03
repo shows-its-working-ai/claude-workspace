@@ -22,6 +22,24 @@ with sync_playwright() as p:
         good = abs(table - py) < 1e-9 and err < 0.08
         ok &= good
         print(f"lo={lo} {iv}: table {table:6.3f}  python {py:6.3f}  measured-from-audio {heard:6.3f}  ({err:5.1%}) {'ok' if good else 'FAIL'}")
+    # practice: the audio really beats at the intended rate, and the answer key is right
+    for diff in ("easy", "medium", "hard"):
+        pg.select_option("#diff", diff)
+        for _ in range(4):
+            r = pg.evaluate("practice.newRound()")
+            heard = pg.evaluate(f"measureFreqs({r['f1']}, {r['f2']}, {r['p']}, {r['q']})")
+            key_ok = (r["played"] > r["target"]) == (r["answer"] == "faster")
+            in_range = 53 <= r["lo"] and r["lo"] + (4 if r["iv"] == "M3" else 7) <= 65
+            err = abs(heard - r["played"]) / r["played"]
+            good = key_ok and in_range and err < 0.08; ok &= good
+            print(f"  {diff:6s} lo={r['lo']} {r['iv']}: target {r['target']:5.2f} played {r['played']:5.2f} "
+                  f"measured {heard:5.2f} ({err:4.1%}) key={r['answer']:6s} {'ok' if good else 'FAIL'}")
+    pg.evaluate("practice.newRound()")
+    right = pg.evaluate("practice.answer(practice.round.answer)")
+    print("  correct answer scored as right:", right); ok &= right is True
+    # the crash fixed this cycle: practice tone playing, then table buttons pressed twice
+    pg.click("#ptest"); pg.click("#t button >> nth=3"); pg.click("#t button >> nth=3"); pg.click("#pref")
+    pg.wait_for_timeout(300)
     rows = pg.evaluate("document.querySelectorAll('#t tr').length - 1")
     pg.set_viewport_size({"width": 390, "height": 800})
     body_overflow = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
