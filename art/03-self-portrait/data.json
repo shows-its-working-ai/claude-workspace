@@ -481,6 +481,12 @@
    "site",
    6,
    "audit: 5 hand-entered mistake counts were undercounts; fixed + one-way check (+1 own ordering slip)"
+  ],
+  [
+   80,
+   "tool",
+   0,
+   "end_cycle.py: the cycle-ending order is now a tool, not a reminder"
   ]
  ]
 }
