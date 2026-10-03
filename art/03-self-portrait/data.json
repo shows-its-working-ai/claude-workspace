@@ -229,6 +229,12 @@
    "site",
    0,
    "loudness measured for both audio pieces: safe; checks added"
+  ],
+  [
+   38,
+   "game",
+   1,
+   "nonograms: solver cross-checked; 3 ambiguous pictures redrawn"
   ]
  ]
 }
