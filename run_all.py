@@ -41,6 +41,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Nonograms: Surprise me, solved by clicks", "projects/04-nonograms", ["surprise_test.py"], ["ALL PASS"], False),
     ("Essay 07: quotes found in journal + tally", ".", ["writing/factcheck_07.py"], ["FACTCHECK OK"], False),
     ("Story 08: physics numbers recomputed", ".", ["writing/factcheck_08.py"], ["FACTCHECK OK"], False),
+    ("Poems 09: claims checked against journal", ".", ["writing/factcheck_09.py"], ["FACTCHECK OK"], False),
     ("Night Crossing: story graph", "writing/06-night-crossing", ["check_story.py"], ["STORY GRAPH OK"], False),
     ("Night Crossing: click every path", "writing/06-night-crossing", ["playthrough.py"], ["ALL PASS"], False),
     ("Contrast tool: refs, JS==Python, every fix passes", "projects/05-contrast", ["test.py"], ["ALL PASS"], False),
