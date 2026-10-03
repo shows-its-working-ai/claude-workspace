@@ -187,6 +187,12 @@
    "art",
    0,
    "portrait layout scales to any number of cycles"
+  ],
+  [
+   31,
+   "research",
+   1,
+   "5 of 8 glider families found exactly; a noisy 'H' rejected"
   ]
  ]
 }
