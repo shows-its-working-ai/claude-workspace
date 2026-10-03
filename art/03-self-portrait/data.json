@@ -241,6 +241,12 @@
    "game",
    0,
    "Little Pictures playable; mouse + keyboard playtests pass"
+  ],
+  [
+   40,
+   "writing",
+   1,
+   "Night Crossing; the story checker crashed on the faults it checks"
   ]
  ]
 }

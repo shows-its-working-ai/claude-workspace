@@ -1,0 +1,31 @@
+{
+ "title": "Night Crossing",
+ "start": "berth",
+ "nodes": {
+  "berth": {"text": "The ferry hums through the floor of your cabin like a held note. It's two in the morning, and you have been awake long enough to count the rivets above the bunk twice. Somewhere below, something smells of onions.",
+   "choices": [["Follow the smell", "stairs"], ["Go up on deck", "deck"], ["Try to sleep again", "sleep"]]},
+  "sleep": {"text": "You lie very still and think sleepy thoughts. The rivets do not cooperate. Twenty-six. Twenty-seven. The onions get louder, which you didn't know onions could do.",
+   "choices": [["Give up and follow the smell", "stairs"], ["Give up and go up on deck", "deck"]]},
+  "deck": {"text": "Rain is coming sideways off the Irish Sea. A woman in a hi-vis jacket is smoking under the lifeboat, completely untroubled, as if the weather were furniture. She nods at you like you're a regular.",
+   "choices": [["Ask if she can't sleep either", "aoife"], ["Stand at the rail alone", "rail"]]},
+  "aoife": {"text": "\"I sleep in two-hour pieces,\" she says. \"Like a cat. Lorry driver.\" She tips her head towards the stairs. \"If you're hungry, there's a man downstairs who isn't open. Tell him Aoife sent you. He'll pretend that means something.\"",
+   "choices": [["Go down to the man who isn't open", "galley"], ["Stay and watch the rain with her", "rain_end"]]},
+  "rail": {"text": "The rail is cold and wet and exactly what you needed. Far off, a single light blinks: a buoy, or a boat, or someone else awake. You watch it until you lose it, and then you watch where it was.",
+   "choices": [["Go back inside, chilled", "stairs"], ["Stay until it's light", "rain_end"]]},
+  "stairs": {"text": "Two staircases lead down. One is signposted TOILETS. The other has no sign at all, and the onion smell is definitely coming from there, along with a radio playing something in a language you almost know.",
+   "choices": [["Take the unsigned stairs", "galley"], ["Take the signposted stairs", "wrong"]]},
+  "wrong": {"text": "These are, in fact, the toilets. A boy of about nineteen is sitting on the floor outside with a guitar case and no guitar. \"It's not in here either,\" he says, before you can ask anything.",
+   "choices": [["Ask about the guitar", "boy"], ["Back away and try the other stairs", "galley"]]},
+  "boy": {"text": "\"Sold it in Wexford,\" he says. \"For the ticket. I'm going to my brother's. He doesn't know yet.\" He looks at the case as if it might have opinions. \"I'm starving, actually.\"",
+   "choices": [["\"There's food downstairs. Come on.\"", "galley_two"], ["Wish him luck and go back to your cabin", "wrong_end"]]},
+  "galley": {"text": "A narrow galley, one lamp, and a man built like a filing cabinet stirring a pan. He doesn't look up. \"Eggs,\" he says. It isn't a question. It's a statement about what exists.",
+   "choices": [["\"Eggs would be perfect.\"", "breakfast_end"], ["\"Actually, I don't eat eggs.\"", "chickpeas"]]},
+  "galley_two": {"text": "The man at the stove looks at the two of you for a long moment, then gets down a second plate without a word. The boy sits like someone who's forgotten that sitting can be comfortable. \"Eggs,\" the cook says.",
+   "choices": [["Eat, and listen to the boy talk", "breakfast_end"]]},
+  "chickpeas": {"text": "The cook considers this the way you'd consider weather. Then he opens a locker you hadn't noticed and comes out with a tin of chickpeas and half a jar of something red. \"Ten minutes,\" he says. It's the best ten minutes of your week.",
+   "choices": [["Eat", "breakfast_end"]]},
+  "breakfast_end": {"ending": "Breakfast at three", "text": "You eat at a counter that officially doesn't exist, while the ship leans into the swell and the pans slide an inch and stop, all together, like people on a bench making room. When Holyhead comes up grey out of the morning, you realise you never did sleep, and you don't mind at all."},
+  "rain_end": {"ending": "The weather as furniture", "text": "The rain eases around five. The sky goes from black to the colour of dishwater to something almost blue. You never found out what the onions were for. Some nights you're the kind of person who follows the smell, and some nights you're the kind who stays at the rail. Both are allowed."},
+  "wrong_end": {"ending": "The wrong stairs", "text": "Back in your bunk you count rivets again. Twenty-eight. Below you, very faintly, you think you hear a boy laughing at something, and a man saying \"Tuesday\" as if it explained everything. You fall asleep before you can work out what it meant."}
+ }
+}

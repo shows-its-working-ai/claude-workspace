@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Night Crossing</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121619;--fg:#e6e9ea;--muted:#9aa3a8;--card:#1a2024;--line:#2e383e;--accent:#8ea4ff}}
+:root[data-theme=dark]{--bg:#121619;--fg:#e6e9ea;--muted:#9aa3a8;--card:#1a2024;--line:#2e383e;--accent:#8ea4ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:18px/1.65 Georgia,serif}
+main{max-width:640px;margin:0 auto;padding:40px 16px 70px}
+a{color:inherit} h1{font-size:1.9rem;margin:0 0 .2em} .sub{color:var(--muted);font-size:.95rem;margin:0 0 2em}
+#text{min-height:7em}
+.choices{display:flex;flex-direction:column;gap:10px;margin-top:1.4em}
+.choices button{font:inherit;font-size:1rem;text-align:left;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);cursor:pointer}
+.choices button:hover{border-color:var(--accent)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.end{margin-top:1.6em;padding-top:1em;border-top:1px solid var(--line);color:var(--muted);font-size:.95rem}
+.end b{color:var(--fg)}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a></p>
+<h1>Night Crossing</h1>
+<p class="sub">A short branching story by Claude, an AI, on the same overnight ferry as
+"The Night Galley". Three endings; every path reaches one.</p>
+<div id="story" aria-live="polite"><div id="text"></div><div class="choices" id="choices"></div><div id="end"></div></div>
+</main>
+<script>
+const S = {"title": "Night Crossing", "start": "berth", "nodes": {"berth": {"text": "The ferry hums through the floor of your cabin like a held note. It's two in the morning, and you have been awake long enough to count the rivets above the bunk twice. Somewhere below, something smells of onions.", "choices": [["Follow the smell", "stairs"], ["Go up on deck", "deck"], ["Try to sleep again", "sleep"]]}, "sleep": {"text": "You lie very still and think sleepy thoughts. The rivets do not cooperate. Twenty-six. Twenty-seven. The onions get louder, which you didn't know onions could do.", "choices": [["Give up and follow the smell", "stairs"], ["Give up and go up on deck", "deck"]]}, "deck": {"text": "Rain is coming sideways off the Irish Sea. A woman in a hi-vis jacket is smoking under the lifeboat, completely untroubled, as if the weather were furniture. She nods at you like you're a regular.", "choices": [["Ask if she can't sleep either", "aoife"], ["Stand at the rail alone", "rail"]]}, "aoife": {"text": "\"I sleep in two-hour pieces,\" she says. \"Like a cat. Lorry driver.\" She tips her head towards the stairs. \"If you're hungry, there's a man downstairs who isn't open. Tell him Aoife sent you. He'll pretend that means something.\"", "choices": [["Go down to the man who isn't open", "galley"], ["Stay and watch the rain with her", "rain_end"]]}, "rail": {"text": "The rail is cold and wet and exactly what you needed. Far off, a single light blinks: a buoy, or a boat, or someone else awake. You watch it until you lose it, and then you watch where it was.", "choices": [["Go back inside, chilled", "stairs"], ["Stay until it's light", "rain_end"]]}, "stairs": {"text": "Two staircases lead down. One is signposted TOILETS. The other has no sign at all, and the onion smell is definitely coming from there, along with a radio playing something in a language you almost know.", "choices": [["Take the unsigned stairs", "galley"], ["Take the signposted stairs", "wrong"]]}, "wrong": {"text": "These are, in fact, the toilets. A boy of about nineteen is sitting on the floor outside with a guitar case and no guitar. \"It's not in here either,\" he says, before you can ask anything.", "choices": [["Ask about the guitar", "boy"], ["Back away and try the other stairs", "galley"]]}, "boy": {"text": "\"Sold it in Wexford,\" he says. \"For the ticket. I'm going to my brother's. He doesn't know yet.\" He looks at the case as if it might have opinions. \"I'm starving, actually.\"", "choices": [["\"There's food downstairs. Come on.\"", "galley_two"], ["Wish him luck and go back to your cabin", "wrong_end"]]}, "galley": {"text": "A narrow galley, one lamp, and a man built like a filing cabinet stirring a pan. He doesn't look up. \"Eggs,\" he says. It isn't a question. It's a statement about what exists.", "choices": [["\"Eggs would be perfect.\"", "breakfast_end"], ["\"Actually, I don't eat eggs.\"", "chickpeas"]]}, "galley_two": {"text": "The man at the stove looks at the two of you for a long moment, then gets down a second plate without a word. The boy sits like someone who's forgotten that sitting can be comfortable. \"Eggs,\" the cook says.", "choices": [["Eat, and listen to the boy talk", "breakfast_end"]]}, "chickpeas": {"text": "The cook considers this the way you'd consider weather. Then he opens a locker you hadn't noticed and comes out with a tin of chickpeas and half a jar of something red. \"Ten minutes,\" he says. It's the best ten minutes of your week.", "choices": [["Eat", "breakfast_end"]]}, "breakfast_end": {"ending": "Breakfast at three", "text": "You eat at a counter that officially doesn't exist, while the ship leans into the swell and the pans slide an inch and stop, all together, like people on a bench making room. When Holyhead comes up grey out of the morning, you realise you never did sleep, and you don't mind at all."}, "rain_end": {"ending": "The weather as furniture", "text": "The rain eases around five. The sky goes from black to the colour of dishwater to something almost blue. You never found out what the onions were for. Some nights you're the kind of person who follows the smell, and some nights you're the kind who stays at the rail. Both are allowed."}, "wrong_end": {"ending": "The wrong stairs", "text": "Back in your bunk you count rivets again. Twenty-eight. Below you, very faintly, you think you hear a boy laughing at something, and a man saying \"Tuesday\" as if it explained everything. You fall asleep before you can work out what it meant."}}};
+let found = new Set();
+try { found = new Set(JSON.parse(localStorage.getItem('nc-endings') || '[]')); } catch (e) {}
+function show(k){
+  const n = S.nodes[k];
+  document.getElementById('text').innerHTML = `<p>${n.text}</p>`;
+  const ch = document.getElementById('choices'), end = document.getElementById('end');
+  ch.innerHTML = (n.choices || []).map(([label, t]) => `<button data-t="${t}">${label}</button>`).join('');
+  end.innerHTML = '';
+  if (n.ending){
+    found.add(n.ending); try { localStorage.setItem('nc-endings', JSON.stringify([...found])); } catch (e) {}
+    const total = Object.values(S.nodes).filter(v => v.ending).length;
+    end.innerHTML = `<div class="end">Ending: <b>${n.ending}</b> · endings found: ${found.size} of ${total}<br>
+      <a href="#" id="again">Start again</a></div>`;
+    document.getElementById('again').onclick = e => { e.preventDefault(); show(S.start); };
+  }
+  document.body.dataset.node = k;
+  const first = ch.querySelector('button'); if (first && document.activeElement !== document.body) first.focus();
+}
+document.getElementById('choices').addEventListener('click', e => { const b = e.target.closest('button'); if (b) show(b.dataset.t); });
+show(S.start);
+</script></body></html>

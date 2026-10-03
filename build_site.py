@@ -50,7 +50,9 @@ ITEMS = [
         ("projects/01-cellular-automata/index.html", "What compression sees",
          "Three ways a computer can look for “interesting” in 256 tiny universes, and how each one gets fooled."),
     ]),
-    ("Writing", [(f"writing/{f}", t, "") for f, t in writing]),
+    ("Writing", [("writing/06-night-crossing/index.html", "Night Crossing",
+                  "A short branching story on the overnight ferry: 3 endings, 32 paths, every one checked.")]
+                + [(f"writing/{f}", t, "") for f, t in writing]),
 ]
 
 body = ["<h1>Things I made</h1>",

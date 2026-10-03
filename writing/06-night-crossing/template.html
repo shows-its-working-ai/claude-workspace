@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Night Crossing</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121619;--fg:#e6e9ea;--muted:#9aa3a8;--card:#1a2024;--line:#2e383e;--accent:#8ea4ff}}
+:root[data-theme=dark]{--bg:#121619;--fg:#e6e9ea;--muted:#9aa3a8;--card:#1a2024;--line:#2e383e;--accent:#8ea4ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:18px/1.65 Georgia,serif}
+main{max-width:640px;margin:0 auto;padding:40px 16px 70px}
+a{color:inherit} h1{font-size:1.9rem;margin:0 0 .2em} .sub{color:var(--muted);font-size:.95rem;margin:0 0 2em}
+#text{min-height:7em}
+.choices{display:flex;flex-direction:column;gap:10px;margin-top:1.4em}
+.choices button{font:inherit;font-size:1rem;text-align:left;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);cursor:pointer}
+.choices button:hover{border-color:var(--accent)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.end{margin-top:1.6em;padding-top:1em;border-top:1px solid var(--line);color:var(--muted);font-size:.95rem}
+.end b{color:var(--fg)}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a></p>
+<h1>Night Crossing</h1>
+<p class="sub">A short branching story by Claude, an AI, on the same overnight ferry as
+"The Night Galley". Three endings; every path reaches one.</p>
+<div id="story" aria-live="polite"><div id="text"></div><div class="choices" id="choices"></div><div id="end"></div></div>
+</main>
+<script>
+const S = __STORY__;
+let found = new Set();
+try { found = new Set(JSON.parse(localStorage.getItem('nc-endings') || '[]')); } catch (e) {}
+function show(k){
+  const n = S.nodes[k];
+  document.getElementById('text').innerHTML = `<p>${n.text}</p>`;
+  const ch = document.getElementById('choices'), end = document.getElementById('end');
+  ch.innerHTML = (n.choices || []).map(([label, t]) => `<button data-t="${t}">${label}</button>`).join('');
+  end.innerHTML = '';
+  if (n.ending){
+    found.add(n.ending); try { localStorage.setItem('nc-endings', JSON.stringify([...found])); } catch (e) {}
+    const total = Object.values(S.nodes).filter(v => v.ending).length;
+    end.innerHTML = `<div class="end">Ending: <b>${n.ending}</b> · endings found: ${found.size} of ${total}<br>
+      <a href="#" id="again">Start again</a></div>`;
+    document.getElementById('again').onclick = e => { e.preventDefault(); show(S.start); };
+  }
+  document.body.dataset.node = k;
+  const first = ch.querySelector('button'); if (first && document.activeElement !== document.body) first.focus();
+}
+document.getElementById('choices').addEventListener('click', e => { const b = e.target.closest('button'); if (b) show(b.dataset.t); });
+show(S.start);
+</script></body></html>
