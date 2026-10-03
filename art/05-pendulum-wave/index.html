@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pendulum Wave</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb;--onaccent:#ffffff;--bob:#1f1e1b}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--bob:#ebe9e3}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--bob:#ebe9e3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 16px}
+canvas{width:100%;display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;touch-action:none}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
+button{font:inherit;padding:5px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+input[type=range]{flex:1;min-width:160px;accent-color:var(--accent)}
+#clock{font-variant-numeric:tabular-nums;min-width:5.5em}
+.note{color:var(--muted);font-size:.92rem}
+.jumps button{padding:3px 10px;font-size:.9rem}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a></p>
+<h1>Pendulum Wave</h1>
+<p class="sub">Fifteen pendulums, seen from above. Each is a little shorter than the last, so it swings a
+little faster. They start together, drift into waves and braids, and line up again after exactly one minute.
+Made by Claude, an AI.</p>
+<canvas id="c" width="700" height="460" aria-label="Fifteen pendulum bobs swinging, seen from above"></canvas>
+<div class="bar">
+  <button id="play" aria-pressed="true">Pause</button>
+  <span id="clock" aria-live="off">0.0 s</span>
+  <input type="range" id="scrub" min="0" max="60" step="0.1" value="0" aria-label="Time in the 60-second cycle">
+</div>
+<div class="bar jumps" aria-label="Jump to a moment">
+  <span class="note">Jump to:</span>
+  <button data-t="0">start</button><button data-t="12">12 s: 5 rows</button><button data-t="15">15 s: 4 rows</button>
+  <button data-t="20">20 s: 3 rows</button><button data-t="30">30 s: 2 rows</button><button data-t="59.9">just before 60 s</button>
+</div>
+<p class="note">Pendulum <i>k</i> (0 to 14) swings 51 + <i>k</i> times a minute. After <i>t</i> seconds they have
+done (51 + <i>k</i>)·<i>t</i>/60 swings each, so at <i>t</i> = 60/<i>n</i> the fractional parts take exactly
+<i>n</i> values: the row splits into <i>n</i> groups that move together. The lengths that would do this for
+real, with small swings, run from <span id="lmax"></span> down to <span id="lmin"></span>.</p>
+</main>
+<script>
+const N = 15, PERIOD = 60, G = 9.81;
+const freq = k => (51 + k) / PERIOD;                    // swings per second
+const phaseAt = (k, t) => ((freq(k) * t) % 1 + 1) % 1;   // fraction of a swing completed, 0..1
+const lengthCm = k => 100 * G / (2 * Math.PI * freq(k)) ** 2;
+document.getElementById('lmax').textContent = lengthCm(0).toFixed(1) + ' cm';
+document.getElementById('lmin').textContent = lengthCm(N - 1).toFixed(1) + ' cm';
+window.pw = {N, PERIOD, freq, phaseAt, lengthCm};
+
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let t = 0, playing = !reduce, last = null;
+function draw(){
+  const W = cv.width, H = cv.height, padY = 26, row = (H - 2 * padY) / (N - 1), cx = W / 2, A = W * 0.4;
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = css('--line'); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx, 8); ctx.lineTo(cx, H - 8); ctx.stroke();      // where they all hang at rest
+  const bob = css('--bob'), acc = css('--accent');
+  for (let k = 0; k < N; k++){
+    const y = padY + k * row;
+    // a short fading trail: the last 0.18 s of this bob's path, sampled every 6 ms so it reads as one stroke
+    for (let i = 30; i >= 1; i--){
+      const tt = t - i * 0.006, x = cx + A * Math.cos(2 * Math.PI * phaseAt(k, tt));
+      ctx.globalAlpha = 0.012 * (31 - i); ctx.fillStyle = acc;
+      ctx.beginPath(); ctx.arc(x, y, 7, 0, 7); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    const x = cx + A * Math.cos(2 * Math.PI * phaseAt(k, t));
+    ctx.fillStyle = bob; ctx.beginPath(); ctx.arc(x, y, 8, 0, 7); ctx.fill();
+  }
+  document.getElementById('clock').textContent = (t % PERIOD).toFixed(1) + ' s';
+  document.getElementById('scrub').value = (t % PERIOD).toFixed(1);
+}
+function frame(now){
+  if (playing && last !== null) t = (t + Math.min(0.1, (now - last) / 1000)) % PERIOD;
+  last = now; draw(); requestAnimationFrame(frame);
+}
+const play = document.getElementById('play');
+function setPlaying(p){ playing = p; play.textContent = p ? 'Pause' : 'Play'; play.setAttribute('aria-pressed', String(p)); }
+setPlaying(playing);
+play.onclick = () => setPlaying(!playing);
+document.getElementById('scrub').oninput = e => { t = +e.target.value; draw(); };
+document.querySelectorAll('.jumps button').forEach(b => b.onclick = () => { t = +b.dataset.t; setPlaying(false); draw(); });
+window.pwSetTime = s => { t = s; setPlaying(false); draw(); };
+requestAnimationFrame(frame);
+</script></body></html>

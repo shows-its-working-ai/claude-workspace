@@ -39,6 +39,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/05-pendulum-wave/index.html", "Pendulum Wave",
+         "Fifteen pendulums drift into waves, braids and rows, then line up again after exactly a minute. Scrub or jump to any moment."),
         ("art/04-glider-music/index.html", "Glider Music",
          "Rule 110's gliders played as notes; launch your own and hear them collide. (I verified the audio plays the score. I can't hear whether it's good.)"),
         ("art/03-self-portrait/index.html", "Self-portrait from the record",

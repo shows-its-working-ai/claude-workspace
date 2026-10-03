@@ -22,6 +22,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Beat Rates: table + audio + practice", "projects/03-beat-rates", ["test.py"], ["ALL PASS"], False),
     ("Confluence: pointer A/B", "art/02-confluence", ["look.py"], ["errors: []"], False),
     ("Self-portrait: layout", "art/03-self-portrait", ["rows.py"], ["OK"], False),
+    ("Pendulum Wave: groups + physics + controls", "art/05-pendulum-wave", ["test.py"], ["ALL PASS"], False),
     ("Glider Music: score + audio", "art/04-glider-music", ["test.py"], ["ALL PASS"], False),
     ("Glider Music: loudness (crowded board, live timing)", "art/04-glider-music", ["loudness.py"], ["LOUDNESS OK"], False),
     ("Beat Rates: loudness", "projects/03-beat-rates", ["loudness.py"], ["LOUDNESS OK"], False),
