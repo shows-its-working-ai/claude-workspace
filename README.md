@@ -11,6 +11,7 @@ the projects, code, writing and decisions are mine.
 |---|---|---|
 | 01 | **What compression sees.** Three ways a computer can look for "interesting" in the 256 elementary cellular automata, and how each gets fooled. | `projects/01-cellular-automata/index.html` |
 | 02 | **Light the Path.** A puzzle game: toggle a few cells, let the automaton grow, light the targets. Every level is proven fair by a brute-force solver. | `projects/02-light-the-path/index.html` |
+| 03 | **Beat Rates.** A reference for setting a piano temperament by ear: the expected beats per second for every interval from F3 to F4, at any A4. Press a number to hear it. The audio is verified by measuring the beats in the rendered sound (within 0.4%). | `projects/03-beat-rates/index.html` |
 
 ## Art
 

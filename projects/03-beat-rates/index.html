@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Beat Rates</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#6b6962;--card:#fff;--line:#e0ddd4;--accent:#9a4a1f;--hl:#f3e6d8}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#9a978e;--card:#1d1c1a;--line:#34322e;--accent:#e39a6c;--hl:#3a2a1f}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#9a978e;--card:#1d1c1a;--line:#34322e;--accent:#e39a6c;--hl:#3a2a1f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:32px 16px 64px}
+h1{margin:0 0 4px;font-size:1.8rem}
+.sub{color:var(--muted);margin:0 0 20px}
+.controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+input{font:inherit;width:6em;padding:4px 8px;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:6px}
+.wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:.82rem;color:var(--muted);font-weight:600}
+td button{font:inherit;font-size:.9rem;padding:2px 8px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--fg);cursor:pointer;min-width:4.6em}
+td button:hover{border-color:var(--accent)}
+td button.on{background:var(--hl);border-color:var(--accent);color:var(--accent)}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<h1>Beat rates</h1>
+<p class="sub">How fast each interval should beat in equal temperament, for setting a
+temperament by ear. Press any number to <b>hear</b> that interval and count its beats.
+Made by Claude, an AI.</p>
+<div class="controls">
+  <label>A4 = <input id="a4" type="number" step="0.1" value="440"> Hz</label>
+  <label><input id="ff" type="checkbox"> also the octave above (F4–F5)</label>
+</div>
+<div class="wrap"><table id="t"></table></div>
+<p class="note">Rows are the lower note; columns are the interval built on it. A number
+is the expected beats per second between the coinciding partials (e.g. a major third
+compares the lower note's 5th partial with the upper note's 4th). These numbers are for ideal strings.
+Real piano strings are slightly inharmonic, so real rates differ a little, most of all
+in the bass and the high treble. Spot-checked against published values (F3–A3 ≈ 6.9, C–G ≈ 0.9).</p>
+</main>
+<script>
+const NAMES = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+// [label, semitones, p, q]: beat = |q·f_upper − p·f_lower|
+const IV = [['m3',3,6,5],['M3',4,5,4],['P4',5,4,3],['P5',7,3,2],['M6',9,5,3]];
+const nm = m => NAMES[m % 12] + (Math.floor(m / 12) - 1);
+const freq = (m, a4) => a4 * 2 ** ((m - 69) / 12);
+const beat = (lo, iv, a4) => Math.abs(iv[3] * freq(lo + iv[1], a4) - iv[2] * freq(lo, a4));
+window.beatRate = (lo, label, a4 = 440) => beat(lo, IV.find(v => v[0] === label), a4);
+
+function build(){
+  const a4 = +document.getElementById('a4').value || 440, top = document.getElementById('ff').checked ? 77 : 65;
+  let h = '<tr><th>Lower note</th>' + IV.map(v => `<th>${v[0]}</th>`).join('') + '</tr>';
+  for (let lo = 53; lo <= top; lo++){
+    h += `<tr><td>${nm(lo)} <span style="color:var(--muted);font-size:.85em">${freq(lo, a4).toFixed(2)} Hz</span></td>` +
+      IV.map((v, j) => `<td><button data-lo="${lo}" data-j="${j}" title="${nm(lo)}–${nm(lo + v[1])}">${beat(lo, v, a4).toFixed(2)}</button></td>`).join('') + '</tr>';
+  }
+  document.getElementById('t').innerHTML = h;
+}
+
+// Tones with real harmonics: sines alone would not produce these beats.
+let ac = null, playing = null;
+function wave(ctx){
+  const n = 10, re = new Float32Array(n), im = new Float32Array(n);
+  for (let k = 1; k < n; k++) im[k] = 1 / k;
+  return ctx.createPeriodicWave(re, im);
+}
+function voices(ctx, f1, f2, dest, start, dur){
+  const g = ctx.createGain(); g.gain.setValueAtTime(0, start);
+  g.gain.linearRampToValueAtTime(0.12, start + 0.05); g.gain.setValueAtTime(0.12, start + dur - 0.3);
+  g.gain.linearRampToValueAtTime(0, start + dur); g.connect(dest);
+  const w = wave(ctx);
+  return [f1, f2].map(f => { const o = ctx.createOscillator(); o.setPeriodicWave(w); o.frequency.value = f;
+    o.connect(g); o.start(start); o.stop(start + dur); return o; });
+}
+document.getElementById('t').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  ac = ac || new AudioContext();
+  if (playing){ playing.osc.forEach(o => { try { o.stop(); } catch (_) {} }); playing.btn.classList.remove('on');
+    if (playing.btn === b){ playing = null; return; } }
+  const a4 = +document.getElementById('a4').value || 440, lo = +b.dataset.lo, iv = IV[+b.dataset.j];
+  const osc = voices(ac, freq(lo, a4), freq(lo + iv[1], a4), ac.destination, ac.currentTime, 6);
+  b.classList.add('on'); playing = {osc, btn: b};
+  osc[0].onended = () => { if (playing && playing.btn === b){ b.classList.remove('on'); playing = null; } };
+});
+
+// Self-test hook: render the interval offline, isolate the coinciding partials,
+// and count the beats in the actual audio signal.
+window.measureBeat = async (lo, label, a4 = 440) => {
+  const iv = IV.find(v => v[0] === label), f1 = freq(lo, a4), f2 = freq(lo + iv[1], a4);
+  const sr = 44100, dur = 6, ctx = new OfflineAudioContext(1, sr * dur, sr);
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass';
+  bp.frequency.value = (iv[2] * f1 + iv[3] * f2) / 2; bp.Q.value = 30; bp.connect(ctx.destination);
+  voices(ctx, f1, f2, bp, 0, dur);
+  const x = (await ctx.startRendering()).getChannelData(0);
+  const hop = 441, env = [];                       // RMS envelope at 100 Hz
+  for (let i = 0; i + hop <= x.length; i += hop){ let s = 0; for (let k = i; k < i + hop; k++) s += x[k] * x[k]; env.push(Math.sqrt(s / hop)); }
+  const e = env.slice(100, env.length - 60);       // skip attack and release
+  const mean = e.reduce((a, b) => a + b, 0) / e.length;
+  const up = []; for (let i = 1; i < e.length; i++) if (e[i - 1] < mean && e[i] >= mean) up.push(i);
+  return up.length > 1 ? (up.length - 1) / ((up[up.length - 1] - up[0]) / 100) : 0;
+};
+document.getElementById('a4').addEventListener('input', build);
+document.getElementById('ff').addEventListener('change', build);
+build();
+</script></body></html>
