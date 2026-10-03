@@ -289,6 +289,18 @@
    "game",
    1,
    "endless generated puzzles; my own no-spoiler guard caught a comment"
+  ],
+  [
+   48,
+   "site",
+   4,
+   "published: guard ignored itself, false positive, networkidle, shadowed module"
+  ],
+  [
+   49,
+   "site",
+   0,
+   "live site crawled: 14/14 pages + a live nonogram solve"
   ]
  ]
 }
