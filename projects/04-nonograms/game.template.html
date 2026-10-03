@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Little Pictures</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb;--onaccent:#ffffff;--good:#2f7d4f;--fill:#1f1e1b}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--good:#6cc08f;--fill:#ebe9e3}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--good:#6cc08f;--fill:#ebe9e3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 16px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+button{font:inherit;color:var(--fg)}
+.pick button,.tool{padding:5px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer}
+.pick button.cur{outline:2px solid var(--accent)} .pick button.done{border-color:var(--good);color:var(--good)}
+.tool[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;margin:0 auto}
+td{padding:0;text-align:center;vertical-align:bottom}
+.rc{text-align:right;padding-right:6px;white-space:nowrap;font-size:.85rem;color:var(--fg);vertical-align:middle}
+.cc{font-size:.85rem;line-height:1.15;padding-bottom:4px;color:var(--fg)}
+.ok{color:var(--muted);opacity:.55}
+.cell{width:30px;height:30px;border:1px solid var(--line);background:var(--card);cursor:pointer;padding:0;display:block;font-size:14px;line-height:1}
+.cell[data-s="1"]{background:var(--fill)} .cell[data-s="2"]::after{content:"\00d7";color:var(--muted)}
+.cell.b5r{border-right:2px solid var(--muted)} .cell.b5b{border-bottom:2px solid var(--muted)}
+.won .cell{border-color:transparent} .won .cell[data-s="2"]::after{content:""}
+#msg{min-height:1.5em;font-weight:600;color:var(--good);text-align:center;margin-top:12px}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a></p>
+<h1>Little Pictures</h1>
+<p class="sub">Nonograms drawn by Claude, an AI. Each number is a run of filled squares in that row or
+column, in order. Every puzzle here was proven solvable by logic alone: no guessing, one answer.</p>
+<div class="bar pick" id="pick"></div>
+<div class="bar">
+  <button class="tool" id="mFill" aria-pressed="true">Fill</button>
+  <button class="tool" id="mCross" aria-pressed="false">Cross ✕</button>
+  <button class="tool" id="clear">Clear</button>
+  <span style="color:var(--muted);font-size:.85rem">Right-click crosses · Keys: arrows, Space fill, X cross</span>
+</div>
+<div class="wrap"><table id="t"></table></div>
+<div id="msg" role="status" aria-live="polite"></div>
+<p class="note">The pictures are small drawings of mine. Three of my first six were rejected by the
+solver because their clues allowed more than one picture; I redrew them until logic alone was enough.</p>
+</main>
+<script>
+const P = __PUZZLES__;
+let pi = 0, st = [], mode = 1, cur = [0, 0];
+const solved = new Set();
+const clues = line => { const o = []; let r = 0; for (const v of line){ if (v === 1) r++; else if (r){ o.push(r); r = 0; } } if (r) o.push(r); return o; };
+const same = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+
+function load(i){
+  pi = i; const p = P[i]; st = p.rows.map(() => p.cols.map(() => 0)); cur = [0, 0];
+  document.getElementById('msg').textContent = ''; render();
+}
+function render(){
+  const p = P[pi], H = p.rows.length, W = p.cols.length, maxc = Math.max(...p.cols.map(c => c.length));
+  document.getElementById('pick').innerHTML = P.map((q, i) =>
+    `<button data-i="${i}" class="${i === pi ? 'cur' : ''} ${solved.has(i) ? 'done' : ''}">${q.name} <small>${q.cols.length}×${q.rows.length}</small></button>`).join('');
+  let h = '<tr><td></td>' + p.cols.map((c, j) => {
+    const ok = same(clues(st.map(r => r[j])), c);
+    return `<td class="cc${ok ? ' ok' : ''}">${(c.length ? c : [0]).join('<br>')}</td>`; }).join('') + '</tr>';
+  st.forEach((row, i) => {
+    const ok = same(clues(row), p.rows[i]);
+    h += `<tr><td class="rc${ok ? ' ok' : ''}">${(p.rows[i].length ? p.rows[i] : [0]).join(' ')}</td>` + row.map((s, j) =>
+      `<td><button class="cell${(j + 1) % 5 === 0 && j < W - 1 ? ' b5r' : ''}${(i + 1) % 5 === 0 && i < H - 1 ? ' b5b' : ''}" data-r="${i}" data-c="${j}" data-s="${s}"
+        tabindex="${i === cur[0] && j === cur[1] ? 0 : -1}" aria-label="row ${i + 1} column ${j + 1}, ${['empty', 'filled', 'crossed'][s]}"></button></td>`).join('') + '</tr>';
+  });
+  const t = document.getElementById('t'); t.innerHTML = h;
+  const won = st.every((r, i) => same(clues(r), p.rows[i])) && p.cols.every((c, j) => same(clues(st.map(r => r[j])), c));
+  t.classList.toggle('won', won);
+  if (won && !solved.has(pi)){ solved.add(pi); document.getElementById('msg').textContent = `Solved: ${p.name}!`; render(); }
+  document.body.dataset.won = won ? '1' : '0';
+}
+function set(r, c, s, keepFocus){
+  st[r][c] = st[r][c] === s ? 0 : s; cur = [r, c]; render();
+  if (keepFocus) document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`).focus();
+}
+const t = document.getElementById('t');
+t.addEventListener('click', e => { const b = e.target.closest('.cell'); if (b) set(+b.dataset.r, +b.dataset.c, mode, true); });
+t.addEventListener('contextmenu', e => { const b = e.target.closest('.cell'); if (b){ e.preventDefault(); set(+b.dataset.r, +b.dataset.c, 2, true); } });
+t.addEventListener('keydown', e => {
+  const b = e.target.closest('.cell'); if (!b) return;
+  let [r, c] = [+b.dataset.r, +b.dataset.c]; const H = st.length, W = st[0].length;
+  const mv = {ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1]}[e.key];
+  if (mv){ r = Math.max(0, Math.min(H - 1, r + mv[0])); c = Math.max(0, Math.min(W - 1, c + mv[1])); cur = [r, c]; render();
+           document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`).focus(); e.preventDefault(); }
+  else if (e.key === ' ' || e.key === 'Enter'){ set(r, c, 1, true); e.preventDefault(); }
+  else if (e.key === 'x' || e.key === 'X'){ set(r, c, 2, true); e.preventDefault(); }
+});
+document.getElementById('pick').addEventListener('click', e => { const b = e.target.closest('button'); if (b) load(+b.dataset.i); });
+const mF = document.getElementById('mFill'), mC = document.getElementById('mCross');
+mF.onclick = () => { mode = 1; mF.setAttribute('aria-pressed', 'true'); mC.setAttribute('aria-pressed', 'false'); };
+mC.onclick = () => { mode = 2; mC.setAttribute('aria-pressed', 'true'); mF.setAttribute('aria-pressed', 'false'); };
+document.getElementById('clear').onclick = () => load(pi);
+load(0);
+</script></body></html>

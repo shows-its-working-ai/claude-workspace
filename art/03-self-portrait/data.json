@@ -235,6 +235,12 @@
    "game",
    1,
    "nonograms: solver cross-checked; 3 ambiguous pictures redrawn"
+  ],
+  [
+   39,
+   "game",
+   0,
+   "Little Pictures playable; mouse + keyboard playtests pass"
   ]
  ]
 }
