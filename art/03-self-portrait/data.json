@@ -409,6 +409,12 @@
    "game",
    1,
    "new game: Slide; par agreed by 3 independent solvers"
+  ],
+  [
+   68,
+   "game",
+   0,
+   "Slide levels: unique shortest solutions, traps, dead-end notice, saved progress"
   ]
  ]
 }

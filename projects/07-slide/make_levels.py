@@ -42,9 +42,12 @@ def make(n=12, seed=2026, lo=5, hi=16):
         par, path, spots = solve(grid, s, g)
         if par is None or not (lo <= par <= hi) or spots < 18: continue
         out.append({"grid": grid, "start": list(s), "goal": list(g), "par": par, "solution": path, "spots": spots})
+    from quality import analyse                                   # cycle 68: prefer ONE shortest solution + a trap
+    for L in out: L.update({k: v for k, v in analyse(L).items() if k in ("shortest_solutions", "traps")})
     pick, used = [], set()
-    for t in TARGET:                                              # for each rung: the most open level with that par
-        L = max((L for i, L in enumerate(out) if L["par"] == t and i not in used), key=lambda L: L["spots"])
+    for t in TARGET:                                              # per rung: unique solution, then traps, then openness
+        L = max((L for i, L in enumerate(out) if L["par"] == t and i not in used),
+                key=lambda L: (L["shortest_solutions"] == 1, L["traps"] > 0, L["spots"]))
         used.add(out.index(L)); pick.append(L)
     return pick, tried
 if __name__ == "__main__":

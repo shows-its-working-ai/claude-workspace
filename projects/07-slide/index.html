@@ -22,7 +22,7 @@ button:focus-visible,#board:focus-visible{outline:3px solid var(--accent);outlin
 .pad{display:grid;grid-template-columns:repeat(3,52px);gap:6px;justify-content:center;margin:12px 0}
 .pad button{height:46px;font-size:1.2rem}
 #status{text-align:center;min-height:1.6em;font-weight:600}
-#status.win{color:var(--good)}
+#status.win{color:var(--good)} #status.trap{color:var(--muted)}
 .note{color:var(--muted);font-size:.9rem}
 </style></head><body><main>
 <p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/07-slide" style="opacity:.7">source</a></p>
@@ -39,12 +39,13 @@ green ring. Made by Claude, an AI; every level was solved by a computer search, 
 <div class="bar" style="justify-content:center">
   <button id="undo">Undo</button><button id="restart">Restart</button>
 </div>
-<p class="note">Keys: arrows (or WASD) to slide, U to undo, R to restart. On a phone, swipe on the board.
+<p class="note">Some levels have dead ends: spots you can slide into but never out of. The page tells you.
+Solved levels are remembered on this device.<br>Keys: arrows (or WASD) to slide, U to undo, R to restart. On a phone, swipe on the board.
 Par is computed again in your browser by its own search when each level loads, and must equal the par
 my generator found; the page holds no solutions.</p>
 </main>
 <script>
-const LEVELS = [{"name": "Level 1", "grid": ["......#..", "........#", "#........", "#...#....", "....#....", "..#......", ".....#...", "........#", ".#......."], "start": [4, 6], "goal": [7, 0], "par": 5}, {"name": "Level 2", "grid": ["#...##...", ".........", ".#.....#.", "#.....#.#", ".....#...", ".........", "...#.....", ".#......#", "....#.#.#"], "start": [3, 3], "goal": [1, 4], "par": 5}, {"name": "Level 3", "grid": ["...#.#..#", "....#....", ".........", "#.....##.", "..#......", "..#.#...#", ".........", ".#.......", ".#...#..."], "start": [1, 6], "goal": [6, 4], "par": 6}, {"name": "Level 4", "grid": ["....#.#..", "..#......", "#.......#", ".#.......", ".........", ".#.#.....", "........#", ".....#..#", "..#....#."], "start": [1, 7], "goal": [7, 2], "par": 6}, {"name": "Level 5", "grid": [".....#..#", ".....##..", ".....#...", "#..#...#.", "#.......#", ".........", "..#......", "#.....#..", "#.#.#..#."], "start": [3, 4], "goal": [6, 1], "par": 7}, {"name": "Level 6", "grid": ["...#.#...", "#...#....", "....#...#", ".......#.", "##.......", ".#......#", "......#..", "......#..", "..#...#.."], "start": [2, 6], "goal": [6, 5], "par": 8}, {"name": "Level 7", "grid": ["........#", ".....#...", "#.#......", ".....####", ".........", "....#.#..", "#...#...#", ".#.......", "........."], "start": [2, 7], "goal": [4, 7], "par": 9}, {"name": "Level 8", "grid": [".....#...", ".......#.", "#...#....", "...##....", ".##....##", "...#.....", "....#....", ".##.....#", ".....#..#"], "start": [2, 1], "goal": [4, 3], "par": 10}, {"name": "Level 9", "grid": [".........", ".....##..", "#....#...", ".#.....#.", "...##....", "....#....", "#.#...#..", "........#", "#....#..."], "start": [8, 8], "goal": [8, 1], "par": 11}, {"name": "Level 10", "grid": ["....#....", "....#.#.#", "...#.....", "#..#.#...", ".#......#", ".#..#....", "..#..###.", "....#....", ".......#."], "start": [7, 5], "goal": [5, 6], "par": 12}, {"name": "Level 11", "grid": [".#.......", ".#...#.##", ".....##..", ".........", "....#.#..", "......#.#", "...#.....", "..#......", "..#......"], "start": [1, 0], "goal": [8, 4], "par": 13}, {"name": "Level 12", "grid": ["..#.....#", ".......#.", ".#..#.##.", "#..#.....", "..#......", ".....#...", "#...#...#", "......#..", ".#.#....."], "start": [0, 4], "goal": [4, 1], "par": 15}];
+const LEVELS = [{"name": "Level 1", "grid": ["....#.#..", "..#.....#", ".#.......", "..#.....#", ".........", "......#..", "#.#.....#", ".........", ".#...#..."], "start": [2, 6], "goal": [0, 5], "par": 5}, {"name": "Level 2", "grid": [".........", ".........", "#.......#", "#.#.#...#", "..#..#...", ".......#.", ".........", "...#.....", "#........"], "start": [7, 5], "goal": [6, 8], "par": 5}, {"name": "Level 3", "grid": [".....#...", "#...#....", ".#...#...", ".....#...", "#........", ".##......", ".#.......", "......#.#", "..#.....#"], "start": [5, 4], "goal": [4, 5], "par": 6}, {"name": "Level 4", "grid": ["...##.#..", "#.#...#.#", "..#......", "#....#...", ".#......#", ".........", ".........", ".......#.", ".....#..."], "start": [4, 4], "goal": [2, 6], "par": 6}, {"name": "Level 5", "grid": [".#.......", "..#.##..#", "........#", "#........", ".....#...", ".#.......", ".#.#.....", "....#....", "..#.#..#."], "start": [4, 8], "goal": [7, 0], "par": 7}, {"name": "Level 6", "grid": ["..#.##...", "....#....", "....##...", "....#....", "##.....#.", "........#", ".......#.", "..#..#...", "#..#..#.."], "start": [1, 1], "goal": [8, 8], "par": 8}, {"name": "Level 7", "grid": [".........", ".....#...", "#.##..##.", ".#.#.....", ".......##", ".........", ".#......#", "...##....", "..#......"], "start": [3, 8], "goal": [2, 4], "par": 9}, {"name": "Level 8", "grid": ["..#..#...", "..#......", "...#.....", ".#.#....#", ".#..##.##", ".......#.", "...#.#...", "......##.", ".......#."], "start": [6, 1], "goal": [1, 8], "par": 10}, {"name": "Level 9", "grid": [".........", ".....##..", "#....#...", ".#.....#.", "...##....", "....#....", "#.#...#..", "........#", "#....#..."], "start": [8, 8], "goal": [8, 1], "par": 11}, {"name": "Level 10", "grid": ["....#....", "....#.#.#", "...#.....", "#..#.#...", ".#......#", ".#..#....", "..#..###.", "....#....", ".......#."], "start": [7, 5], "goal": [5, 6], "par": 12}, {"name": "Level 11", "grid": [".....##..", ".#.......", ".......##", "....#....", ".........", "#...#...#", ".#...#...", ".#...#...", ".......#."], "start": [6, 0], "goal": [7, 7], "par": 13}, {"name": "Level 12", "grid": ["..#.....#", ".......#.", ".#..#.##.", "#..#.....", "..#......", ".....#...", "#...#...#", "......#..", ".#.#....."], "start": [0, 4], "goal": [4, 1], "par": 15}];
 const DIRS = {U: [-1, 0], D: [1, 0], L: [0, -1], R: [0, 1]};
 function slide(grid, r, c, d){
   const [dr, dc] = DIRS[d], H = grid.length, W = grid[0].length;
@@ -61,7 +62,17 @@ function bfsPar(L){                                     // independent of the ge
   return null;
 }
 let li = 0, pos, hist = [], moves = 0;
-const best = {};
+let best = {};
+try { best = JSON.parse(localStorage.getItem('slide-best') || '{}') || {}; } catch (e) { best = {}; }
+const saveBest = () => { try { localStorage.setItem('slide-best', JSON.stringify(best)); } catch (e) {} };
+function canReachGoal(L, from){                         // is the goal still reachable from here? (traps exist)
+  const key = p => p[0] * 100 + p[1], seen = new Set([key(from)]), q = [from];
+  for (let i = 0; i < q.length; i++){
+    const p = q[i]; if (p[0] === L.goal[0] && p[1] === L.goal[1]) return true;
+    for (const d of 'UDLR'){ const n = slide(L.grid, p[0], p[1], d); if (!seen.has(key(n))){ seen.add(key(n)); q.push(n); } }
+  }
+  return false;
+}
 const board = document.getElementById('board'), status = document.getElementById('status');
 function load(i){
   li = i; const L = LEVELS[i]; pos = L.start.slice(); hist = []; moves = 0;
@@ -79,7 +90,7 @@ function render(){
     h += `<div class="${cls}"></div>`;
   }));
   board.innerHTML = h;
-  if (!status.classList.contains('win')) status.textContent = `${L.name} · moves ${moves} · par ${L.par}`;
+  if (!status.classList.contains('win') && !status.classList.contains('trap')) status.textContent = `${L.name} · moves ${moves} · par ${L.par}`;
   document.body.dataset.moves = moves; document.body.dataset.won = won() ? '1' : '0';
 }
 const won = () => pos[0] === LEVELS[li].goal[0] && pos[1] === LEVELS[li].goal[1];
@@ -89,10 +100,11 @@ function move(d){
   if (n[0] === pos[0] && n[1] === pos[1]) return;                 // blocked: not a move
   hist.push(pos); pos = n; moves++;
   if (won()){
-    const L = LEVELS[li]; best[li] = Math.min(best[li] || Infinity, moves);
+    const L = LEVELS[li]; best[li] = Math.min(best[li] || Infinity, moves); saveBest();
     status.className = 'win';
     status.textContent = moves === L.par ? `Solved in ${moves}: that's par, the fewest possible.` : `Solved in ${moves} (par ${L.par}).`;
   }
+  else if (!canReachGoal(LEVELS[li], pos)){ status.className = 'trap'; status.textContent = 'No way out from here: undo (U) or restart (R).'; }
   render();
 }
 function undo(){ if (!hist.length) return; pos = hist.pop(); moves--; status.className = ''; render(); }
@@ -114,6 +126,6 @@ board.addEventListener('pointerup', e => {
   if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
   move(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'R' : 'L') : (dy > 0 ? 'D' : 'U'));
 });
-window.slideGame = {LEVELS, bfsPar, move, load, state: () => ({li, pos: pos.slice(), moves, won: won()})};
+window.slideGame = {LEVELS, bfsPar, move, load, state: () => ({li, pos: pos.slice(), moves, won: won()}), best: () => ({...best})};
 load(0);
 </script></body></html>

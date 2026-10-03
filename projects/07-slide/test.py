@@ -61,6 +61,38 @@ with sync_playwright() as p:
     dx, dy = {"U": (0, -80), "D": (0, 80), "L": (-80, 0), "R": (80, 0)}[d0]
     pg.mouse.move(cx, cy); pg.mouse.down(); pg.mouse.move(cx + dx, cy + dy); pg.mouse.up()
     check("swipe moves", pg.evaluate("slideGame.state()")["moves"] == 1)
+    # cycle 68: walk into a trap (found by Python BFS) -> the page must say there's no way out
+    from quality import analyse
+    from collections import deque
+    tl = next(i for i, L in enumerate(levels) if analyse(L)["traps"] > 0); L = levels[tl]
+    prev = {tuple(L["start"]): None}; q = deque([tuple(L["start"])]); trap_path = None
+    def reach_goal(p):
+        seen = {p}; qq = deque([p])
+        while qq:
+            x = qq.popleft()
+            if x == tuple(L["goal"]): return True
+            for d in "UDLR":
+                n = slide(L["grid"], *x, d)
+                if n not in seen: seen.add(n); qq.append(n)
+        return False
+    while q:
+        x = q.popleft()
+        if not reach_goal(x):
+            path = []; y = x
+            while prev[y]: y, d = prev[y]; path.append(d)
+            trap_path = "".join(reversed(path)); break
+        for d in "UDLR":
+            n = slide(L["grid"], *x, d)
+            if n != x and n not in prev: prev[n] = (x, d); q.append(n)
+    pg.click(f'#pick button[data-i="{tl}"]')
+    for d in trap_path: pg.keyboard.press(KEY[d])
+    msg = pg.inner_text("#status")
+    check(f"trap on level {tl + 1} (path {trap_path}) -> 'No way out' shown", "No way out" in msg, f"[{msg}]")
+    pg.keyboard.press("u"); check("undo clears the trap message", "No way out" not in pg.inner_text("#status"))
+    # progress survives a reload (levels solved above are remembered)
+    before = pg.evaluate("slideGame.best()"); pg.reload(); after = pg.evaluate("slideGame.best()")
+    done = pg.locator("#pick button.done").count()
+    check("solved levels remembered after reload", before == after and len(after) == 12 and done == 12, f"{len(after)} saved, {done} marked")
     pg.screenshot(path=str(D / "look.png"))
     pg.set_viewport_size({"width": 390, "height": 800})
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
