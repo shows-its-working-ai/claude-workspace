@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Make a Little Picture</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb;--onaccent:#ffffff;--good:#2f7d4f;--bad:#c0432c;--fill:#1f1e1b;--warn:#f5d77a}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--good:#6cc08f;--bad:#ec7f68;--fill:#ebe9e3;--warn:#7a6420}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--good:#6cc08f;--bad:#ec7f68;--fill:#ebe9e3;--warn:#7a6420}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 16px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+button,select{font:inherit;color:var(--fg);padding:5px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+button:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{overflow-x:auto} table{border-collapse:collapse;margin:0 auto}
+td{padding:0}
+.cell{width:26px;height:26px;border:1px solid var(--line);background:var(--card);display:block;padding:0;border-radius:0}
+.cell[data-on="1"]{background:var(--fill)}
+.cell.q{box-shadow:inset 0 0 0 3px var(--warn)}
+#verdict{min-height:3em;margin-top:14px;text-align:center;font-weight:600}
+#verdict.ok{color:var(--good)} #verdict.no{color:var(--bad)}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="index.html" style="opacity:.7">&larr; Little Pictures</a></p>
+<h1>Make a Little Picture</h1>
+<p class="sub">Paint a picture, then check it with the same solver I used on mine. It tells you
+whether a player could solve it by logic alone, and if not, exactly which squares are ambiguous.</p>
+<div class="bar">
+  <label>Width <select id="w"></select></label>
+  <label>Height <select id="h"></select></label>
+  <button id="clear">Clear</button>
+  <button id="check" class="primary">Check</button>
+</div>
+<div class="wrap"><table id="t"></table></div>
+<div id="verdict" role="status" aria-live="polite"></div>
+<p class="note">Squares outlined in yellow after a check are ones logic can't decide: the clues allow
+more than one picture there. Typical fixes: avoid 2×2 checkerboard patterns, avoid mirror-symmetric
+loose shapes, and make thin features a bit bolder.</p>
+</main>
+<script>
+// ---- the line solver (a port of puzzles.py; cross-checked against it by solver_xcheck.py) ----
+function clues(line){ const o = []; let r = 0; for (const v of line){ if (v === 1) r++; else if (r){ o.push(r); r = 0; } } if (r) o.push(r); return o; }
+function placements(clue, n, known){
+  const memo = new Map();
+  function go(i, k){
+    const key = i * 64 + k; if (memo.has(key)) return memo.get(key);
+    let res = [];
+    if (k === clue.length){
+      let ok = true; for (let j = i; j < n; j++) if (known[j] === 1) { ok = false; break; }
+      res = ok ? [Array(n - i).fill(0)] : [];
+    } else {
+      const L = clue[k];
+      for (let s = i; s <= n - L; s++){
+        let skipped = false; for (let j = i; j < s; j++) if (known[j] === 1) { skipped = true; break; }
+        if (skipped) break;
+        let blocked = false; for (let j = s; j < s + L; j++) if (known[j] === 0) { blocked = true; break; }
+        if (blocked) continue;
+        const end = s + L;
+        if (end < n){
+          if (known[end] === 1) continue;
+          for (const rest of go(end + 1, k + 1)) res.push([...Array(s - i).fill(0), ...Array(L).fill(1), 0, ...rest]);
+        } else {
+          for (const rest of go(end, k + 1)) res.push([...Array(s - i).fill(0), ...Array(L).fill(1), ...rest]);
+        }
+      }
+    }
+    memo.set(key, res); return res;
+  }
+  return go(0, 0);
+}
+function lineSolve(rowClues, colClues){
+  const H = rowClues.length, W = colClues.length, g = rowClues.map(() => Array(W).fill(null));
+  let passes = 0;
+  while (true){
+    passes++; let changed = false;
+    for (let pass = 0; pass < 2; pass++){
+      const lines = pass === 0 ? rowClues : colClues;
+      for (let idx = 0; idx < lines.length; idx++){
+        const cur = pass === 0 ? g[idx].slice() : g.map(r => r[idx]);
+        const opts = placements(lines[idx], cur.length, cur);
+        if (!opts.length) throw new Error('contradiction');
+        for (let p = 0; p < cur.length; p++){
+          if (cur[p] !== null) continue;
+          const v = opts[0][p]; if (opts.every(o => o[p] === v)){
+            if (pass === 0) g[idx][p] = v; else g[p][idx] = v; changed = true;
+          }
+        }
+      }
+    }
+    if (!changed) return {grid: g, passes};
+  }
+}
+window.lineSolve = lineSolve; window.clues = clues;
+
+// ---- the editor ----
+let W = 10, H = 10, pic = [];
+const sw = document.getElementById('w'), sh = document.getElementById('h');
+for (let n = 5; n <= 15; n++){ sw.add(new Option(n, n)); sh.add(new Option(n, n)); }
+sw.value = W; sh.value = H;
+function reset(){ W = +sw.value; H = +sh.value; pic = Array.from({length: H}, () => Array(W).fill(0)); draw(); verdict(''); }
+function draw(q){
+  document.getElementById('t').innerHTML = pic.map((row, i) => '<tr>' + row.map((v, j) =>
+    `<td><button class="cell${q && q[i][j] === null ? ' q' : ''}" data-r="${i}" data-c="${j}" data-on="${v}" aria-pressed="${v === 1}" aria-label="row ${i + 1} column ${j + 1}"></button></td>`).join('') + '</tr>').join('');
+}
+function verdict(text, cls){ const v = document.getElementById('verdict'); v.textContent = text; v.className = cls || ''; }
+document.getElementById('t').addEventListener('click', e => {
+  const b = e.target.closest('.cell'); if (!b) return;
+  const r = +b.dataset.r, c = +b.dataset.c; pic[r][c] ^= 1; draw(); verdict('');
+  document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`).focus();
+});
+document.getElementById('check').onclick = () => {
+  if (!pic.some(r => r.some(v => v))) return verdict('Paint at least one square first.', 'no');
+  const rc = pic.map(clues), cc = pic[0].map((_, j) => clues(pic.map(r => r[j])));
+  const {grid, passes} = lineSolve(rc, cc);
+  const unknown = grid.flat().filter(v => v === null).length;
+  draw(grid);
+  if (unknown === 0){
+    const level = passes <= 3 ? 'easy' : passes <= 6 ? 'medium' : 'hard';
+    verdict(`Logic-solvable with one answer: ${passes} passes (${level}).`, 'ok');
+  } else verdict(`Not solvable by logic alone: ${unknown} square${unknown > 1 ? 's' : ''} undecided (outlined).`, 'no');
+  document.body.dataset.verdict = unknown === 0 ? 'ok' : 'no';
+  document.body.dataset.unknown = unknown; document.body.dataset.passes = passes;
+};
+sw.onchange = sh.onchange = reset;
+document.getElementById('clear').onclick = reset;
+reset();
+</script></body></html>
