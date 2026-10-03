@@ -69,7 +69,9 @@ There are 256 such tables. Folding together mirror images and colour swaps leave
 <tr><td>v2 calming</td><td>how much more compressible it gets over time</td><td>gliders that annihilate</td><td>Rule 54, whose gliders never die</td></tr>
 <tr><td>v3 structured defects</td><td>subtract the background, check that what's left has shape</td><td>both 110 and 54</td><td>chaos with nested triangles</td></tr>
 </table>
-<p>Ranks are out of 88 (1 = most interesting according to that metric). Each picture starts
+<p>Ranks are out of 88 (1 = most interesting according to that metric). Are they luck? The scores average only a few
+random starts, so I re-ran two of them on five fresh batches of starts (cycle 83, <code>robustness.py</code>): Rule 110
+came 14th by randomness and 1st by transients every single time. Each picture starts
 from random cells at the top and runs downward. Every page load gives a fresh random start.</p>
 <div id="cards"></div>
 <div class="card"><h3>Try any rule</h3>

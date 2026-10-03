@@ -499,6 +499,12 @@
    "research",
    2,
    "110's rank is 8th-13th over random starts (median 9); '14th' was a lucky start; 'replication' claim corrected"
+  ],
+  [
+   83,
+   "research",
+   0,
+   "cycle-1 ranks robust: 110 is 14th/1st in all 5 fresh batches (control reproduces)"
   ]
  ]
 }

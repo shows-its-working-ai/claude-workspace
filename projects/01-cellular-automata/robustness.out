@@ -1,0 +1,9 @@
+batch 0 (original seeds): randomness rank 14, transients rank 1
+batch 1: randomness rank 14, transients rank 1
+batch 2: randomness rank 14, transients rank 1
+batch 3: randomness rank 14, transients rank 1
+batch 4: randomness rank 14, transients rank 1
+batch 5: randomness rank 14, transients rank 1
+CONTROL OK
+(1) randomness within 14+-3: HELD [14, 14, 14, 14, 14]
+(2) transients #1 every batch: HELD [1, 1, 1, 1, 1]
