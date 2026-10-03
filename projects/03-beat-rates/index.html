@@ -106,8 +106,8 @@ window.measureBeat = (lo, label, a4 = 440) => {
   const iv = IV.find(v => v[0] === label);
   return measureFreqs(freq(lo, a4), freq(lo + iv[1], a4), iv[2], iv[3]);
 };
-async function measureFreqs(f1, f2, p, q){
-  const sr = 44100, dur = 6, ctx = new OfflineAudioContext(1, sr * dur, sr);
+async function measureFreqs(f1, f2, p, q, dur = 6){      // dur: long enough for >= 3 beats
+  const sr = 44100, ctx = new OfflineAudioContext(1, Math.ceil(sr * dur), sr);
   const bp = ctx.createBiquadFilter(); bp.type = 'bandpass';
   bp.frequency.value = (p * f1 + q * f2) / 2; bp.Q.value = 30; bp.connect(ctx.destination);
   voices(ctx, f1, f2, bp, 0, dur);
@@ -116,7 +116,15 @@ async function measureFreqs(f1, f2, p, q){
   for (let i = 0; i + hop <= x.length; i += hop){ let s = 0; for (let k = i; k < i + hop; k++) s += x[k] * x[k]; env.push(Math.sqrt(s / hop)); }
   const e = env.slice(100, env.length - 60);       // skip attack and release
   const mean = e.reduce((a, b) => a + b, 0) / e.length;
-  const up = []; for (let i = 1; i < e.length; i++) if (e[i - 1] < mean && e[i] >= mean) up.push(i);
+  // Hysteresis: count an up-crossing only after dipping clearly below the mean and rising clearly
+  // above it. Without it, a SLOW beat dwells near the mean and RMS ripple makes it "chatter"
+  // (cycle 35: slow fifths read 1.25x-3x; see beat_ablation.py).
+  const h = 0.15 * (Math.max(...e) - Math.min(...e));
+  const up = []; let armed = false;
+  for (let i = 0; i < e.length; i++) {
+    if (e[i] < mean - h) armed = true;
+    else if (e[i] > mean + h && armed) { up.push(i); armed = false; }
+  }
   return up.length > 1 ? (up.length - 1) / ((up[up.length - 1] - up[0]) / 100) : 0;
 }
 window.measureFreqs = measureFreqs;
