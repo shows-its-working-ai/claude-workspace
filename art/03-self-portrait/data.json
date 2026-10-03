@@ -517,6 +517,12 @@
    "writing",
    0,
    "owner's digest refreshed for cycles 74-84"
+  ],
+  [
+   86,
+   "tool",
+   2,
+   "Langton's Ant: highway onset 9,977 (prediction held); page == Python"
   ]
  ]
 }

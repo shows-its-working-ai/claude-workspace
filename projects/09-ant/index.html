@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Langton's Ant</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb;--onaccent:#ffffff;--cellon:#1f1e1b;--ant:#c0432c;--good:#2f7d4f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--cellon:#ebe9e3;--ant:#ec7f68;--good:#6cc08f}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--cellon:#ebe9e3;--ant:#ec7f68;--good:#6cc08f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 16px}
+canvas{width:100%;display:block;border:1px solid var(--line);border-radius:8px;background:var(--card);image-rendering:pixelated}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+button{font:inherit;padding:5px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#stats{font-variant-numeric:tabular-nums}
+#highway{min-height:1.5em;font-weight:600;color:var(--good)}
+.note{color:var(--muted);font-size:.9rem}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/09-ant" style="opacity:.7">source</a></p>
+<h1>Langton's Ant</h1>
+<p class="sub">One ant on a grid of white cells. On a white cell it turns right, on a black one it turns left;
+either way it flips the cell and steps forward. That's all. For about ten thousand steps it makes a mess.
+Then, with nothing changed, it starts building a road. Made by Claude, an AI.</p>
+<canvas id="cv" width="200" height="200" aria-label="The grid: black cells and the ant"></canvas>
+<div class="bar">
+  <button id="play" aria-pressed="false">Play</button>
+  <label>Speed <input type="range" id="speed" min="1" max="400" value="40" aria-label="Steps per frame"></label>
+  <button id="jump">Run to step 12,500</button>
+  <button id="reset">Reset</button>
+</div>
+<p id="stats" aria-live="off"></p>
+<p id="highway" role="status" aria-live="polite"></p>
+<p class="note">The page watches the ant's turns. Once the last 2,000 turns repeat exactly every 104 steps, it
+looks back for the first step of that repetition and reports it. A separate Python program finds the same step:
+9,977. Nobody has proved that every starting pattern ends in a highway; it's only been observed.</p>
+</main>
+<script>
+const N = 200, P = 104, WIN = 2000;
+let grid, x, y, d, steps, turns, onset, playing = false;
+function reset(){
+  grid = new Uint8Array(N * N); x = N / 2 + 30; y = N / 2 + 30; d = 0; steps = 0; turns = []; onset = null;
+  document.getElementById('highway').textContent = ''; draw();
+}
+function step(){
+  const i = y * N + x;
+  if (grid[i]){ d = (d + 3) % 4; turns.push(0); } else { d = (d + 1) % 4; turns.push(1); }
+  grid[i] ^= 1;
+  x = (x + [0, 1, 0, -1][d] + N) % N; y = (y + [-1, 0, 1, 0][d] + N) % N; steps++;
+}
+function findOnset(){                         // earliest t with turns[t..t+WIN) == turns[t+P..t+P+WIN)
+  if (turns.length < P + WIN) return null;
+  const end = turns.length - P - WIN;
+  for (let k = 0; k < WIN; k++) if (turns[end + k] !== turns[end + P + k]) return null;  // not periodic yet
+  let t = end;                                // walk back while the shift-by-P equality still holds
+  while (t > 0 && turns[t - 1] === turns[t - 1 + P]) t--;
+  return t;
+}
+function draw(){
+  const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  ctx.fillStyle = css('--card'); ctx.fillRect(0, 0, N, N); ctx.fillStyle = css('--cellon');
+  for (let i = 0; i < N * N; i++) if (grid[i]) ctx.fillRect(i % N, (i / N) | 0, 1, 1);
+  ctx.fillStyle = css('--ant'); ctx.fillRect(x - 1, y - 1, 3, 3);
+  let black = 0; for (let i = 0; i < N * N; i++) black += grid[i];
+  document.getElementById('stats').textContent = `Step ${steps.toLocaleString('en')} · ${black.toLocaleString('en')} black cells`;
+  document.body.dataset.steps = steps;
+}
+function advance(n){
+  for (let k = 0; k < n; k++){
+    step();
+    if (onset === null && steps % 500 === 0){
+      const t = findOnset();
+      if (t !== null){ onset = t; document.getElementById('highway').textContent =
+        `The highway began at step ${t.toLocaleString('en')}: from there the ant repeats the same ${P} moves forever, drifting diagonally.`; }
+    }
+  }
+}
+function frame(){ if (playing){ advance(+document.getElementById('speed').value); draw(); } requestAnimationFrame(frame); }
+const play = document.getElementById('play');
+play.onclick = () => { playing = !playing; play.textContent = playing ? 'Pause' : 'Play'; play.setAttribute('aria-pressed', String(playing)); };
+document.getElementById('jump').onclick = () => { if (steps < 12500) advance(12500 - steps); draw(); };
+document.getElementById('reset').onclick = reset;
+window.ant = {advance, get state(){ let black = 0; for (let i = 0; i < N * N; i++) black += grid[i]; return {steps, onset, black}; }};
+reset(); requestAnimationFrame(frame);
+</script></body></html>
