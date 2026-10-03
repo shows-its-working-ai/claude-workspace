@@ -37,7 +37,7 @@ green ring. Made by Claude, an AI; every level was solved by a computer search, 
   <button data-d="L" aria-label="Slide left">←</button><button data-d="D" aria-label="Slide down">↓</button><button data-d="R" aria-label="Slide right">→</button>
 </div>
 <div class="bar" style="justify-content:center">
-  <button id="undo">Undo</button><button id="restart">Restart</button>
+  <button id="undo">Undo</button><button id="restart">Restart</button><button id="surprise">Surprise me</button>
 </div>
 <p class="note">Some levels have dead ends: spots you can slide into but never out of. The page tells you.
 Solved levels are remembered on this device.<br>Keys: arrows (or WASD) to slide, U to undo, R to restart. On a phone, swipe on the board.
@@ -64,7 +64,42 @@ function bfsPar(L){                                     // independent of the ge
 let li = 0, pos, hist = [], moves = 0;
 let best = {};
 try { best = JSON.parse(localStorage.getItem('slide-best') || '{}') || {}; } catch (e) { best = {}; }
-const saveBest = () => { try { localStorage.setItem('slide-best', JSON.stringify(best)); } catch (e) {} };
+const FIXED = LEVELS.length;                               // generated levels are appended after these
+const saveBest = () => { try { const b = {}; for (const k in best) if (+k < FIXED) b[k] = best[k];
+  localStorage.setItem('slide-best', JSON.stringify(b)); } catch (e) {} };
+// ---- cycle 70: endless levels, generated here and held to the same standard as the 12 built-in ones ----
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function analyse(L){                                     // par, number of shortest solutions, traps, reachable spots
+  const key = p => p[0] * 100 + p[1], dist = new Map([[key(L.start), 0]]), ways = new Map([[key(L.start), 1]]);
+  const nbr = new Map(), q = [L.start];
+  for (let i = 0; i < q.length; i++){
+    const p = q[i], kp = key(p); nbr.set(kp, []);
+    for (const d of 'UDLR'){
+      const n = slide(L.grid, p[0], p[1], d), kn = key(n); if (kn === kp) continue;
+      nbr.get(kp).push(kn);
+      if (!dist.has(kn)){ dist.set(kn, dist.get(kp) + 1); ways.set(kn, 0); q.push(n); }
+      if (dist.get(kn) === dist.get(kp) + 1) ways.set(kn, ways.get(kn) + ways.get(kp));
+    }
+  }
+  const g = key(L.goal); if (!dist.has(g)) return null;
+  const can = new Set([g]); let ch = true;
+  while (ch){ ch = false; for (const [p, ns] of nbr) if (!can.has(p) && ns.some(n => can.has(n))){ can.add(p); ch = true; } }
+  return {par: dist.get(g), ways: ways.get(g), traps: [...nbr.keys()].filter(p => !can.has(p)).length, spots: nbr.size};
+}
+function generate(seed){
+  const R = rng(seed);
+  for (let tries = 0; tries < 20000; tries++){
+    const grid = Array.from({length: 9}, () => Array.from({length: 9}, () => R() < 0.16 ? '#' : '.').join(''));
+    const free = []; grid.forEach((row, r) => [...row].forEach((ch, c) => { if (ch === '.') free.push([r, c]); }));
+    const s = free[Math.floor(R() * free.length)], g = free[Math.floor(R() * free.length)];
+    if (s[0] === g[0] && s[1] === g[1]) continue;
+    const L = {grid, start: s, goal: g}, a = analyse(L);
+    if (a && a.par >= 7 && a.par <= 14 && a.ways === 1 && a.traps > 0 && a.spots >= 18)
+      return {...L, par: a.par, name: `Surprise #${seed}`, tries: tries + 1};
+  }
+  return null;
+}
 function canReachGoal(L, from){                         // is the goal still reachable from here? (traps exist)
   const key = p => p[0] * 100 + p[1], seen = new Set([key(from)]), q = [from];
   for (let i = 0; i < q.length; i++){
@@ -112,6 +147,10 @@ document.getElementById('pick').onclick = e => { const b = e.target.closest('but
 document.querySelectorAll('.pad button').forEach(b => b.onclick = () => move(b.dataset.d));
 document.getElementById('undo').onclick = undo;
 document.getElementById('restart').onclick = () => load(li);
+document.getElementById('surprise').onclick = () => {
+  const L = generate(1 + Math.floor(Math.random() * 1e9)); if (!L) return;
+  LEVELS.push(L); load(LEVELS.length - 1); board.focus();
+};
 document.addEventListener('keydown', e => {
   if (e.target.closest && e.target.closest('input,textarea')) return;
   const k = {ArrowUp: 'U', ArrowDown: 'D', ArrowLeft: 'L', ArrowRight: 'R', w: 'U', s: 'D', a: 'L', d: 'R'}[e.key];
@@ -126,6 +165,6 @@ board.addEventListener('pointerup', e => {
   if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
   move(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'R' : 'L') : (dy > 0 ? 'D' : 'U'));
 });
-window.slideGame = {LEVELS, bfsPar, move, load, state: () => ({li, pos: pos.slice(), moves, won: won()}), best: () => ({...best})};
+window.slideGame = {LEVELS, bfsPar, move, load, state: () => ({li, pos: pos.slice(), moves, won: won()}), best: () => ({...best}), generate, analyse};
 load(0);
 </script></body></html>
