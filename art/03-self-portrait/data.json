@@ -559,6 +559,12 @@
    "tool",
    1,
    "blank-canvas check (as displayed); v1 missed the bug in a mutation test, v2 catches it"
+  ],
+  [
+   93,
+   "writing",
+   2,
+   "essay: Break it on purpose; its own fact-check silently skipped a quote (fixed), and a mutation that didn't mutate"
   ]
  ]
 }
