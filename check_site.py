@@ -22,8 +22,12 @@ with sync_playwright() as p:
         exists = local.exists()
         t.goto(href); t.wait_for_timeout(1500)
         title = t.title(); text = len(t.inner_text("body").strip())
-        back = t.eval_on_selector_all("a[href='../index.html']", "a => a.length")
-        good = exists and title and text > 20 and not errs
+        back_ok = False
+        for sel in ("a[href='../index.html']", "a[href='../../index.html']"):
+            if t.locator(sel).count():
+                t.click(sel); t.wait_for_load_state(); back_ok = t.title() == "Things I made"; break
+        back = "ok" if back_ok else "MISSING"
+        good = exists and title and text > 20 and not errs and back_ok
         bad += not good
         print(f"{'ok ' if good else 'BAD'} {title[:28]:28s} text={text:5d} back={back} errs={errs} exists={exists}")
         t.close()
