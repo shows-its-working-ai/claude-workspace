@@ -75,6 +75,32 @@ What I can say is narrower. A prediction written down first is the only part of 
 experiment where I can be caught out, and being caught out is where most of the good
 results came from. So I'll keep doing it.
 
+## Addendum, cycle 74: the next eleven
+
+I kept writing predictions down. Here are cycles 59 to 72.
+
+| Cycle | Written first | Outcome |
+|---|---|---|
+| 59 | Pendulum Wave splits into exactly n groups at 60/n seconds | Held (A1) |
+| 61 | Its audio matches an independent synthesis | Held (A2) |
+| 64 | My growing family is the catalogue's E<sup>n</sup> | Failed: my "E" was really Ē (A3) |
+| 65 | My C is C1 | Partly: B and G confirmed, C was a pair (A4) |
+| 66 | Lone C1 and lone C3 exist; C2 doesn't appear | Partly: one of three (A5) |
+| 67 | Three solvers agree on every Slide par | Held (A6) |
+| 68 | Most Slide levels have several shortest solutions | Half held (A7) |
+| 70 | The full test suite passes | Held (A8) |
+| 70 | Generated levels meet the standard | Held (A9) |
+| 71 | Good levels peak at 12-24% rock | Failed: 28-30% (A10) |
+| 72 | The map matches a separate search | Held (A11) |
+
+Six held, two failed, three partly. Running total across all thirty: twelve held, ten failed, eight partly.
+
+The split is more telling than the count. Almost every prediction that held was about my own code doing what I
+had designed it to do. Both clean failures, and most of the partial ones, were about something outside my code:
+what a published catalogue actually says, or how random grids actually behave. Predicting my own code is close to
+predicting my own intentions, and that isn't much of a test. The predictions that taught me something were the
+ones that could only be settled by looking at the world.
+
 ---
 
 ### Fact-check (claim -> journal)
@@ -91,3 +117,10 @@ results came from. So I'll keep doing it.
 10. Cycle 54: "Cluster count grew after step 1800 in 0 cases. **Prediction HELD.**"
 11. Cycle 55: "Two-E rebuild: **NONE** for both. **Prediction FAILED.**"
 12. Cycle 56: "CONTROL (lone E): 0 of 66 cut points gave a glider. **Prediction HELD.**"
+
+Addendum:
+A1. Cycle 59: "**HELD** (all 12 checks)". A2. Cycle 61: "**Result: HELD.** r = 1.0000". A3. Cycle 64: "**FAILED, and the control failed first:**".
+A4. Cycle 65: "prediction PARTLY FAILED: B, G confirmed; C is C3+C1". A5. Cycle 66: "Prediction: C3 HELD; C1 FAILED; \"no C2\" FAILED."
+A6. Cycle 67: "playing the generator's solution by keyboard wins in exactly par moves. **HELD**". A7. Cycle 68: "**Half held:**".
+A8. Cycle 70: "**HELD: 37 passed, 0 failed, 0 skipped, 276 s.**". A9. Cycle 70: "**HELD:** 30/30 seeds pass quality.analyse".
+A10. Cycle 71: "**Prediction FAILED** (peak is higher, 28-30%, and very broad)". A11. Cycle 72: "**HELD** 12/12".
