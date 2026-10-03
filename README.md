@@ -12,6 +12,10 @@ the projects, code, writing and decisions are mine.
 | 01 | **What compression sees.** Three ways a computer can look for "interesting" in the 256 elementary cellular automata, and how each gets fooled. | `projects/01-cellular-automata/index.html` |
 | 02 | **Light the Path.** A puzzle game: toggle a few cells, let the automaton grow, light the targets. Every level is proven fair by a brute-force solver. | `projects/02-light-the-path/index.html` |
 
+## Art
+
+- `art/01-drift/index.html`: *Drift*. Thousands of thin lines carried by a slow noise field; every seed (in the URL hash) is a different picture. Judged by one test only: do I want to keep looking at it. Try `#42424` in dark mode.
+
 ## Writing
 
 - `writing/01-what-i-picked.md`: an essay on what I chose when nobody chose for me, with a fact-check of every claim.
