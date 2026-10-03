@@ -50,12 +50,13 @@ def make(rule, par, rng, geo):
     still-winning wrong attempts (ties broken randomly), then prune any mark
     that kills nothing on its own, so every remaining mark is necessary."""
     from quality import audit
-    W, T, zone = geo["W"], geo["T"], geo["zone"]
+    W, T, zone, base = geo["W"], geo["T"], geo["zone"], geo.get("base")
     attempts = [c for k in range(par + 1) for c in itertools.combinations(zone, k)]
-    grids = {a: run(rule, a, W, T) for a in attempts}
+    grids = {a: run(rule, a, W, T, base) for a in attempts}
     cells = [(t, x) for t in range(T // 2, T) for x in range(W)]
+    pool = [a for a in geo["pool"] if len(a) == par] if "pool" in geo else None
     for _ in range(500):
-        hidden = tuple(sorted(rng.sample(zone, par)))
+        hidden = tuple(sorted(rng.choice(pool))) if pool else tuple(sorted(rng.sample(zone, par)))
         g = grids[hidden]
         cand = [("goals" if g[t][x] else "avoid", (t, x)) for t, x in cells]
         ok = lambda a, m: grids[a][m[1][0]][m[1][1]] == (m[0] == "goals")
@@ -72,6 +73,8 @@ def make(rule, par, rng, geo):
         level = {"rule": rule, "par": par, "W": W, "T": T, "zone": zone,
                  "goals": [m[1] for m in marks if m[0] == "goals"],
                  "avoid": [m[1] for m in marks if m[0] == "avoid"]}
+        if base:
+            level["base"] = base
         while True:  # prune redundant marks
             gm = [("goal", m) for m in level["goals"]] + [("avoid", m) for m in level["avoid"]]
             elim = audit(level)[1]
@@ -85,11 +88,35 @@ def make(rule, par, rng, geo):
             return level
     raise RuntimeError(f"no level for rule {rule} par {par}")
 
+# Chapter 3: the board starts as Rule 110's ether (14-cell tile, see ether.py), and the
+# hidden solution is always a flip pattern that launches a PERSISTENT glider (glider_search.py).
+ETHER = [int(c) for c in "00010011011111"]
+CH3 = {"W": 56, "T": 42, "zone": list(range(21, 35)), "base": ETHER * 4}
+CH3_PLAN = [(110, 1), (110, 2), (110, 3)]
+
+def glider_seeds(geo, max_k=3, check_t=150, max_span=30):
+    """Flip sets in the zone whose defect vs the clean ether is still alive and compact
+    after check_t steps, i.e. they launched a glider."""
+    W, base = geo["W"], geo["base"]
+    clean = run(110, [], W, check_t + 1, base)[-1]
+    seeds = []
+    for k in range(1, max_k + 1):
+        for flips in itertools.combinations(geo["zone"], k):
+            last = run(110, flips, W, check_t + 1, base)[-1]
+            d = [i for i in range(W) if last[i] != clean[i]]
+            if d and min(max(d) - min(d), W - (max(d) - min(d))) + 1 <= max_span:
+                seeds.append(flips)
+    return seeds
+
 if __name__ == "__main__":
     ch1 = json.load(open("levels_ch1.json"))
     rng = random.Random(110)
     ch2 = [make(rule, par, rng, CH2) for rule, par in CH2_PLAN]
-    levels = ch1 + ch2
+    CH3["pool"] = glider_seeds(CH3)
+    print("chapter 3 glider seeds by size:", {k: sum(len(s) == k for s in CH3["pool"]) for k in (1, 2, 3)})
+    geo3 = {k: v for k, v in CH3.items()}
+    ch3 = [make(rule, par, random.Random(1100 + par), geo3) for rule, par in CH3_PLAN]
+    levels = ch1 + ch2 + ch3
     for i, lv in enumerate(levels, 1):
         # independent re-check of the stored answers, for EVERY level
         assert all(wins(lv, s) for s in lv["solutions"])

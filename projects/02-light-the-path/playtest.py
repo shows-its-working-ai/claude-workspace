@@ -35,3 +35,18 @@ with sync_playwright() as p:
     print("js errors:", errs)
     ctx.close()
 print("ALL PASS" if ok and done == len(levels) and not errs else "FAILURES")
+
+# Regression (cycle 23): a resize must not wipe the player's toggles or result.
+with sync_playwright() as p:
+    ctx = open_browser(p); pg = ctx.new_page(); pg.set_viewport_size({"width": 900, "height": 900})
+    pg.goto((HERE / "index.html").as_uri()); lv = levels[0]
+    pg.click("button.lv[data-i='0']"); box = pg.locator("#cv").bounding_box()
+    for x in lv["solutions"][0]:
+        pg.mouse.click(box["x"] + (x + .5) * box["width"] / lv["W"], box["y"] + .5 * box["height"] / lv["T"])
+    pg.click("#run"); pg.wait_for_function("document.body.dataset.result === 'win'")
+    pg.set_viewport_size({"width": 390, "height": 700}); pg.wait_for_timeout(300)
+    kept = pg.evaluate("document.body.dataset.result")
+    stat = pg.inner_text("#stat")
+    print("after resize: result =", kept, "|", stat)
+    print("RESIZE KEEPS STATE" if kept == "win" and "toggles 1" in stat else "RESIZE WIPED STATE")
+    ctx.close()

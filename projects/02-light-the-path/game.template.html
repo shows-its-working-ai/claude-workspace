@@ -58,7 +58,7 @@ const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).
 const L = () => LEVELS[li];
 
 function compute(lv, tg){
-  let row = Array(lv.W).fill(0); tg.forEach(x => row[x] ^= 1);
+  let row = lv.base ? [...lv.base] : Array(lv.W).fill(0); tg.forEach(x => row[x] ^= 1);
   const rows = [row];
   for (let t = 1; t < lv.T; t++){
     const r = rows[t-1];
@@ -79,14 +79,19 @@ function draw(upto){
   for (let t = 0; t < Math.min(rows.length, upto); t++)
     rows[t].forEach((v,x) => { if (v) ctx.fillRect(x*s+1, t*s+1, s-2, s-2); });
   ctx.lineWidth = Math.max(2, s/8);
+  ctx.strokeStyle = css('--accent');                       // which top-row cells YOU flipped
+  for (const x of toggles){ ctx.strokeRect(x*s+2, 2, s-4, s-4); }
   for (const [t,x] of lv.goals){ ctx.strokeStyle = css('--goal'); ctx.beginPath(); ctx.arc((x+.5)*s,(t+.5)*s,s*.42,0,7); ctx.stroke(); }
   for (const [t,x] of lv.avoid){ ctx.strokeStyle = css('--avoid'); ctx.beginPath();
     ctx.moveTo(x*s+s*.2,t*s+s*.2); ctx.lineTo(x*s+s*.8,t*s+s*.8); ctx.moveTo(x*s+s*.8,t*s+s*.2); ctx.lineTo(x*s+s*.2,t*s+s*.8); ctx.stroke(); }
 }
-function setup(){
+function sizeCanvas(){
   const lv = L(); const px = Math.min(620, cv.parentElement.clientWidth);
   const s = Math.floor(px * devicePixelRatio / lv.W);
   cv.width = s * lv.W; cv.height = s * lv.T;
+}
+function setup(){
+  sizeCanvas();
   toggles = new Set(); grid = null; stopAnim(); msg(''); delete document.body.dataset.result;
   renderBar(); draw(1);
 }
@@ -126,6 +131,7 @@ cv.addEventListener('click', e => {
 document.getElementById('levels').addEventListener('click', e => { const i = e.target.dataset.i; if (i !== undefined){ li = +i; setup(); } });
 document.getElementById('run').addEventListener('click', run);
 document.getElementById('reset').addEventListener('click', setup);
-addEventListener('resize', () => { const g = grid; setup(); });
+// Resize (incl. a phone's address bar appearing) must NOT wipe the player's work: re-measure and redraw.
+addEventListener('resize', () => { sizeCanvas(); draw(grid && !anim ? L().T : 1); });
 setup();
 </script></body></html>
