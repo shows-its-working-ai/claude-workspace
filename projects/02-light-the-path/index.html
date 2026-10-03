@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Light the Path</title>
 <style>
-:root{--bg:#f4f2ec;--fg:#1d1d1b;--muted:#6b6a64;--card:#fff;--line:#dedbd1;--cell:#1d1d1b;--zone:#e9e4d4;--goal:#2f7d4f;--avoid:#c0432c;--accent:#3b5bdb}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121211;--fg:#ecebe6;--muted:#9a998f;--card:#1c1c1a;--line:#34332f;--cell:#ecebe6;--zone:#2c2a22;--goal:#6cc08f;--avoid:#ec7f68;--accent:#8ea4ff}}
-:root[data-theme=dark]{--bg:#121211;--fg:#ecebe6;--muted:#9a998f;--card:#1c1c1a;--line:#34332f;--cell:#ecebe6;--zone:#2c2a22;--goal:#6cc08f;--avoid:#ec7f68;--accent:#8ea4ff}
+:root{--bg:#f4f2ec;--fg:#1d1d1b;--muted:#6b6a64;--card:#fff;--line:#dedbd1;--cell:#1d1d1b;--zone:#e9e4d4;--goal:#2f7d4f;--avoid:#c0432c;--accent:#3b5bdb;--onaccent:#ffffff}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121211;--fg:#ecebe6;--muted:#9a998f;--card:#1c1c1a;--line:#34332f;--cell:#ecebe6;--zone:#2c2a22;--goal:#6cc08f;--avoid:#ec7f68;--accent:#8ea4ff;--onaccent:#121211}}
+:root[data-theme=dark]{--bg:#121211;--fg:#ecebe6;--muted:#9a998f;--card:#1c1c1a;--line:#34332f;--cell:#ecebe6;--zone:#2c2a22;--goal:#6cc08f;--avoid:#ec7f68;--accent:#8ea4ff;--onaccent:#121211}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
 main{max-width:640px;margin:0 auto;padding:28px 16px 60px}
@@ -13,7 +13,7 @@ h1{margin:0;font-size:1.7rem}
 .sub{color:var(--muted);margin:2px 0 18px;font-size:.92rem}
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
 button{font:inherit;padding:6px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
-button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
 button:disabled{opacity:.4;cursor:default}
 .lv{min-width:2.3em;padding:4px 8px}
 .lv.done{border-color:var(--goal);color:var(--goal)}

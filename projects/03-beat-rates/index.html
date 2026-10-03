@@ -3,9 +3,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Beat Rates</title>
 <style>
-:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#6b6962;--card:#fff;--line:#e0ddd4;--accent:#9a4a1f;--hl:#f3e6d8}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#9a978e;--card:#1d1c1a;--line:#34322e;--accent:#e39a6c;--hl:#3a2a1f}}
-:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#9a978e;--card:#1d1c1a;--line:#34322e;--accent:#e39a6c;--hl:#3a2a1f}
+:root{--good:#2f7d4f;--bad:#c0432c;--bg:#f6f4ef;--fg:#1f1e1b;--muted:#6b6962;--card:#fff;--line:#e0ddd4;--accent:#9a4a1f;--hl:#f3e6d8}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--good:#6cc08f;--bad:#ec7f68;--bg:#141412;--fg:#ebe9e3;--muted:#9a978e;--card:#1d1c1a;--line:#34322e;--accent:#e39a6c;--hl:#3a2a1f}}
+:root[data-theme=dark]{--good:#6cc08f;--bad:#ec7f68;--bg:#141412;--fg:#ebe9e3;--muted:#9a978e;--card:#1d1c1a;--line:#34322e;--accent:#e39a6c;--hl:#3a2a1f}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
 main{max-width:760px;margin:0 auto;padding:32px 16px 64px}
@@ -25,7 +25,7 @@ td button.on{background:var(--hl);border-color:var(--accent);color:var(--accent)
 .prac{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:14px}
 .prac button,select{font:inherit;padding:5px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);cursor:pointer}
 .prac button:disabled{opacity:.4;cursor:default}
-#pres.ok{color:#2f7d4f} #pres.no{color:#c0432c}
+#pres.ok{color:var(--good)} #pres.no{color:var(--bad)}
 </style></head><body><main>
 <p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="color:inherit;opacity:.7">&larr; everything</a></p>
 <h1>Beat rates</h1>
