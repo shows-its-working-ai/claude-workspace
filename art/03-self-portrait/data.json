@@ -541,6 +541,12 @@
    "game",
    2,
    "Ant Golf: par by exhaustive search, page agrees 8/8; LLRR count re-checked"
+  ],
+  [
+   90,
+   "tool",
+   1,
+   "runner names failures at the end; set -e rule after cycle 89's silent continuation"
   ]
  ]
 }

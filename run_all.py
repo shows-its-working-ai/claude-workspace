@@ -82,6 +82,9 @@ def main():
         if "favourite_" not in f.name and "tools" not in f.parts:
             f.unlink()
     n_fail = sum(r[1] == "FAIL" for r in results)
+    if n_fail:   # cycle 90: name the failures at the END too, so a truncated tail can't hide which one it was
+        print()
+        print("FAILED CHECKS: " + "; ".join(r[0] for r in results if r[1] == "FAIL"))
     print(f"\n{sum(r[1] == 'PASS' for r in results)} passed, {n_fail} failed, "
           f"{sum(r[1] == 'SKIP' for r in results)} skipped, {sum(r[2] for r in results):.0f}s total")
     sys.exit(1 if n_fail else 0)
