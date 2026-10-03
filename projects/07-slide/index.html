@@ -30,17 +30,19 @@ button:focus-visible,#board:focus-visible{outline:3px solid var(--accent);outlin
 <p class="sub">You're on ice. Each move slides you until a rock or the wall stops you. Come to rest on the
 green ring. Made by Claude, an AI; every level was solved by a computer search, so "par" is the true fewest moves.</p>
 <div class="bar" id="pick"></div>
-<div id="board" tabindex="0" role="application" aria-label="Slide puzzle. Use arrow keys to slide."></div>
+<div style="position:relative;max-width:432px;margin:0 auto"><canvas id="map" aria-hidden="true" style="position:absolute;inset:0;z-index:2;width:100%;height:100%;pointer-events:none;display:none"></canvas>
+<div id="board" tabindex="0" role="application" aria-label="Slide puzzle. Use arrow keys to slide."></div></div>
 <p id="status" role="status" aria-live="polite"></p>
 <div class="pad" aria-label="Move buttons">
   <span></span><button data-d="U" aria-label="Slide up">↑</button><span></span>
   <button data-d="L" aria-label="Slide left">←</button><button data-d="D" aria-label="Slide down">↓</button><button data-d="R" aria-label="Slide right">→</button>
 </div>
 <div class="bar" style="justify-content:center">
-  <button id="undo">Undo</button><button id="restart">Restart</button><button id="surprise">Surprise me</button>
+  <button id="undo">Undo</button><button id="restart">Restart</button><button id="surprise">Surprise me</button><button id="showmap" hidden aria-pressed="false">Show the map</button>
 </div>
 <p class="note">Some levels have dead ends: spots you can slide into but never out of. The page tells you.
-Solved levels are remembered on this device.<br>Keys: arrows (or WASD) to slide, U to undo, R to restart. On a phone, swipe on the board.
+Solved levels are remembered on this device. After a win, "Show the map"
+draws every spot you could have stopped on (darker = further from the start), every slide between them, the dead ends (×), and the shortest route (green).<br>Keys: arrows (or WASD) to slide, U to undo, R to restart. On a phone, swipe on the board.
 Par is computed again in your browser by its own search when each level loads, and must equal the par
 my generator found; the page holds no solutions.</p>
 </main>
@@ -111,6 +113,7 @@ function canReachGoal(L, from){                         // is the goal still rea
 const board = document.getElementById('board'), status = document.getElementById('status');
 function load(i){
   li = i; const L = LEVELS[i]; pos = L.start.slice(); hist = []; moves = 0;
+  const sm = document.getElementById('showmap'); if (sm){ sm.hidden = true; setMap(false); }
   L.livePar = bfsPar(L);
   board.style.gridTemplateColumns = `repeat(${L.grid[0].length}, 1fr)`;
   status.textContent = ''; status.className = ''; render();
@@ -136,12 +139,54 @@ function move(d){
   hist.push(pos); pos = n; moves++;
   if (won()){
     const L = LEVELS[li]; best[li] = Math.min(best[li] || Infinity, moves); saveBest();
-    status.className = 'win';
+    status.className = 'win'; document.getElementById('showmap').hidden = false;
     status.textContent = moves === L.par ? `Solved in ${moves}: that's par, the fewest possible.` : `Solved in ${moves} (par ${L.par}).`;
   }
   else if (!canReachGoal(LEVELS[li], pos)){ status.className = 'trap'; status.textContent = 'No way out from here: undo (U) or restart (R).'; }
   render();
 }
+// ---- cycle 72: after a win, reveal the level's hidden structure ----
+function levelMap(L){                                    // every resting spot reachable from the start, and every slide
+  const key = p => p[0] * 100 + p[1], dist = new Map([[key(L.start), 0]]), pts = new Map([[key(L.start), L.start]]);
+  const edges = [], q = [L.start], parent = new Map();
+  for (let i = 0; i < q.length; i++){
+    const p = q[i];
+    for (const d of 'UDLR'){
+      const n = slide(L.grid, p[0], p[1], d); if (key(n) === key(p)) continue;
+      edges.push([p, n]);
+      if (!dist.has(key(n))){ dist.set(key(n), dist.get(key(p)) + 1); pts.set(key(n), n); parent.set(key(n), p); q.push(n); }
+    }
+  }
+  const route = [L.goal]; while (parent.has(key(route[0]))) route.unshift(parent.get(key(route[0])));
+  const spots = [...pts.values()].map(p => ({p, d: dist.get(key(p)), trap: !canReachGoal(L, p)}));
+  return {spots, edges, route, maxd: Math.max(...spots.map(s => s.d))};
+}
+function drawMap(){
+  const L = LEVELS[li], m = levelMap(L), cv = document.getElementById('map'), W = L.grid[0].length, H = L.grid.length;
+  const r = board.getBoundingClientRect(), dpr = devicePixelRatio || 1; cv.width = r.width * dpr; cv.height = r.height * dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  const cw = r.width / W, ch = r.height / H, cx = p => (p[1] + .5) * cw, cy = p => (p[0] + .5) * ch;
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  ctx.lineWidth = 1.5; ctx.strokeStyle = css('--muted'); ctx.globalAlpha = .35;
+  for (const [a, b] of m.edges){ ctx.beginPath(); ctx.moveTo(cx(a), cy(a)); ctx.lineTo(cx(b), cy(b)); ctx.stroke(); }
+  ctx.globalAlpha = 1; ctx.strokeStyle = css('--good'); ctx.lineWidth = 3;      // one shortest route, start -> goal
+  ctx.beginPath(); m.route.forEach((p, i) => i ? ctx.lineTo(cx(p), cy(p)) : ctx.moveTo(cx(p), cy(p))); ctx.stroke();
+  for (const s of m.spots){                               // colour = distance from start (light near, dark far)
+    const t = s.d / Math.max(1, m.maxd);
+    ctx.fillStyle = `hsl(222 70% ${70 - 40 * t}%)`;
+    if (s.trap){ ctx.strokeStyle = css('--muted'); ctx.lineWidth = 2; const k = cw * .14;
+      ctx.beginPath(); ctx.moveTo(cx(s.p) - k, cy(s.p) - k); ctx.lineTo(cx(s.p) + k, cy(s.p) + k);
+      ctx.moveTo(cx(s.p) + k, cy(s.p) - k); ctx.lineTo(cx(s.p) - k, cy(s.p) + k); ctx.stroke(); }
+    else { ctx.beginPath(); ctx.arc(cx(s.p), cy(s.p), cw * .12, 0, 7); ctx.fill(); }
+  }
+  cv.dataset.spots = m.spots.length; cv.dataset.edges = m.edges.length; cv.dataset.traps = m.spots.filter(s => s.trap).length; cv.dataset.route = m.route.length - 1;
+}
+function setMap(on){
+  const cv = document.getElementById('map'), b = document.getElementById('showmap');
+  cv.style.display = on ? 'block' : 'none'; b.setAttribute('aria-pressed', String(on)); b.textContent = on ? 'Hide the map' : 'Show the map';
+  if (on) drawMap();
+}
+document.getElementById('showmap').onclick = () => setMap(document.getElementById('map').style.display === 'none');
 function undo(){ if (!hist.length) return; pos = hist.pop(); moves--; status.className = ''; render(); }
 document.getElementById('pick').onclick = e => { const b = e.target.closest('button'); if (b) { load(+b.dataset.i); board.focus(); } };
 document.querySelectorAll('.pad button').forEach(b => b.onclick = () => move(b.dataset.d));
