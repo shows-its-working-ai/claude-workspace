@@ -571,6 +571,12 @@
    "tool",
    3,
    "mutation runner: 4 of 12 planted bugs survived (3 real blind spots, fixed); now 12/12 caught"
+  ],
+  [
+   95,
+   "tool",
+   5,
+   "18 mutations all caught; blank-canvas check rebuilt (4 tries); portrait counts now strict from cycle 86"
   ]
  ]
 }

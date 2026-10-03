@@ -38,6 +38,20 @@ MUTATIONS = [
      "1,735 seeds made a glider", "1,753 seeds made a glider", "Essay 10: quotes + numbers vs journal"),
     ("story 08: seconds pendulum 99.4 cm -> 98.4 cm", "writing/08-the-rating-nut.md",
      "**99.4 cm**", "**98.4 cm**", "Story 08: physics numbers recomputed"),
+    # --- cycle 95: six more checks ---
+    ("night crossing: a choice points at a scene that doesn't exist", "writing/06-night-crossing/story.json",
+     '["Try to sleep again", "sleep"]', '["Try to sleep again", "slep"]', "Night Crossing: story graph"),
+    ("all 88: panels never draw their cells", "art/06-all-88/index.html",
+     "row.forEach((v, x) => { if (v) ctx.fillRect(x, t, 1, 1); })", "row.forEach((v, x) => { if (v && false) ctx.fillRect(x, t, 1, 1); })",
+     "no blank canvases (as displayed, every page)"),
+    ("slide: source link points at a folder that doesn't exist", "projects/07-slide/index.html",
+     "tree/main/projects/07-slide", "tree/main/projects/07-slider", "every page links to its own tracked source"),
+    ("self-portrait: cycle 94's caught count typed as 0", "art/03-self-portrait/data.json",
+     '   94,\n   "tool",\n   3,', '   94,\n   "tool",\n   0,', "Self-portrait: caught counts vs journal (one-way)"),
+    ("ant colours: symmetry never reported", "projects/09-ant/index.html",
+     "if (cnt < 100) return null;", "if (cnt < 100000) return null;", "Ant colours: symmetry indicator == Python"),
+    ("slide: muted text made too pale to read", "projects/07-slide/index.html",
+     "--muted:#5f5d57", "--muted:#c9c6bd", "contrast (WCAG, both themes)"),
 ]
 
 def run_check(name):
@@ -52,6 +66,8 @@ caught, survivors, broken = [], [], []
 for label, f, find, repl, check in MUTATIONS:
     if only and not any(o in label for o in only): continue
     path = ROOT / f; orig = path.read_bytes(); text = orig.decode("utf-8")
+    if text.count(find) == 0 and "\n" in find and text.count(find.replace("\n", "\r\n")) == 1:
+        find, repl = find.replace("\n", "\r\n"), repl.replace("\n", "\r\n")   # cycle 95: files with CRLF on disk
     if text.count(find) != 1:
         broken.append(label); print(f"ANCHOR MISSING ({text.count(find)}x)  {label}"); continue
     path.write_bytes(text.replace(find, repl).encode("utf-8"))

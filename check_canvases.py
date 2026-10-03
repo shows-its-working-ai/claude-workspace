@@ -8,6 +8,7 @@ v1 of this check read the internal bitmap and MISSED the cycle-91 bug in a mutat
 huge bitmap but vanished when scaled down); hence screenshots.
 Prediction (written first, for v1): the current site has 0 blank canvases. (v1 found one, intentional; see ALLOW.)"""
 import base64, subprocess, sys
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")   # labels like B-bar use combining marks
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "tools"))
@@ -19,29 +20,43 @@ ALLOW = {("projects/09-ant/index.html", 0): "starts as an empty grid on purpose;
 ONLY = sys.argv[1:]                                   # optional: check only these pages (used by the mutation test)
 tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
 pages = ONLY or [f for f in tracked if f.endswith(".html") and "template" not in f]
-MEASURE = """async (b64) => {
-  const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode();
-  const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
-  const x = c.getContext('2d'); x.drawImage(img, 0, 0); const d = x.getImageData(0, 0, c.width, c.height).data;
-  const counts = new Map();
-  for (let k = 0; k < d.length; k += 4){ const key = d[k] << 16 | d[k+1] << 8 | d[k+2]; counts.set(key, (counts.get(key) || 0) + 1); }
-  let topKey = 0, top = -1; for (const [k, v] of counts) if (v > top){ top = v; topKey = k; }
-  const tr = topKey >> 16 & 255, tg = topKey >> 8 & 255, tb = topKey & 255; let diff = 0;
-  for (let k = 0; k < d.length; k += 4) if (Math.abs(d[k] - tr) + Math.abs(d[k+1] - tg) + Math.abs(d[k+2] - tb) > 40) diff++;
-  return diff / (d.length / 4);
+MEASURE = """async ([a64, b64]) => {
+  // fraction of pixels where the canvas (a) differs from an EMPTY copy of itself with identical CSS (b).
+  // cycle 95, final design: b is the same canvas, same place, cleared; borders, corners, backgrounds and
+  // anti-aliasing cancel out and only what it drew remains. (Rejected: reading the bitmap; counting colours; an
+  // overlaid empty clone, which was transparent and so showed the original underneath.)
+  const load = async s => { const i = new Image(); i.src = 'data:image/png;base64,' + s; await i.decode(); return i; };
+  const [A, B] = [await load(a64), await load(b64)];
+  if (A.width !== B.width || A.height !== B.height) return -1;
+  const px = im => { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height;
+    const x = c.getContext('2d'); x.drawImage(im, 0, 0); return x.getImageData(0, 0, c.width, c.height).data; };
+  const a = px(A), b = px(B); let diff = 0;
+  for (let k = 0; k < a.length; k += 4) if (Math.abs(a[k] - b[k]) + Math.abs(a[k+1] - b[k+1]) + Math.abs(a[k+2] - b[k+2]) > 40) diff++;
+  return diff / (a.length / 4);
 }"""
 blank, checked, hidden = [], 0, 0
 with sync_playwright() as p:
     ctx = open_browser(p); pg = ctx.new_page(); pg.set_viewport_size({"width": 1000, "height": 900})
+    pg.emulate_media(reduced_motion="reduce")       # animated pages pause, so nothing redraws between the two shots
     for f in pages:
         pg.goto((ROOT / f).as_uri()); pg.wait_for_timeout(1500)
+        # freeze animation loops so nothing repaints between the drawn shot and the cleared (empty) shot
+        pg.evaluate("window.requestAnimationFrame = () => 0"); pg.wait_for_timeout(150)
         canv = pg.locator("canvas")
         for i in range(canv.count()):
             el = canv.nth(i)
             box = el.bounding_box()
             if not box or box["width"] < 2 or box["height"] < 2 or not el.is_visible(): hidden += 1; continue
             el.scroll_into_view_if_needed()
-            frac = pg.evaluate(MEASURE, base64.b64encode(el.screenshot()).decode())
+            shot = el.screenshot()
+            # the empty reference: the SAME canvas in the same place, its pixels saved, cleared, screenshotted, restored
+            saved = el.evaluate("""c => { const x = c.getContext('2d'); if (!x) return false;
+                window.__saved = x.getImageData(0, 0, c.width, c.height); x.clearRect(0, 0, c.width, c.height); return true; }""")
+            if not saved: print(f"SKIP (no 2d context) {f} canvas {i}"); hidden += 1; continue
+            ref = el.screenshot()
+            el.evaluate("c => c.getContext('2d').putImageData(window.__saved, 0, 0)")
+            frac = pg.evaluate(MEASURE, [base64.b64encode(shot).decode(), base64.b64encode(ref).decode()])
+            if frac < 0: print(f"SIZE MISMATCH {f} canvas {i}"); blank.append((f, i)); continue
             checked += 1
             if frac >= MIN_FRACTION: continue
             if (f, i) in ALLOW: print(f"allowed {f} canvas {i}: {ALLOW[(f, i)]}"); continue

@@ -25,4 +25,14 @@ for n, c, h in flags: print(f"  cycle {n}: hand count {c}, journal evidence labe
 # (The other direction is not checked: my wording for caught mistakes varies, so "no label" proves nothing;
 #  cycle 79's manual read found 14 of 16 such flags were vocabulary misses.)
 under = [(n, c, h) for n, c, h in flags if c == 0]
-print("CAUGHT AUDIT OK" if not under else f"UNDERCOUNTED: {under}")
+# cycle 95: since cycle 86 every journal entry states "(count N)", so for those cycles the hand-entered count must
+# EQUAL the journal's (last stated) count, in both directions. A mutation typing cycle 94's count as 0 survived the
+# one-way rule, because cycle 94's entry had no label at all.
+strict = []
+for n, kind, caught, summary in data["cycles"]:
+    if n < 86: continue
+    found = re.findall(r"\(count (\d+)\)|count \+\d+ -> (\d+)", sections[n])
+    stated = int(found[-1][0] or found[-1][1]) if found else 0
+    if stated != caught: strict.append((n, caught, stated))
+if strict: print("COUNT MISMATCH (cycle, data, journal):", strict)
+print("CAUGHT AUDIT OK" if not under and not strict else f"UNDERCOUNTED: {under}")
