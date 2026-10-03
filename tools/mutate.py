@@ -59,6 +59,10 @@ MUTATIONS = [
      "Lights Out: page solver == Python; every level cleared in par"),
     ("essay 14: first-half mistake count 46 -> 47", "writing/14-a-hundred-cycles.md",
      "they caught 46", "they caught 47", "Essay 14: every number recomputed from the records"),
+    # (cycle 103: "only the 4 rotations" survived but changed NOTHING: for these sizes every rotation-symmetric quiet
+    #  pattern is also mirror-symmetric -- an equivalent mutant, and a fact worth noting. Replaced with an observable one.)
+    ("quiet patterns: symmetry test checks one mirror only", "art/08-quiet-patterns/index.html",
+     "return maps.map(f =>", "return [maps[0], maps[4]].map(f =>", "Quiet Patterns: page == Python, every pattern quiet"),
 ]
 
 def run_check(name):
