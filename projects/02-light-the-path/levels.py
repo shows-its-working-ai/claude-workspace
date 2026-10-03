@@ -94,17 +94,29 @@ ETHER = [int(c) for c in "00010011011111"]
 CH3 = {"W": 56, "T": 42, "zone": list(range(21, 35)), "base": ETHER * 4}
 CH3_PLAN = [(110, 1), (110, 2), (110, 3)]
 
-def glider_seeds(geo, max_k=3, check_t=150, max_span=30):
+def circular_span(cells, W):
+    """Length of the smallest arc of the ring that contains every cell: W minus the
+    largest empty gap. (Cycle 23 used min(range, W - range), which scored a defect that
+    had flooded the WHOLE ring as tiny. Floods passed as gliders.)"""
+    c = sorted(cells)
+    gaps = [c[i + 1] - c[i] for i in range(len(c) - 1)] + [c[0] + W - c[-1]]
+    return W - max(gaps) + 1
+
+def glider_seeds(geo, max_k=3, check_t=150, max_span=30, wide_tiles=12):
     """Flip sets in the zone whose defect vs the clean ether is still alive and compact
-    after check_t steps, i.e. they launched a glider."""
-    W, base = geo["W"], geo["base"]
-    clean = run(110, [], W, check_t + 1, base)[-1]
+    after check_t steps, i.e. they launched a glider. Tested on a WIDE ring (same tile
+    alignment) so a spreading defect can't hide by wrapping round the small game board."""
+    tile = len(ETHER); Wb = tile * wide_tiles; off = tile * (wide_tiles // 2)
+    base = ETHER * wide_tiles
+    clean = run(110, [], Wb, check_t + 1, base)[-1]
     seeds = []
     for k in range(1, max_k + 1):
         for flips in itertools.combinations(geo["zone"], k):
-            last = run(110, flips, W, check_t + 1, base)[-1]
-            d = [i for i in range(W) if last[i] != clean[i]]
-            if d and min(max(d) - min(d), W - (max(d) - min(d))) + 1 <= max_span:
+            # same tile phase and same relative spacing as on the game board
+            wide = [off + geo["zone"][0] % tile + (x - geo["zone"][0]) for x in flips]
+            last = run(110, wide, Wb, check_t + 1, base)[-1]
+            d = [i for i in range(Wb) if last[i] != clean[i]]
+            if d and circular_span(d, Wb) <= max_span:
                 seeds.append(flips)
     return seeds
 

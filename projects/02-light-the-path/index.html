@@ -32,6 +32,7 @@ Every level was checked by a brute-force solver.</p>
 <div class="bar" id="levels"></div>
 <div class="bar">
   <button id="run" class="primary">Run</button>
+  <label id="diffwrap" style="display:none;font-size:.9rem"><input type="checkbox" id="diff" checked> Show only what you changed</label>
   <button id="reset">Reset</button>
   <span class="stat" id="stat"></span>
 </div>
@@ -50,7 +51,7 @@ part of the top row, press Run, and see whether every green ring lights up while
 every red cross stays dark. Par is the minimum possible number of toggles.</p></details>
 </main>
 <script>
-const LEVELS = [{"rule": 90, "par": 1, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[9, 18]], "avoid": []}, {"rule": 90, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[10, 28], [12, 11]], "avoid": []}, {"rule": 150, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[16, 10]], "avoid": [[12, 10]]}, {"rule": 30, "par": 1, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[12, 28]], "avoid": [[13, 23]]}, {"rule": 30, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[12, 27], [12, 30], [17, 21]], "avoid": []}, {"rule": 110, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[12, 17], [16, 26]], "avoid": [[15, 4]]}, {"rule": 110, "par": 3, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[11, 5], [9, 3], [13, 17], [16, 11]], "avoid": []}, {"rule": 54, "par": 3, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[9, 29], [10, 1], [11, 13], [15, 17]], "avoid": []}, {"rule": 110, "par": 2, "W": 41, "T": 28, "zone": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], "goals": [[17, 25]], "avoid": [[24, 12], [21, 11]]}, {"rule": 110, "par": 3, "W": 41, "T": 28, "zone": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], "goals": [[26, 24]], "avoid": [[16, 22], [24, 18], [22, 18]]}, {"rule": 110, "par": 3, "W": 41, "T": 28, "zone": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], "goals": [[25, 29], [17, 25], [14, 19]], "avoid": [[14, 23]]}, {"rule": 110, "par": 4, "W": 41, "T": 28, "zone": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], "goals": [[19, 35], [15, 25]], "avoid": [[27, 24], [21, 17], [17, 14]]}, {"rule": 110, "par": 1, "W": 56, "T": 42, "zone": [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34], "goals": [[41, 12], [36, 44]], "avoid": [], "base": [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1]}, {"rule": 110, "par": 2, "W": 56, "T": 42, "zone": [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34], "goals": [[30, 24]], "avoid": [[41, 7], [29, 29]], "base": [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1]}, {"rule": 110, "par": 3, "W": 56, "T": 42, "zone": [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34], "goals": [[41, 36]], "avoid": [[32, 51]], "base": [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1]}];
+const LEVELS = [{"rule": 90, "par": 1, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[9, 18]], "avoid": []}, {"rule": 90, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[10, 28], [12, 11]], "avoid": []}, {"rule": 150, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[16, 10]], "avoid": [[12, 10]]}, {"rule": 30, "par": 1, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[12, 28]], "avoid": [[13, 23]]}, {"rule": 30, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[12, 27], [12, 30], [17, 21]], "avoid": []}, {"rule": 110, "par": 2, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[12, 17], [16, 26]], "avoid": [[15, 4]]}, {"rule": 110, "par": 3, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[11, 5], [9, 3], [13, 17], [16, 11]], "avoid": []}, {"rule": 54, "par": 3, "W": 31, "T": 18, "zone": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], "goals": [[9, 29], [10, 1], [11, 13], [15, 17]], "avoid": []}, {"rule": 110, "par": 2, "W": 41, "T": 28, "zone": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], "goals": [[17, 25]], "avoid": [[24, 12], [21, 11]]}, {"rule": 110, "par": 3, "W": 41, "T": 28, "zone": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], "goals": [[26, 24]], "avoid": [[16, 22], [24, 18], [22, 18]]}, {"rule": 110, "par": 3, "W": 41, "T": 28, "zone": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], "goals": [[25, 29], [17, 25], [14, 19]], "avoid": [[14, 23]]}, {"rule": 110, "par": 4, "W": 41, "T": 28, "zone": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26], "goals": [[19, 35], [15, 25]], "avoid": [[27, 24], [21, 17], [17, 14]]}, {"rule": 110, "par": 1, "W": 56, "T": 42, "zone": [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34], "goals": [[23, 38], [25, 38]], "avoid": [], "base": [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1]}, {"rule": 110, "par": 2, "W": 56, "T": 42, "zone": [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34], "goals": [[35, 34]], "avoid": [[41, 52]], "base": [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1]}, {"rule": 110, "par": 3, "W": 56, "T": 42, "zone": [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34], "goals": [[25, 19]], "avoid": [[41, 7], [25, 25], [35, 30]], "base": [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1]}];
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 let li = 0, toggles = new Set(), grid = null, anim = null, solved = new Set();
 try { solved = new Set(JSON.parse(localStorage.getItem('ltp-solved') || '[]')); } catch (e) {}
@@ -66,6 +67,8 @@ function compute(lv, tg){
   }
   return rows;
 }
+const cleanCache = new Map();             // the untouched ether, per level
+function cleanGrid(lv){ if (!cleanCache.has(lv)) cleanCache.set(lv, compute(lv, new Set())); return cleanCache.get(lv); }
 function cellSize(){ return cv.width / L().W; }
 function draw(upto){
   const lv = L(), s = cellSize();
@@ -74,10 +77,17 @@ function draw(upto){
   ctx.strokeStyle = css('--line'); ctx.lineWidth = 1;
   for (let x = 0; x <= lv.W; x++){ ctx.beginPath(); ctx.moveTo(x*s,0); ctx.lineTo(x*s,cv.height); ctx.stroke(); }
   for (let t = 0; t <= lv.T; t++){ ctx.beginPath(); ctx.moveTo(0,t*s); ctx.lineTo(cv.width,t*s); ctx.stroke(); }
-  ctx.fillStyle = css('--cell');
   const rows = grid || [compute(lv, toggles)[0]];
+  const diffMode = lv.base && document.getElementById('diff').checked;
+  const clean = diffMode ? cleanGrid(lv) : null;
+  let changed = 0;
   for (let t = 0; t < Math.min(rows.length, upto); t++)
-    rows[t].forEach((v,x) => { if (v) ctx.fillRect(x*s+1, t*s+1, s-2, s-2); });
+    rows[t].forEach((v,x) => {
+      const differs = diffMode && v !== clean[t][x];
+      if (differs){ changed++; ctx.fillStyle = css('--accent'); ctx.globalAlpha = 1; ctx.fillRect(x*s+1, t*s+1, s-2, s-2); }
+      else if (v){ ctx.fillStyle = css('--cell'); ctx.globalAlpha = diffMode ? .13 : 1; ctx.fillRect(x*s+1, t*s+1, s-2, s-2); }
+    });
+  ctx.globalAlpha = 1; document.body.dataset.changed = changed;
   ctx.lineWidth = Math.max(2, s/8);
   ctx.strokeStyle = css('--accent');                       // which top-row cells YOU flipped
   for (const x of toggles){ ctx.strokeRect(x*s+2, 2, s-4, s-4); }
@@ -93,6 +103,7 @@ function sizeCanvas(){
 function setup(){
   sizeCanvas();
   toggles = new Set(); grid = null; stopAnim(); msg(''); delete document.body.dataset.result;
+  document.getElementById('diffwrap').style.display = L().base ? '' : 'none';
   renderBar(); draw(1);
 }
 function stopAnim(){ if (anim) cancelAnimationFrame(anim); anim = null; }
@@ -130,6 +141,7 @@ cv.addEventListener('click', e => {
 });
 document.getElementById('levels').addEventListener('click', e => { const i = e.target.dataset.i; if (i !== undefined){ li = +i; setup(); } });
 document.getElementById('run').addEventListener('click', run);
+document.getElementById('diff').addEventListener('change', () => draw(grid && !anim ? L().T : 1));
 document.getElementById('reset').addEventListener('click', setup);
 // Resize (incl. a phone's address bar appearing) must NOT wipe the player's work: re-measure and redraw.
 addEventListener('resize', () => { sizeCanvas(); draw(grid && !anim ? L().T : 1); });

@@ -32,6 +32,7 @@ Every level was checked by a brute-force solver.</p>
 <div class="bar" id="levels"></div>
 <div class="bar">
   <button id="run" class="primary">Run</button>
+  <label id="diffwrap" style="display:none;font-size:.9rem"><input type="checkbox" id="diff" checked> Show only what you changed</label>
   <button id="reset">Reset</button>
   <span class="stat" id="stat"></span>
 </div>
@@ -66,6 +67,8 @@ function compute(lv, tg){
   }
   return rows;
 }
+const cleanCache = new Map();             // the untouched ether, per level
+function cleanGrid(lv){ if (!cleanCache.has(lv)) cleanCache.set(lv, compute(lv, new Set())); return cleanCache.get(lv); }
 function cellSize(){ return cv.width / L().W; }
 function draw(upto){
   const lv = L(), s = cellSize();
@@ -74,10 +77,17 @@ function draw(upto){
   ctx.strokeStyle = css('--line'); ctx.lineWidth = 1;
   for (let x = 0; x <= lv.W; x++){ ctx.beginPath(); ctx.moveTo(x*s,0); ctx.lineTo(x*s,cv.height); ctx.stroke(); }
   for (let t = 0; t <= lv.T; t++){ ctx.beginPath(); ctx.moveTo(0,t*s); ctx.lineTo(cv.width,t*s); ctx.stroke(); }
-  ctx.fillStyle = css('--cell');
   const rows = grid || [compute(lv, toggles)[0]];
+  const diffMode = lv.base && document.getElementById('diff').checked;
+  const clean = diffMode ? cleanGrid(lv) : null;
+  let changed = 0;
   for (let t = 0; t < Math.min(rows.length, upto); t++)
-    rows[t].forEach((v,x) => { if (v) ctx.fillRect(x*s+1, t*s+1, s-2, s-2); });
+    rows[t].forEach((v,x) => {
+      const differs = diffMode && v !== clean[t][x];
+      if (differs){ changed++; ctx.fillStyle = css('--accent'); ctx.globalAlpha = 1; ctx.fillRect(x*s+1, t*s+1, s-2, s-2); }
+      else if (v){ ctx.fillStyle = css('--cell'); ctx.globalAlpha = diffMode ? .13 : 1; ctx.fillRect(x*s+1, t*s+1, s-2, s-2); }
+    });
+  ctx.globalAlpha = 1; document.body.dataset.changed = changed;
   ctx.lineWidth = Math.max(2, s/8);
   ctx.strokeStyle = css('--accent');                       // which top-row cells YOU flipped
   for (const x of toggles){ ctx.strokeRect(x*s+2, 2, s-4, s-4); }
@@ -93,6 +103,7 @@ function sizeCanvas(){
 function setup(){
   sizeCanvas();
   toggles = new Set(); grid = null; stopAnim(); msg(''); delete document.body.dataset.result;
+  document.getElementById('diffwrap').style.display = L().base ? '' : 'none';
   renderBar(); draw(1);
 }
 function stopAnim(){ if (anim) cancelAnimationFrame(anim); anim = null; }
@@ -130,6 +141,7 @@ cv.addEventListener('click', e => {
 });
 document.getElementById('levels').addEventListener('click', e => { const i = e.target.dataset.i; if (i !== undefined){ li = +i; setup(); } });
 document.getElementById('run').addEventListener('click', run);
+document.getElementById('diff').addEventListener('change', () => draw(grid && !anim ? L().T : 1));
 document.getElementById('reset').addEventListener('click', setup);
 // Resize (incl. a phone's address bar appearing) must NOT wipe the player's work: re-measure and redraw.
 addEventListener('resize', () => { sizeCanvas(); draw(grid && !anim ? L().T : 1); });
