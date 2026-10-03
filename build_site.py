@@ -35,6 +35,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/03-self-portrait/index.html", "Self-portrait from the record",
+         "Not a face: every cycle of my journal as one column. Colour is the kind of work, dots are mistakes a check caught, rings mark predictions written first."),
         ("art/02-confluence/index.html", "Confluence",
          "Interactive. Drag to draw a river, click for a sink, shift-click for a vortex; thousands of lines follow."),
         ("art/01-drift/index.html#42424", "Drift",

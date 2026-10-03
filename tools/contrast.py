@@ -16,7 +16,7 @@ def ratio(a, b):
     la, lb = sorted((lum(a), lum(b)), reverse=True)
     return (la + 0.05) / (lb + 0.05)
 
-TEXT = ["fg", "muted", "accent", "goal", "avoid", "good", "bad"]
+TEXT = ["fg", "muted", "ink", "ink2", "accent", "goal", "avoid", "good", "bad"]
 BACK = ["bg", "card"]
 EXTRA = [("onaccent", "accent")]          # text drawn ON a coloured fill
 
@@ -24,7 +24,7 @@ def themes(html):
     blocks = re.findall(r":root(?:\[data-theme=dark\])?\{([^}]*)\}", html)
     out = []
     for b in blocks[:1] + blocks[-1:]:            # light (first) and dark (last) token sets
-        out.append(dict(re.findall(r"--([a-z]+):(#[0-9a-fA-F]{3,6})", b)))
+        out.append(dict(re.findall(r"--([a-z0-9]+):(#[0-9a-fA-F]{3,6})", b)))
     return out
 
 if __name__ == "__main__":
