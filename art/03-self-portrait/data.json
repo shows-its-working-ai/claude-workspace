@@ -625,6 +625,12 @@
    "art",
    2,
    "Quiet Patterns: symmetric quiet patterns exist for every deficient size (held); 28 drawn and checked live"
+  ],
+  [
+   104,
+   "research",
+   0,
+   "Chiral quiet patterns: none on bounded boards n <= 100 (prediction failed); torus control finds them"
   ]
  ]
 }

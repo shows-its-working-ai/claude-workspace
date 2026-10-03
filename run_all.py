@@ -23,6 +23,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Lights Out: rank 23, 1/4 solvable, 4 solutions each (brute force 2^25)", "projects/11-lights-out", ["lights.py"], ["PREDICTION HELD"], True),
     ("Lights Out: n x n nullity vs OEIS A075462", "projects/11-lights-out", ["sizes.py"], ["SIZES OK"], False),
     ("Quiet patterns: symmetric ones exist for every deficient n", "art/08-quiet-patterns", ["quiet.py"], ["PREDICTION HELD"], True),
+    ("Quiet patterns: no chiral ones on a bounded board (n <= 100), torus control finds them", "art/08-quiet-patterns", ["chiral.py"], ["cross-checks OK", "chiral sizes: none", "TORUS CONTROL OK"], False),
     ("site links + back links", ".", ["check_site.py"], ["ALL LINKS OK"], False),
     ("contrast (WCAG, both themes)", ".", ["tools/contrast.py", "."], ["0 failing pairs"], False),
     ("keyboard: Confluence + Beat Rates", ".", ["check_keyboard.py"], ["ALL PASS"], False),

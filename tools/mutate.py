@@ -63,6 +63,9 @@ MUTATIONS = [
     #  pattern is also mirror-symmetric -- an equivalent mutant, and a fact worth noting. Replaced with an observable one.)
     ("quiet patterns: symmetry test checks one mirror only", "art/08-quiet-patterns/index.html",
      "return maps.map(f =>", "return [maps[0], maps[4]].map(f =>", "Quiet Patterns: page == Python, every pattern quiet"),
+    ("chiral: rotation generator replaced by a transpose", "art/08-quiet-patterns/chiral.py",
+     "rot = lambda r, c: (c, n - 1 - r)", "rot = lambda r, c: (c, r)",
+     "Quiet patterns: no chiral ones on a bounded board (n <= 100), torus control finds them"),
 ]
 
 def run_check(name):
