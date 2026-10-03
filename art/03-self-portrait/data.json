@@ -479,8 +479,8 @@
   [
    79,
    "site",
-   5,
-   "audit: 5 hand-entered mistake counts disagreed with the journal; fixed + one-way check"
+   6,
+   "audit: 5 hand-entered mistake counts were undercounts; fixed + one-way check (+1 own ordering slip)"
   ]
  ]
 }
