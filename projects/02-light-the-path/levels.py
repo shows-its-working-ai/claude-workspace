@@ -21,8 +21,8 @@ MAX_SOLUTIONS = 3
 CH2 = {"W": 41, "T": 28, "zone": list(range(13, 27))}      # 14 editable cells
 CH2_PLAN = [(110, 2), (110, 3), (110, 3), (110, 4)]
 
-def run(rule, toggles, W, T):
-    row = [0] * W
+def run(rule, toggles, W, T, base=None):
+    row = list(base) if base else [0] * W
     for x in toggles:
         row[x] ^= 1
     rows = [row]
@@ -32,7 +32,7 @@ def run(rule, toggles, W, T):
     return rows
 
 def grid(level, toggles):
-    return run(level["rule"], toggles, level["W"], level["T"])
+    return run(level["rule"], toggles, level["W"], level["T"], level.get("base"))
 
 def wins(level, toggles):
     g = grid(level, toggles)
