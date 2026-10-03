@@ -25,6 +25,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Light the Path: defect view", "projects/02-light-the-path", ["diffview_test.py"], ["ALL PASS"], False),
     ("Beat Rates: table + audio + practice", "projects/03-beat-rates", ["test.py"], ["ALL PASS"], False),
     ("Confluence: pointer A/B", "art/02-confluence", ["look.py"], ["errors: []"], False),
+    ("Self-portrait: caught counts vs journal (one-way)", "art/03-self-portrait", ["audit_caught.py"], ["CAUGHT AUDIT OK"], False),
     ("Self-portrait: layout", "art/03-self-portrait", ["rows.py"], ["OK"], False),
     ("Pendulum Wave: groups + physics + controls", "art/05-pendulum-wave", ["test.py"], ["ALL PASS"], False),
     ("Pendulum Wave: sound == independent synthesis", "art/05-pendulum-wave", ["sound_test.py"], ["ALL PASS"], False),

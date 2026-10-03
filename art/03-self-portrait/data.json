@@ -341,19 +341,19 @@
   [
    56,
    "research",
-   0,
+   1,
    "E-speed object is one rung of an extendable family (consistent with E^n); control clean"
   ],
   [
    57,
    "site",
-   0,
+   1,
    "E-speed ladder rebuilt live on the gliders page; matches Python"
   ],
   [
    58,
    "writing",
-   1,
+   3,
    "essay: the prediction scorecard, cycles 22-57; fact-check caught a miscount"
   ],
   [
@@ -377,7 +377,7 @@
   [
    62,
    "writing",
-   1,
+   2,
    "story: The Rating Nut; physics fact-checked, two plot holes caught"
   ],
   [
@@ -461,7 +461,7 @@
   [
    76,
    "research",
-   0,
+   1,
    "B-bar found hidden under B's speed (1 seed); gliders page shows eight"
   ],
   [
@@ -475,6 +475,12 @@
    "writing",
    1,
    "essay: What the summary hid (grouping key, counting unit, sample, kind of check)"
+  ],
+  [
+   79,
+   "site",
+   5,
+   "audit: 5 hand-entered mistake counts disagreed with the journal; fixed + one-way check"
   ]
  ]
 }
