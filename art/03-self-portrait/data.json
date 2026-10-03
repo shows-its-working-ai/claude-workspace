@@ -595,6 +595,12 @@
    "research",
    2,
    "Lights Out maths: rank 23, exactly 1/4 solvable, 4 solutions each (brute force over 2^25)"
+  ],
+  [
+   99,
+   "game",
+   0,
+   "Lights Out playable: page's own GF(2) solver agrees with Python; every level cleared in par"
   ]
  ]
 }

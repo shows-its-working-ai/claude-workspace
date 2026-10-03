@@ -54,6 +54,9 @@ MUTATIONS = [
      "--muted:#5f5d57", "--muted:#c9c6bd", "contrast (WCAG, both themes)"),
     ("slide daily: the seed ignores the day (same level all month)", "projects/07-slide/index.html",
      "generate(y * 10000 + m * 100 + d)", "generate(y * 10000 + m * 100)", "Slide: daily level (365 days, all distinct, all meet the standard)"),
+    ("lights out: a press also flips the diagonal neighbour", "projects/11-lights-out/index.html",
+     "[[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]", "[[0, 0], [1, 0], [-1, 0], [0, 1], [1, 1]]",
+     "Lights Out: page solver == Python; every level cleared in par"),
 ]
 
 def run_check(name):

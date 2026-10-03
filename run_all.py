@@ -48,6 +48,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Ant colours: symmetry indicator == Python", "projects/09-ant", ["sym_test.py"], ["ALL PASS"], False),
     ("Ant Golf: par == browser search; clicks win", "projects/10-ant-golf", ["test.py"], ["ALL PASS"], False),
     ("Slide: daily level (365 days, all distinct, all meet the standard)", "projects/07-slide", ["daily_test.py"], ["ALL PASS"], False),
+    ("Lights Out: page solver == Python; every level cleared in par", "projects/11-lights-out", ["test.py"], ["ALL PASS"], False),
     ("Nonograms: solver vs brute force", "projects/04-nonograms", ["solver_selftest.py"], ["SOLVER OK"], False),
     ("Nonograms: every picture logic-solvable", "projects/04-nonograms", ["puzzles.py"], ["9/9 accepted"], False),
     ("Nonograms: mouse + keyboard playtest", "projects/04-nonograms", ["playtest.py"], ["ALL PASS"], False),

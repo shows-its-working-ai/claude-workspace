@@ -1,0 +1,74 @@
+[
+ {
+  "name": "Level 1",
+  "board": 4666283,
+  "par": 3,
+  "solution": 131329
+ },
+ {
+  "name": "Level 2",
+  "board": 28640004,
+  "par": 4,
+  "solution": 10485784
+ },
+ {
+  "name": "Level 3",
+  "board": 5426109,
+  "par": 5,
+  "solution": 2163205
+ },
+ {
+  "name": "Level 4",
+  "board": 5186695,
+  "par": 5,
+  "solution": 25171970
+ },
+ {
+  "name": "Level 5",
+  "board": 3835937,
+  "par": 6,
+  "solution": 26347552
+ },
+ {
+  "name": "Level 6",
+  "board": 5816735,
+  "par": 7,
+  "solution": 5513354
+ },
+ {
+  "name": "Level 7",
+  "board": 9818507,
+  "par": 7,
+  "solution": 315744
+ },
+ {
+  "name": "Level 8",
+  "board": 28615835,
+  "par": 8,
+  "solution": 6897776
+ },
+ {
+  "name": "Level 9",
+  "board": 20890841,
+  "par": 9,
+  "solution": 1577460
+ },
+ {
+  "name": "Level 10",
+  "board": 30733389,
+  "par": 10,
+  "solution": 9510576
+ },
+ {
+  "name": "Level 11",
+  "board": 19646961,
+  "par": 11,
+  "solution": 7194177
+ },
+ {
+  "name": "Level 12",
+  "board": 14834573,
+  "par": 12,
+  "solution": 3502801
+ }
+]
