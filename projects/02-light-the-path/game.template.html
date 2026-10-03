@@ -24,6 +24,11 @@ canvas{width:100%;display:block;background:var(--card);border:1px solid var(--li
 .win{color:var(--goal)} .lose{color:var(--avoid)}
 details{color:var(--muted);font-size:.9rem;margin-top:16px}
 .legend span{display:inline-block;margin-right:14px}
+.cells{display:flex;gap:3px;flex-wrap:wrap;margin:0 0 8px}
+.cells:not(:focus-within){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.cells button{font:inherit;font-size:.8rem;min-width:2.2em;padding:3px 5px;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg);cursor:pointer}
+.cells button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--onaccent)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 </style></head><body><main>
 <p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="color:inherit;opacity:.7">&larr; everything</a></p>
 <h1>Light the Path</h1>
@@ -36,8 +41,9 @@ Every level was checked by a brute-force solver.</p>
   <button id="reset">Reset</button>
   <span class="stat" id="stat"></span>
 </div>
-<canvas id="cv"></canvas>
-<div id="msg"></div>
+<div id="cells" class="cells" role="group" aria-label="Cells you can flip in the top row"></div>
+<canvas id="cv" aria-hidden="true"></canvas>
+<div id="msg" role="status" aria-live="polite"></div>
 <div class="legend" style="font-size:.9rem;color:var(--muted)">
   <span>▭ shaded strip = cells you can toggle</span>
   <span style="color:var(--goal)">◯ must light up</span>
@@ -104,15 +110,17 @@ function setup(){
   sizeCanvas();
   toggles = new Set(); grid = null; stopAnim(); msg(''); delete document.body.dataset.result;
   document.getElementById('diffwrap').style.display = L().base ? '' : 'none';
-  renderBar(); draw(1);
+  buildCells(); renderBar(); draw(1);
 }
 function stopAnim(){ if (anim) cancelAnimationFrame(anim); anim = null; }
 function msg(text, cls){ const m = document.getElementById('msg'); m.textContent = text; m.className = cls || ''; }
 function renderBar(){
   const lv = L();
+  const had = document.activeElement && document.activeElement.classList.contains('lv');
   document.getElementById('levels').innerHTML = LEVELS.map((_,i) =>
     `<button class="lv${solved.has(i)?' done':''}${i===li?' cur':''}" data-i="${i}">${i+1}</button>`).join('');
   document.getElementById('stat').textContent = `Rule ${lv.rule} · toggles ${toggles.size} / par ${lv.par}`;
+  if (had) document.querySelector(`button.lv[data-i='${li}']`).focus();
 }
 function check(){
   const lv = L(), g = grid;
@@ -136,9 +144,20 @@ cv.addEventListener('click', e => {
   const r = cv.getBoundingClientRect(), lv = L();
   const x = Math.floor((e.clientX - r.left) / r.width * lv.W), t = Math.floor((e.clientY - r.top) / r.height * lv.T);
   if (t !== 0 || !lv.zone.includes(x)) return;
-  toggles.has(x) ? toggles.delete(x) : toggles.add(x);
-  grid = null; stopAnim(); msg(''); delete document.body.dataset.result; renderBar(); draw(1);
+  flip(x);
 });
+function flip(x){
+  toggles.has(x) ? toggles.delete(x) : toggles.add(x);
+  grid = null; stopAnim(); msg(''); delete document.body.dataset.result; renderBar(); syncCells(); draw(1);
+}
+// Keyboard: real buttons for the flippable cells, built once per level so focus survives a flip
+const cellsDiv = document.getElementById('cells');
+function buildCells(){
+  const z = L().zone;
+  cellsDiv.innerHTML = z.map((x, i) => `<button data-x="${x}" aria-pressed="false" aria-label="Flip cell ${i+1} of ${z.length}">${i+1}</button>`).join('');
+}
+function syncCells(){ cellsDiv.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', toggles.has(+b.dataset.x))); }
+cellsDiv.addEventListener('click', e => { const b = e.target.closest('button'); if (b) flip(+b.dataset.x); });
 document.getElementById('levels').addEventListener('click', e => { const i = e.target.dataset.i; if (i !== undefined){ li = +i; setup(); } });
 document.getElementById('run').addEventListener('click', run);
 document.getElementById('diff').addEventListener('change', () => draw(grid && !anim ? L().T : 1));
