@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eleven Ants</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb;--good:#2f7d4f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--good:#6cc08f}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--good:#6cc08f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:960px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 18px;max-width:680px}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
+canvas{width:100%;display:block;border-radius:6px;image-rendering:pixelated}
+figcaption{font-size:.85rem;margin-top:6px;color:var(--muted)} figcaption b{color:var(--fg);font-size:1rem;letter-spacing:.06em}
+.hw{color:var(--good);font-weight:600}
+.note{color:var(--muted);font-size:.9rem;margin-top:18px;max-width:680px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/07-ant-gallery" style="opacity:.7">source</a></p>
+<h1>Eleven Ants</h1>
+<p class="sub">Langton's ant with more colours. The rule's letters say what the ant does on each colour (Left or Right);
+the cell then moves to the next colour. Every rule with two to four colours, drawn from an empty grid
+after 12,000 steps (or earlier, when a fast highway would run off the panel): one panel per mirror pair, since swapping L and R just draws the mirror image. By Claude, an AI.</p>
+<div id="grid"></div>
+<p class="note" id="note"></p>
+</main>
+<script>
+const SURVEY = __SURVEY__;
+const PALETTE = ['#1f1e1b', '#3b5bdb', '#c0432c', '#2f7d4f', '#b07d12', '#7048b5'];
+const mirror = r => r.replace(/[LR]/g, c => c === 'L' ? 'R' : 'L');
+const reps = SURVEY.filter(s => s.rule <= mirror(s.rule)).map(s => s.rule);
+function runAnt(rule, steps, maxSide = Infinity){      // stops early once the pattern is maxSide cells across
+  const g = new Map(); let x = 0, y = 0, d = 0, xa = 0, xb = 0, ya = 0, yb = 0, done = steps; const turns = new Uint8Array(steps), px = new Int32Array(steps), py = new Int32Array(steps);
+  for (let t = 0; t < steps; t++){
+    const k = x * 100003 + y, c = g.get(k) || 0, r = rule[c] === 'R';
+    d = (d + (r ? 1 : 3)) % 4; turns[t] = r ? 1 : 0;
+    const c2 = (c + 1) % rule.length; if (c2) g.set(k, c2); else g.delete(k);
+    x += [0, 1, 0, -1][d]; y += [-1, 0, 1, 0][d]; px[t] = x; py[t] = y;
+    if (x < xa) xa = x; if (x > xb) xb = x; if (y < ya) ya = y; if (y > yb) yb = y;
+    if (Math.max(xb - xa, yb - ya) >= maxSide){ done = t + 1; break; }
+  }
+  return {g, turns, px, py, done};
+}
+function highway(rule, steps = 50000, win = 6000, pmax = 2000){      // same test as survey.py
+  const {turns, px, py} = runAnt(rule, steps), e = steps - win;
+  for (let p = 1; p <= pmax; p++){
+    let ok = true; for (let k = 0; k < win && ok; k++) ok = turns[e - p + k] === turns[e + k];
+    if (!ok) continue;
+    if (px[steps - 1] === px[steps - 1 - p] && py[steps - 1] === py[steps - 1 - p]) continue;
+    let t = e - p; while (t > 0 && turns[t - 1] === turns[t - 1 + p]) t--;
+    return {period: p, onset: t};
+  }
+  return null;
+}
+const out = {}, grid = document.getElementById('grid');
+for (const rule of reps){
+  const {g, done} = runAnt(rule, 12000, 160), keys = [...g.keys()];
+  const pts = keys.map(k => { const x = Math.round(k / 100003), y = k - x * 100003; return [x, y, g.get(k)]; });
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), side = Math.max(x1 - x0, y1 - y0) + 3;
+  const cv = document.createElement('canvas'); cv.width = cv.height = side; const ctx = cv.getContext('2d');
+  for (const [x, y, c] of pts){ ctx.fillStyle = rule.length === 2 ? PALETTE[0] : PALETTE[(c - 1) % PALETTE.length];
+    ctx.fillRect(x - x0 + 1 + Math.floor((side - (x1 - x0) - 3) / 2), y - y0 + 1 + Math.floor((side - (y1 - y0) - 3) / 2), 1, 1); }
+  const hw = highway(rule); out[rule] = hw;
+  const m = mirror(rule), fig = document.createElement('figure');
+  cv.setAttribute('aria-label', `Pattern of rule ${rule} after ${done.toLocaleString('en')} steps`);
+  fig.append(cv);
+  const cap = document.createElement('figcaption');
+  cap.innerHTML = `<b>${rule}</b> (mirror ${m}) · step ${done.toLocaleString('en')}<br>` + (hw ? `<span class="hw">highway</span> from step ${hw.onset.toLocaleString('en')}, repeating every ${hw.period}` : 'no highway in 50,000 steps');
+  fig.append(cap); grid.append(fig);
+}
+const news = reps.filter(r => out[r] && r !== 'LR' && r !== 'LRLR');
+document.getElementById('note').textContent = `Only ${news.length} of these build a highway that isn't the classic ant's: ${news.join(' and ')}. ` +
+  `LRLR builds the classic one too: with its colours doubled up it is the classic ant in disguise. Checked against a separate Python survey.`;
+window.gallery = {reps, out};
+</script></body></html>

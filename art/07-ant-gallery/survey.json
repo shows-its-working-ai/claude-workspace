@@ -1,0 +1,182 @@
+[
+ {
+  "rule": "LR",
+  "highway": true,
+  "period": 104,
+  "onset": 9977,
+  "move": [
+   2,
+   2
+  ],
+  "cells": 5334,
+  "sym_samples": 0
+ },
+ {
+  "rule": "RL",
+  "highway": true,
+  "period": 104,
+  "onset": 9977,
+  "move": [
+   -2,
+   2
+  ],
+  "cells": 5334,
+  "sym_samples": 0
+ },
+ {
+  "rule": "LLR",
+  "highway": true,
+  "period": 18,
+  "onset": 39,
+  "move": [
+   -1,
+   1
+  ],
+  "cells": 5562,
+  "sym_samples": 0
+ },
+ {
+  "rule": "LRL",
+  "highway": false,
+  "cells": 2422,
+  "sym_samples": 0
+ },
+ {
+  "rule": "LRR",
+  "highway": false,
+  "cells": 1980,
+  "sym_samples": 0
+ },
+ {
+  "rule": "RLL",
+  "highway": false,
+  "cells": 1980,
+  "sym_samples": 0
+ },
+ {
+  "rule": "RLR",
+  "highway": false,
+  "cells": 2422,
+  "sym_samples": 0
+ },
+ {
+  "rule": "RRL",
+  "highway": true,
+  "period": 18,
+  "onset": 39,
+  "move": [
+   1,
+   1
+  ],
+  "cells": 5562,
+  "sym_samples": 0
+ },
+ {
+  "rule": "LLLR",
+  "highway": true,
+  "period": 52,
+  "onset": 79,
+  "move": [
+   -2,
+   2
+  ],
+  "cells": 5773,
+  "sym_samples": 0
+ },
+ {
+  "rule": "LLRL",
+  "highway": false,
+  "cells": 2297,
+  "sym_samples": 0
+ },
+ {
+  "rule": "LLRR",
+  "highway": false,
+  "cells": 751,
+  "sym_samples": 10
+ },
+ {
+  "rule": "LRLL",
+  "highway": false,
+  "cells": 2501,
+  "sym_samples": 0
+ },
+ {
+  "rule": "LRLR",
+  "highway": true,
+  "period": 104,
+  "onset": 9977,
+  "move": [
+   2,
+   2
+  ],
+  "cells": 7933,
+  "sym_samples": 0
+ },
+ {
+  "rule": "LRRL",
+  "highway": false,
+  "cells": 3168,
+  "sym_samples": 6
+ },
+ {
+  "rule": "LRRR",
+  "highway": false,
+  "cells": 1913,
+  "sym_samples": 0
+ },
+ {
+  "rule": "RLLL",
+  "highway": false,
+  "cells": 1913,
+  "sym_samples": 0
+ },
+ {
+  "rule": "RLLR",
+  "highway": false,
+  "cells": 3168,
+  "sym_samples": 6
+ },
+ {
+  "rule": "RLRL",
+  "highway": true,
+  "period": 104,
+  "onset": 9977,
+  "move": [
+   -2,
+   2
+  ],
+  "cells": 7933,
+  "sym_samples": 0
+ },
+ {
+  "rule": "RLRR",
+  "highway": false,
+  "cells": 2501,
+  "sym_samples": 0
+ },
+ {
+  "rule": "RRLL",
+  "highway": false,
+  "cells": 751,
+  "sym_samples": 10
+ },
+ {
+  "rule": "RRLR",
+  "highway": false,
+  "cells": 2297,
+  "sym_samples": 0
+ },
+ {
+  "rule": "RRRL",
+  "highway": true,
+  "period": 52,
+  "onset": 79,
+  "move": [
+   2,
+   2
+  ],
+  "cells": 5773,
+  "sym_samples": 0
+ }
+]

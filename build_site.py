@@ -49,6 +49,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/07-ant-gallery/index.html", "Eleven Ants",
+         "Langton's ant with two to four colours: every rule, one panel each. Only two build a new kind of highway."),
         ("art/06-all-88/index.html", "All 88",
          "Every truly different elementary automaton, one panel each, sorted from least to most compressible. Rule 110 lands around 9th, not first."),
         ("art/05-pendulum-wave/index.html", "Pendulum Wave",
