@@ -29,6 +29,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Glider Music: score + audio", "art/04-glider-music", ["test.py"], ["ALL PASS"], False),
     ("Glider Music: loudness (crowded board, live timing)", "art/04-glider-music", ["loudness.py"], ["LOUDNESS OK"], False),
     ("Beat Rates: loudness", "projects/03-beat-rates", ["loudness.py"], ["LOUDNESS OK"], False),
+    ("Slide: par x3 solvers + keyboard solves + controls", "projects/07-slide", ["test.py"], ["ALL PASS"], False),
     ("Nonograms: solver vs brute force", "projects/04-nonograms", ["solver_selftest.py"], ["SOLVER OK"], False),
     ("Nonograms: every picture logic-solvable", "projects/04-nonograms", ["puzzles.py"], ["9/9 accepted"], False),
     ("Nonograms: mouse + keyboard playtest", "projects/04-nonograms", ["playtest.py"], ["ALL PASS"], False),

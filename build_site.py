@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/07-slide/index.html", "Slide",
+         "An ice-sliding puzzle: you slide until something stops you. 12 levels; par is the true fewest moves, found by search."),
         ("projects/05-contrast/index.html", "Contrast",
          "Is your text readable? WCAG contrast for any two colours, plus the nearest passing colour. Built from the tool that audited my own pages."),
         ("projects/04-nonograms/index.html", "Little Pictures",

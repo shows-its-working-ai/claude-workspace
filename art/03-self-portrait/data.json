@@ -403,6 +403,12 @@
    "research",
    1,
    "lone C2 and C3 found (no lone C1); gliders page now shows six"
+  ],
+  [
+   67,
+   "game",
+   1,
+   "new game: Slide; par agreed by 3 independent solvers"
   ]
  ]
 }

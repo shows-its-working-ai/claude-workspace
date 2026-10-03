@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Slide</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb;--onaccent:#ffffff;--good:#2f7d4f;--ice:#e8eef7;--rock:#5f5d57;--goal:#2f7d4f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--good:#6cc08f;--ice:#1f2633;--rock:#a5a298;--goal:#6cc08f}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--good:#6cc08f;--ice:#1f2633;--rock:#a5a298;--goal:#6cc08f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 14px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+button{font:inherit;color:var(--fg);padding:5px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer}
+button:focus-visible,#board:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#pick button.cur{outline:2px solid var(--accent)} #pick button.done{border-color:var(--good);color:var(--good)}
+#board{display:grid;gap:2px;margin:6px auto;max-width:432px;touch-action:none;border-radius:8px}
+.cell{aspect-ratio:1;border-radius:4px;background:var(--ice);position:relative}
+.cell.rock{background:var(--rock)}
+.cell.goal::after{content:"";position:absolute;inset:22%;border:3px solid var(--goal);border-radius:50%}
+.cell.me::before{content:"";position:absolute;inset:16%;background:var(--accent);border-radius:50%;z-index:1}
+.pad{display:grid;grid-template-columns:repeat(3,52px);gap:6px;justify-content:center;margin:12px 0}
+.pad button{height:46px;font-size:1.2rem}
+#status{text-align:center;min-height:1.6em;font-weight:600}
+#status.win{color:var(--good)}
+.note{color:var(--muted);font-size:.9rem}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/07-slide" style="opacity:.7">source</a></p>
+<h1>Slide</h1>
+<p class="sub">You're on ice. Each move slides you until a rock or the wall stops you. Come to rest on the
+green ring. Made by Claude, an AI; every level was solved by a computer search, so "par" is the true fewest moves.</p>
+<div class="bar" id="pick"></div>
+<div id="board" tabindex="0" role="application" aria-label="Slide puzzle. Use arrow keys to slide."></div>
+<p id="status" role="status" aria-live="polite"></p>
+<div class="pad" aria-label="Move buttons">
+  <span></span><button data-d="U" aria-label="Slide up">↑</button><span></span>
+  <button data-d="L" aria-label="Slide left">←</button><button data-d="D" aria-label="Slide down">↓</button><button data-d="R" aria-label="Slide right">→</button>
+</div>
+<div class="bar" style="justify-content:center">
+  <button id="undo">Undo</button><button id="restart">Restart</button>
+</div>
+<p class="note">Keys: arrows (or WASD) to slide, U to undo, R to restart. On a phone, swipe on the board.
+Par is computed again in your browser by its own search when each level loads, and must equal the par
+my generator found; the page holds no solutions.</p>
+</main>
+<script>
+const LEVELS = [{"name": "Level 1", "grid": ["......#..", "........#", "#........", "#...#....", "....#....", "..#......", ".....#...", "........#", ".#......."], "start": [4, 6], "goal": [7, 0], "par": 5}, {"name": "Level 2", "grid": ["#...##...", ".........", ".#.....#.", "#.....#.#", ".....#...", ".........", "...#.....", ".#......#", "....#.#.#"], "start": [3, 3], "goal": [1, 4], "par": 5}, {"name": "Level 3", "grid": ["...#.#..#", "....#....", ".........", "#.....##.", "..#......", "..#.#...#", ".........", ".#.......", ".#...#..."], "start": [1, 6], "goal": [6, 4], "par": 6}, {"name": "Level 4", "grid": ["....#.#..", "..#......", "#.......#", ".#.......", ".........", ".#.#.....", "........#", ".....#..#", "..#....#."], "start": [1, 7], "goal": [7, 2], "par": 6}, {"name": "Level 5", "grid": [".....#..#", ".....##..", ".....#...", "#..#...#.", "#.......#", ".........", "..#......", "#.....#..", "#.#.#..#."], "start": [3, 4], "goal": [6, 1], "par": 7}, {"name": "Level 6", "grid": ["...#.#...", "#...#....", "....#...#", ".......#.", "##.......", ".#......#", "......#..", "......#..", "..#...#.."], "start": [2, 6], "goal": [6, 5], "par": 8}, {"name": "Level 7", "grid": ["........#", ".....#...", "#.#......", ".....####", ".........", "....#.#..", "#...#...#", ".#.......", "........."], "start": [2, 7], "goal": [4, 7], "par": 9}, {"name": "Level 8", "grid": [".....#...", ".......#.", "#...#....", "...##....", ".##....##", "...#.....", "....#....", ".##.....#", ".....#..#"], "start": [2, 1], "goal": [4, 3], "par": 10}, {"name": "Level 9", "grid": [".........", ".....##..", "#....#...", ".#.....#.", "...##....", "....#....", "#.#...#..", "........#", "#....#..."], "start": [8, 8], "goal": [8, 1], "par": 11}, {"name": "Level 10", "grid": ["....#....", "....#.#.#", "...#.....", "#..#.#...", ".#......#", ".#..#....", "..#..###.", "....#....", ".......#."], "start": [7, 5], "goal": [5, 6], "par": 12}, {"name": "Level 11", "grid": [".#.......", ".#...#.##", ".....##..", ".........", "....#.#..", "......#.#", "...#.....", "..#......", "..#......"], "start": [1, 0], "goal": [8, 4], "par": 13}, {"name": "Level 12", "grid": ["..#.....#", ".......#.", ".#..#.##.", "#..#.....", "..#......", ".....#...", "#...#...#", "......#..", ".#.#....."], "start": [0, 4], "goal": [4, 1], "par": 15}];
+const DIRS = {U: [-1, 0], D: [1, 0], L: [0, -1], R: [0, 1]};
+function slide(grid, r, c, d){
+  const [dr, dc] = DIRS[d], H = grid.length, W = grid[0].length;
+  while (r + dr >= 0 && r + dr < H && c + dc >= 0 && c + dc < W && grid[r + dr][c + dc] !== '#'){ r += dr; c += dc; }
+  return [r, c];
+}
+function bfsPar(L){                                     // independent of the generator: fewest moves to REST on goal
+  const key = p => p[0] * 100 + p[1], seen = new Map([[key(L.start), 0]]), q = [L.start];
+  for (let i = 0; i < q.length; i++){
+    const p = q[i], dist = seen.get(key(p));
+    if (p[0] === L.goal[0] && p[1] === L.goal[1]) return dist;
+    for (const d of 'UDLR'){ const n = slide(L.grid, p[0], p[1], d); if (!seen.has(key(n))){ seen.set(key(n), dist + 1); q.push(n); } }
+  }
+  return null;
+}
+let li = 0, pos, hist = [], moves = 0;
+const best = {};
+const board = document.getElementById('board'), status = document.getElementById('status');
+function load(i){
+  li = i; const L = LEVELS[i]; pos = L.start.slice(); hist = []; moves = 0;
+  L.livePar = bfsPar(L);
+  board.style.gridTemplateColumns = `repeat(${L.grid[0].length}, 1fr)`;
+  status.textContent = ''; status.className = ''; render();
+}
+function render(){
+  const L = LEVELS[li];
+  document.getElementById('pick').innerHTML = LEVELS.map((x, i) =>
+    `<button data-i="${i}" class="${i === li ? 'cur' : ''} ${best[i] ? 'done' : ''}" aria-label="Level ${i + 1}, par ${x.par}${best[i] ? ', solved in ' + best[i] : ''}">${i + 1}</button>`).join('');
+  let h = '';
+  L.grid.forEach((row, r) => [...row].forEach((ch, c) => {
+    const cls = ['cell', ch === '#' ? 'rock' : '', r === L.goal[0] && c === L.goal[1] ? 'goal' : '', r === pos[0] && c === pos[1] ? 'me' : ''].join(' ');
+    h += `<div class="${cls}"></div>`;
+  }));
+  board.innerHTML = h;
+  if (!status.classList.contains('win')) status.textContent = `${L.name} · moves ${moves} · par ${L.par}`;
+  document.body.dataset.moves = moves; document.body.dataset.won = won() ? '1' : '0';
+}
+const won = () => pos[0] === LEVELS[li].goal[0] && pos[1] === LEVELS[li].goal[1];
+function move(d){
+  if (won()) return;
+  const n = slide(LEVELS[li].grid, pos[0], pos[1], d);
+  if (n[0] === pos[0] && n[1] === pos[1]) return;                 // blocked: not a move
+  hist.push(pos); pos = n; moves++;
+  if (won()){
+    const L = LEVELS[li]; best[li] = Math.min(best[li] || Infinity, moves);
+    status.className = 'win';
+    status.textContent = moves === L.par ? `Solved in ${moves}: that's par, the fewest possible.` : `Solved in ${moves} (par ${L.par}).`;
+  }
+  render();
+}
+function undo(){ if (!hist.length) return; pos = hist.pop(); moves--; status.className = ''; render(); }
+document.getElementById('pick').onclick = e => { const b = e.target.closest('button'); if (b) { load(+b.dataset.i); board.focus(); } };
+document.querySelectorAll('.pad button').forEach(b => b.onclick = () => move(b.dataset.d));
+document.getElementById('undo').onclick = undo;
+document.getElementById('restart').onclick = () => load(li);
+document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input,textarea')) return;
+  const k = {ArrowUp: 'U', ArrowDown: 'D', ArrowLeft: 'L', ArrowRight: 'R', w: 'U', s: 'D', a: 'L', d: 'R'}[e.key];
+  if (k){ move(k); e.preventDefault(); }
+  else if (e.key === 'u' || e.key === 'U') undo();
+  else if (e.key === 'r' || e.key === 'R') load(li);
+});
+let touch = null;
+board.addEventListener('pointerdown', e => { touch = [e.clientX, e.clientY]; });
+board.addEventListener('pointerup', e => {
+  if (!touch) return; const dx = e.clientX - touch[0], dy = e.clientY - touch[1]; touch = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+  move(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'R' : 'L') : (dy > 0 ? 'D' : 'U'));
+});
+window.slideGame = {LEVELS, bfsPar, move, load, state: () => ({li, pos: pos.slice(), moves, won: won()})};
+load(0);
+</script></body></html>
