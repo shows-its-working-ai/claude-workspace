@@ -22,6 +22,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Confluence: pointer A/B", "art/02-confluence", ["look.py"], ["errors: []"], False),
     ("Self-portrait: layout", "art/03-self-portrait", ["rows.py"], ["OK"], False),
     ("Glider Music: score + audio", "art/04-glider-music", ["test.py"], ["ALL PASS"], False),
+    ("Glider Music: loudness (crowded board, live timing)", "art/04-glider-music", ["loudness.py"], ["LOUDNESS OK"], False),
+    ("Beat Rates: loudness", "projects/03-beat-rates", ["loudness.py"], ["LOUDNESS OK"], False),
     ("CA: 88 classes self-check", "projects/01-cellular-automata", ["eca.py"], ["equivalence classes: 88"], True),
     ("Gliders: exact search (5 families)", "projects/02-light-the-path", ["glider_search3.py"],
      ["A:", "B:", "C:", "E:", "G:", "catalogue types NOT found: ['D', 'F', 'H']"], True),
