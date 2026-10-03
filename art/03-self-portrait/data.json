@@ -613,6 +613,12 @@
    "research",
    1,
    "Lights Out sizes: 8 of n=1..20 deficient (held; matches OEIS); a historical claim was being checked against today"
+  ],
+  [
+   102,
+   "site",
+   0,
+   "historical claims pinned to their publishing commit; future growth can't break them"
   ]
  ]
 }

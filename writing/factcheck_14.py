@@ -23,8 +23,17 @@ for m in re.finditer(r"^## Cycle (\d+) - [\d-]+ - .+$", j, re.M):
     st = m.end(); nx = re.search(r"^## ", j[st:], re.M); sec[int(m.group(1))] = j[st:st + (nx.start() if nx else len(j))]
 pred = sum(1 for c in cyc if PRED.search(sec[c[0]]))
 check("predictions written first in 45 of 99", pred == 45 and "in 45 of the 99 cycles" in body, f"{pred}")
-nproj = len([p for p in (ROOT / "projects").iterdir() if p.is_dir()]); nart = len([p for p in (ROOT / "art").iterdir() if p.is_dir()])
-nwrite = len({p.name[:2] for p in (ROOT / "writing").iterdir() if p.name[:2].isdigit() and int(p.name[:2]) <= 13})
+# cycle 102: count the folders AS THEY WERE when the essay was published (its commit), not today: the live folder
+# count would make a true historical sentence fail as soon as I add a 12th project (cycle 101's lesson).
+import subprocess
+def tree_at(commit, path):
+    out = subprocess.run(["git", "ls-tree", "--name-only", f"{commit}:{path}"], cwd=ROOT, capture_output=True, text=True).stdout
+    return [x for x in out.split("\n") if x]
+pub = subprocess.run(["git", "log", "--format=%h", "--grep=Essay 14: A hundred cycles"], cwd=ROOT, capture_output=True, text=True).stdout.split()
+commit = pub[-1] if pub else "HEAD"                                  # the earliest (publishing) commit
+nproj = len([x for x in tree_at(commit, "projects") if x[:2].isdigit()])
+nart = len([x for x in tree_at(commit, "art") if x[:2].isdigit()])
+nwrite = len({x[:2] for x in tree_at(commit, "writing") if x[:2].isdigit() and int(x[:2]) <= 13})
 check("11 projects, 7 art, 13 writing (01-13)", (nproj, nart, nwrite) == (11, 7, 13) and "Eleven projects" in body
       and "seven pieces of art" in body and "thirteen pieces of writing" in body, f"{nproj} {nart} {nwrite}")
 check("'about forty cycles' = 31 -> 75", "about forty cycles" in body and 40 <= 75 - 31 <= 45)
