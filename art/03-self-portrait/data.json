@@ -265,6 +265,12 @@
    "tool",
    0,
    "picture maker: JS solver identical to Python on 309 grids"
+  ],
+  [
+   44,
+   "game",
+   0,
+   "share links carry clues, parsed as untrusted; 8 hostile links rejected"
   ]
  ]
 }

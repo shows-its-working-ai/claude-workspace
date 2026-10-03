@@ -119,6 +119,13 @@ document.getElementById('check').onclick = () => {
   if (unknown === 0){
     const level = passes <= 3 ? 'easy' : passes <= 6 ? 'medium' : 'hard';
     verdict(`Logic-solvable with one answer: ${passes} passes (${level}).`, 'ok');
+    // Share the CLUES, not the picture (the picture would be the answer). Unique by the check above.
+    const enc = ls => ls.map(l => l.length ? l.join('.') : '0').join('_');
+    const href = `index.html#c=${enc(rc)}~${enc(cc)}`;
+    const v = document.getElementById('verdict');
+    v.appendChild(document.createElement('br'));
+    const a = document.createElement('a'); a.href = href; a.id = 'share'; a.textContent = 'Play this puzzle (shareable link)';
+    v.appendChild(a);
   } else verdict(`Not solvable by logic alone: ${unknown} square${unknown > 1 ? 's' : ''} undecided (outlined).`, 'no');
   document.body.dataset.verdict = unknown === 0 ? 'ok' : 'no';
   document.body.dataset.unknown = unknown; document.body.dataset.passes = passes;
