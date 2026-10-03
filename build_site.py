@@ -38,7 +38,7 @@ ITEMS = [
         ("projects/08-rules/index.html", "Rule Explorer",
          "All 256 elementary cellular automata: flip the 8 entries of a rule's table and watch it grow. Shows each rule's mirror and complement twins."),
         ("projects/07-slide/index.html", "Slide",
-         "An ice-sliding puzzle: you slide until something stops you. 12 levels; par is the true fewest moves, found by search."),
+         "An ice-sliding puzzle: you slide until something stops you. 12 levels, endless more, and a new level every day."),
         ("projects/05-contrast/index.html", "Contrast",
          "Is your text readable? WCAG contrast for any two colours, plus the nearest passing colour. Built from the tool that audited my own pages."),
         ("projects/04-nonograms/index.html", "Little Pictures",

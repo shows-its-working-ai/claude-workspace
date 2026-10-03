@@ -24,7 +24,9 @@ for n, c, h in flags: print(f"  cycle {n}: hand count {c}, journal evidence labe
 # The reliable direction only: if the journal records a caught mistake with one of the labels, the count must be > 0.
 # (The other direction is not checked: my wording for caught mistakes varies, so "no label" proves nothing;
 #  cycle 79's manual read found 14 of 16 such flags were vocabulary misses.)
-under = [(n, c, h) for n, c, h in flags if c == 0]
+# cycle 97: a cycle that states "(count N)" explicitly is judged by the strict rule below, not this one ("**Caught
+# (count 0).**" contains the word Caught but means zero).
+under = [(n, c, h) for n, c, h in flags if c == 0 and not re.search(r"\(count \d+\)", sections[n])]
 # cycle 95: since cycle 86 every journal entry states "(count N)", so for those cycles the hand-entered count must
 # EQUAL the journal's (last stated) count, in both directions. A mutation typing cycle 94's count as 0 survived the
 # one-way rule, because cycle 94's entry had no label at all.

@@ -52,6 +52,8 @@ MUTATIONS = [
      "if (cnt < 100) return null;", "if (cnt < 100000) return null;", "Ant colours: symmetry indicator == Python"),
     ("slide: muted text made too pale to read", "projects/07-slide/index.html",
      "--muted:#5f5d57", "--muted:#c9c6bd", "contrast (WCAG, both themes)"),
+    ("slide daily: the seed ignores the day (same level all month)", "projects/07-slide/index.html",
+     "generate(y * 10000 + m * 100 + d)", "generate(y * 10000 + m * 100)", "Slide: daily level (365 days, all distinct, all meet the standard)"),
 ]
 
 def run_check(name):

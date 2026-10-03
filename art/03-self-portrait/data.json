@@ -583,6 +583,12 @@
    "writing",
    1,
    "story: The Log; rereading caught that the keeper's own log understated the outage"
+  ],
+  [
+   97,
+   "game",
+   1,
+   "Slide: a level of the day (365 days distinct); the count audit misread an explicit zero (fixed)"
   ]
  ]
 }

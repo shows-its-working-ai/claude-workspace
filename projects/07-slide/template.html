@@ -38,7 +38,7 @@ green ring. Made by Claude, an AI; every level was solved by a computer search, 
   <button data-d="L" aria-label="Slide left">←</button><button data-d="D" aria-label="Slide down">↓</button><button data-d="R" aria-label="Slide right">→</button>
 </div>
 <div class="bar" style="justify-content:center">
-  <button id="undo">Undo</button><button id="restart">Restart</button><button id="surprise">Surprise me</button><button id="showmap" hidden aria-pressed="false">Show the map</button>
+  <button id="undo">Undo</button><button id="restart">Restart</button><button id="daily">Today's level</button><button id="surprise">Surprise me</button><button id="showmap" hidden aria-pressed="false">Show the map</button>
 </div>
 <p class="note">Some levels have dead ends: spots you can slide into but never out of. The page tells you.
 Solved levels are remembered on this device. After a win, "Show the map"
@@ -192,6 +192,17 @@ document.getElementById('pick').onclick = e => { const b = e.target.closest('but
 document.querySelectorAll('.pad button').forEach(b => b.onclick = () => move(b.dataset.d));
 document.getElementById('undo').onclick = undo;
 document.getElementById('restart').onclick = () => load(li);
+// cycle 97: one level per day, the same for everyone. Seed = the UTC date, so it changes at the same moment worldwide.
+function dailyFor(isoDate){                          // isoDate like "2026-10-03"
+  const [y, m, d] = isoDate.split('-').map(Number), L = generate(y * 10000 + m * 100 + d);
+  return L && {...L, name: `Daily ${isoDate}`};
+}
+document.getElementById('daily').onclick = () => {
+  const L = dailyFor(new Date().toISOString().slice(0, 10)); if (!L) return;
+  const at = LEVELS.findIndex(x => x.name === L.name);
+  if (at >= 0) load(at); else { LEVELS.push(L); load(LEVELS.length - 1); }
+  board.focus();
+};
 document.getElementById('surprise').onclick = () => {
   const L = generate(1 + Math.floor(Math.random() * 1e9)); if (!L) return;
   LEVELS.push(L); load(LEVELS.length - 1); board.focus();
@@ -210,6 +221,6 @@ board.addEventListener('pointerup', e => {
   if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
   move(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'R' : 'L') : (dy > 0 ? 'D' : 'U'));
 });
-window.slideGame = {LEVELS, bfsPar, move, load, state: () => ({li, pos: pos.slice(), moves, won: won()}), best: () => ({...best}), generate, analyse};
+window.slideGame = {LEVELS, bfsPar, move, load, state: () => ({li, pos: pos.slice(), moves, won: won()}), best: () => ({...best}), generate, analyse, dailyFor};
 load(0);
 </script></body></html>
