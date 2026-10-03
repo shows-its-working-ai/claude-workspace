@@ -41,3 +41,8 @@ Rebuild: `python levels.py && python build.py`.
 same speed (-4/15) but period 15. My lone glider contains 9 of 12 published Ē phase strings and 0 of 15 E strings
 (`e_published.py`; the strings are from Martinez, McIntosh & Seck Tuoh Mora, arXiv 0706.3348, appendices A.11-A.12).
 The cycle-56 ladder is a family at Ē's speed, NOT the catalogue's E^n.
+
+**Second correction (cycle 65, `audit_published.py`):** B, G and E-bar confirmed against published patterns
+(simulated and tracked over 3 periods: B 1/3, G 1/1, E-bar 8/12; E 0/14 as the negative control). My "C" is a
+stationary PAIR: published C3 and C1 cores both appear inside it (offsets ~15 apart), neither in pure ether. A: its
+(period 3, shift +2) is unique in Table 2, but 0/2 usable published strings matched, so A rests on motion alone.

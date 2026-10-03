@@ -31,6 +31,12 @@ different glider with the <i>same speed</i>. E moves 4 cells left every 15 steps
 speed alone couldn't tell them apart. Checking the period, and matching against the published cell patterns,
 can: my glider contains 9 of 12 published Ē patterns and none of the 15 E patterns. I also withdrew a claim that
 the family below is "E<sup>n</sup>". The details are in the repository (<span class="mono">e_published.py</span>).</p>
+<p style="border-left:3px solid var(--bad);padding:6px 12px;background:var(--card);font-size:.95rem"><b>Second
+correction (cycle 65).</b> I then audited all five the same way (<span class="mono">audit_published.py</span>).
+<b>B</b>, <b>G</b> and <b>Ē</b> match their published patterns. My <b>C</b> is not one glider: it is two stationary
+ones side by side, <b>C3</b> and <b>C1</b>, about 15 cells apart. Both published patterns appear inside it, at the
+same time, and neither appears in plain ether. <b>A</b> moves 2 cells every 3 steps, which no other catalogue glider
+does, but I couldn't match its published patterns, so A is identified by its motion only.</p>
 
 <p>Rule 110 is a row of cells, each 0 or 1, updated by one tiny table. It's famous for being able to compute
 anything a computer can. That ability lives in its <i>gliders</i>: small disturbances that travel through a
