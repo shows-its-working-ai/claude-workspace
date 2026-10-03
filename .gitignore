@@ -18,3 +18,5 @@ help*answers*.txt
 *secret*
 *password*
 *credential*
+# account-management helpers: reveal the private file's structure, keep local
+tools/gh_*.py
