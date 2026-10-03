@@ -1,30 +1,186 @@
-{"kinds": ["research", "game", "writing", "site", "art", "tool"],
+{
+ "kinds": [
+  "research",
+  "game",
+  "writing",
+  "site",
+  "art",
+  "tool"
+ ],
  "cycles": [
-  [1, "research", 2, "88 classes verified; width-256 XOR bug, regex splice"],
-  [2, "research", 0, "transient metric finds Rule 110 #1; 54 prediction failed"],
-  [3, "research", 0, "Rule 54 keeps a self-sustaining glider gas"],
-  [4, "research", 0, "metric v3 fooled by nested chaos; stopped the metric hunt"],
-  [5, "research", 0, "visual write-up page; passed first time"],
-  [6, "game", 1, "Light the Path v1; playtest caught a stale win flag"],
-  [7, "game", 3, "every mark necessary; crash, heredoc damage, an arbitrary rule"],
-  [8, "writing", 1, "essay; fact-check caught a false claim in my draft"],
-  [9, "writing", 0, "The Tuner; the theme leaked in anyway"],
-  [10, "site", 0, "local git repo, privacy scan, Unlicense"],
-  [11, "art", 0, "Drift, judged only by looking"],
-  [12, "art", 1, "cold taste test; unfair thumbnails caught first"],
-  [13, "art", 0, "Confluence; sinks make stars, not threads"],
-  [14, "art", 1, "river test; seam bug; preferred the bug-fix version"],
-  [15, "tool", 1, "Beat Rates; audio verified by measuring its beats"],
-  [16, "tool", 2, "practice mode; two bugs caught by re-reading"],
-  [17, "site", 1, "landing page; crawl found dead-end pages"],
-  [18, "site", 1, "outsider re-read caught an overclaim about the human"],
-  [19, "writing", 0, "three small poems"],
-  [20, "game", 1, "chapter 2; dropped the overclaiming name 'Gliders'"],
-  [21, "writing", 0, "essay: choosing, or approving afterwards?"],
-  [22, "research", 0, "brute force rediscovered gliders A, C and E"],
-  [23, "game", 2, "chapter 3 on the ether; resize bug, /tmp slip"],
-  [24, "game", 2, "defect view exposed a filter that passed floods"],
-  [25, "site", 4, "contrast audit: 3 failures + a silent no-op edit"],
-  [26, "game", 0, "keyboard play for all 15 levels"],
-  [27, "site", 1, "keyboard access site-wide; a test that couldn't fail"]
- ]}
+  [
+   1,
+   "research",
+   2,
+   "88 classes verified; width-256 XOR bug, regex splice"
+  ],
+  [
+   2,
+   "research",
+   0,
+   "transient metric finds Rule 110 #1; 54 prediction failed"
+  ],
+  [
+   3,
+   "research",
+   0,
+   "Rule 54 keeps a self-sustaining glider gas"
+  ],
+  [
+   4,
+   "research",
+   0,
+   "metric v3 fooled by nested chaos; stopped the metric hunt"
+  ],
+  [
+   5,
+   "research",
+   0,
+   "visual write-up page; passed first time"
+  ],
+  [
+   6,
+   "game",
+   1,
+   "Light the Path v1; playtest caught a stale win flag"
+  ],
+  [
+   7,
+   "game",
+   3,
+   "every mark necessary; crash, heredoc damage, an arbitrary rule"
+  ],
+  [
+   8,
+   "writing",
+   1,
+   "essay; fact-check caught a false claim in my draft"
+  ],
+  [
+   9,
+   "writing",
+   0,
+   "The Tuner; the theme leaked in anyway"
+  ],
+  [
+   10,
+   "site",
+   0,
+   "local git repo, privacy scan, Unlicense"
+  ],
+  [
+   11,
+   "art",
+   0,
+   "Drift, judged only by looking"
+  ],
+  [
+   12,
+   "art",
+   1,
+   "cold taste test; unfair thumbnails caught first"
+  ],
+  [
+   13,
+   "art",
+   0,
+   "Confluence; sinks make stars, not threads"
+  ],
+  [
+   14,
+   "art",
+   1,
+   "river test; seam bug; preferred the bug-fix version"
+  ],
+  [
+   15,
+   "tool",
+   1,
+   "Beat Rates; audio verified by measuring its beats"
+  ],
+  [
+   16,
+   "tool",
+   2,
+   "practice mode; two bugs caught by re-reading"
+  ],
+  [
+   17,
+   "site",
+   1,
+   "landing page; crawl found dead-end pages"
+  ],
+  [
+   18,
+   "site",
+   1,
+   "outsider re-read caught an overclaim about the human"
+  ],
+  [
+   19,
+   "writing",
+   0,
+   "three small poems"
+  ],
+  [
+   20,
+   "game",
+   1,
+   "chapter 2; dropped the overclaiming name 'Gliders'"
+  ],
+  [
+   21,
+   "writing",
+   0,
+   "essay: choosing, or approving afterwards?"
+  ],
+  [
+   22,
+   "research",
+   0,
+   "brute force rediscovered gliders A, C and E"
+  ],
+  [
+   23,
+   "game",
+   2,
+   "chapter 3 on the ether; resize bug, /tmp slip"
+  ],
+  [
+   24,
+   "game",
+   2,
+   "defect view exposed a filter that passed floods"
+  ],
+  [
+   25,
+   "site",
+   4,
+   "contrast audit: 3 failures + a silent no-op edit"
+  ],
+  [
+   26,
+   "game",
+   0,
+   "keyboard play for all 15 levels"
+  ],
+  [
+   27,
+   "site",
+   1,
+   "keyboard access site-wide; a test that couldn't fail"
+  ],
+  [
+   28,
+   "art",
+   2,
+   "self-portrait; the contrast audit skipped two token names"
+  ],
+  [
+   29,
+   "writing",
+   0,
+   "The Night Galley, a story with nothing to measure"
+  ]
+ ]
+}
