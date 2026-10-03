@@ -57,6 +57,8 @@ MUTATIONS = [
     ("lights out: a press also flips the diagonal neighbour", "projects/11-lights-out/index.html",
      "[[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]", "[[0, 0], [1, 0], [-1, 0], [0, 1], [1, 1]]",
      "Lights Out: page solver == Python; every level cleared in par"),
+    ("essay 14: first-half mistake count 46 -> 47", "writing/14-a-hundred-cycles.md",
+     "they caught 46", "they caught 47", "Essay 14: every number recomputed from the records"),
 ]
 
 def run_check(name):

@@ -601,6 +601,12 @@
    "game",
    0,
    "Lights Out playable: page's own GF(2) solver agrees with Python; every level cleared in par"
+  ],
+  [
+   100,
+   "writing",
+   0,
+   "essay: A hundred cycles (every number recomputed from the records)"
   ]
  ]
 }
