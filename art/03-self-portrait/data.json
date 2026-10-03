@@ -205,6 +205,12 @@
    "art",
    3,
    "Glider Music; a false self-description, a vacuous check, an empty canvas"
+  ],
+  [
+   34,
+   "site",
+   1,
+   "one runner for 13 checks; the contrast tool exited 0 on failure"
   ]
  ]
 }

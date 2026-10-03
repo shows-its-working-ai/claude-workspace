@@ -53,3 +53,4 @@ if __name__ == "__main__":
         for c in re.findall(r"[{;]color:(#[0-9a-fA-F]{3,6})", page.read_text(encoding="utf-8")):
             print(f"WARN {page.relative_to(root)}: hard-coded text colour {c} (not audited per theme)")
     print(f"\n{fails} failing pairs")
+    sys.exit(1 if fails else 0)   # cycle 34: it used to exit 0 even with failures
