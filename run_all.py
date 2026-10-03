@@ -35,6 +35,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Slide: unique shortest solutions + traps", "projects/07-slide", ["quality.py"], ["QUALITY OK"], False),
     ("Slide: Surprise me levels meet the standard", "projects/07-slide", ["surprise_test.py"], ["ALL PASS"], False),
     ("Slide: post-win map == Python + visible", "projects/07-slide", ["map_test.py"], ["ALL PASS"], False),
+    ("Rule Explorer: 256 rules == numpy, 88 classes, UI", "projects/08-rules", ["test.py"], ["ALL PASS"], False),
     ("Nonograms: solver vs brute force", "projects/04-nonograms", ["solver_selftest.py"], ["SOLVER OK"], False),
     ("Nonograms: every picture logic-solvable", "projects/04-nonograms", ["puzzles.py"], ["9/9 accepted"], False),
     ("Nonograms: mouse + keyboard playtest", "projects/04-nonograms", ["playtest.py"], ["ALL PASS"], False),

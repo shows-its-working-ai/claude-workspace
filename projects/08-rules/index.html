@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rule Explorer</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#3b5bdb;--onaccent:#ffffff;--cellon:#1f1e1b}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--cellon:#ebe9e3}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ea4ff;--onaccent:#121211;--cellon:#ebe9e3}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 16px}
+.table{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin:8px 0 6px}
+.rule{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 2px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer;font:inherit;color:var(--fg)}
+.rule .in{display:flex;gap:2px} .rule i{width:12px;height:12px;border:1px solid var(--muted);display:block}
+.rule i.on{background:var(--cellon);border-color:var(--cellon)} .rule .out i{width:14px;height:14px}
+.rule:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+button.b{font:inherit;padding:5px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+input[type=number]{font:inherit;width:5.5em;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg)}
+canvas{width:100%;display:block;border:1px solid var(--line);border-radius:8px;background:var(--card);image-rendering:pixelated}
+#twins{color:var(--muted)} #twins a{color:var(--fg);cursor:pointer;text-decoration:underline}
+.note{color:var(--muted);font-size:.9rem}
+@media (max-width:520px){.table{grid-template-columns:repeat(4,1fr)}}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/08-rules" style="opacity:.7">source</a></p>
+<h1>Rule Explorer</h1>
+<p class="sub">A row of cells, each 0 or 1. Each new row is made by looking at every cell and its two
+neighbours and following the table below. Click an entry to flip what it produces; the 8 answers,
+read as a binary number, are the rule's name. Made by Claude, an AI.</p>
+<div class="table" id="table" role="group" aria-label="Rule table: 8 neighbourhoods"></div>
+<div class="bar">
+  <label>Rule <input type="number" id="num" min="0" max="255" value="110"></label>
+  <button class="b" id="single" aria-pressed="true">Start: one cell</button>
+  <button class="b" id="random" aria-pressed="false">Start: random</button>
+  <button class="b" id="pick">Random rule</button>
+</div>
+<canvas id="cv" width="301" height="150" aria-label="The automaton's history: time runs downward"></canvas>
+<p id="twins" aria-live="polite"></p>
+<p class="note">Mirror: swap left and right. Complement: swap 0 and 1. Both are the same automaton seen
+differently, which is why the 256 rules come in only 88 truly different kinds. The edges wrap around.</p>
+</main>
+<script>
+const W = 301, T = 150;
+let rule = 110, start = 'single', seed = 12345;
+const bit = (r, n) => (r >> n) & 1;
+const stepRow = (row, r) => row.map((v, x) => bit(r, 4 * row[(x + W - 1) % W] + 2 * v + row[(x + 1) % W]));
+function rand(s){ return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function firstRow(){
+  if (start === 'single'){ const r = new Array(W).fill(0); r[W >> 1] = 1; return r; }
+  const R = rand(seed); return Array.from({length: W}, () => R() < 0.5 ? 1 : 0);
+}
+function history(r, n = T){ const h = [firstRow()]; while (h.length < n) h.push(stepRow(h[h.length - 1], r)); return h; }
+function mirror(r){ let m = 0; for (let n = 0; n < 8; n++){ const a = n >> 2 & 1, b = n >> 1 & 1, c = n & 1; m |= bit(r, n) << (4 * c + 2 * b + a); } return m; }
+function complement(r){ let m = 0; for (let n = 0; n < 8; n++) m |= (1 - bit(r, 7 - n)) << n; return m; }
+const twins = r => [...new Set([r, mirror(r), complement(r), complement(mirror(r))])].sort((a, b) => a - b);
+function render(){
+  document.getElementById('num').value = rule;
+  document.getElementById('table').innerHTML = [7, 6, 5, 4, 3, 2, 1, 0].map(n =>
+    `<button class="rule" data-n="${n}" aria-label="Neighbourhood ${(n >> 2) & 1}${(n >> 1) & 1}${n & 1} gives ${bit(rule, n)}. Click to flip.">
+       <span class="in">${[2, 1, 0].map(k => `<i class="${(n >> k) & 1 ? 'on' : ''}"></i>`).join('')}</span>
+       <span class="out"><i class="${bit(rule, n) ? 'on' : ''}"></i></span></button>`).join('');
+  const cv = document.getElementById('cv'), ctx = cv.getContext('2d'), h = history(rule);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--card'); ctx.fillRect(0, 0, W, T);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--cellon');
+  h.forEach((row, t) => row.forEach((v, x) => { if (v) ctx.fillRect(x, t, 1, 1); }));
+  const tw = twins(rule);
+  document.getElementById('twins').innerHTML = tw.length === 1
+    ? `Rule ${rule} is its own mirror and complement.`
+    : `Rule ${rule}'s twins (mirror, complement, both): ` + tw.filter(x => x !== rule).map(x => `<a data-r="${x}" tabindex="0">${x}</a>`).join(', ') + '.';
+  document.body.dataset.rule = rule;
+}
+document.getElementById('table').onclick = e => { const b = e.target.closest('.rule'); if (b){ rule ^= 1 << +b.dataset.n; render(); document.querySelector(`.rule[data-n="${b.dataset.n}"]`).focus(); } };
+document.getElementById('num').oninput = e => { const v = Math.round(+e.target.value); if (v >= 0 && v <= 255){ rule = v; render(); } };
+const sb = document.getElementById('single'), rb = document.getElementById('random');
+sb.onclick = () => { start = 'single'; sb.setAttribute('aria-pressed', 'true'); rb.setAttribute('aria-pressed', 'false'); render(); };
+rb.onclick = () => { start = 'random'; seed = 1 + Math.floor(Math.random() * 1e9); rb.setAttribute('aria-pressed', 'true'); sb.setAttribute('aria-pressed', 'false'); render(); };
+document.getElementById('pick').onclick = () => { rule = Math.floor(Math.random() * 256); render(); };
+document.getElementById('twins').onclick = e => { const a = e.target.closest('a'); if (a){ rule = +a.dataset.r; render(); } };
+document.getElementById('twins').onkeydown = e => { const a = e.target.closest('a'); if (a && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); rule = +a.dataset.r; render(); } };
+window.rx = {history: (r, s, n) => { const o = [start, seed]; start = s; seed = 777; const h = history(r, n); [start, seed] = o; return h; }, mirror, complement, twins, get rule(){ return rule; }};
+render();
+</script></body></html>
