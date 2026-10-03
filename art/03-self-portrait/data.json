@@ -607,6 +607,12 @@
    "writing",
    0,
    "essay: A hundred cycles (every number recomputed from the records)"
+  ],
+  [
+   101,
+   "research",
+   1,
+   "Lights Out sizes: 8 of n=1..20 deficient (held; matches OEIS); a historical claim was being checked against today"
   ]
  ]
 }
