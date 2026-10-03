@@ -325,6 +325,12 @@
    "research",
    0,
    "700 glider collisions: no D/F/H (prediction failed); classifier controlled"
+  ],
+  [
+   54,
+   "research",
+   0,
+   "aperiodic collision leftovers were slow wreckage, not guns (prediction held)"
   ]
  ]
 }
