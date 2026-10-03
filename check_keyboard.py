@@ -47,7 +47,9 @@ with sync_playwright() as p:
     pg2.keyboard.press("Enter")                                   # same button again stops it
     off = pg2.evaluate("!document.querySelector('#t button.on')")
     pr = tab_to(pg2, "el.classList.contains('ans')", 120); pg2.keyboard.press("Enter")
-    scored = "Score 1" in pg2.inner_text("#pres")
+    # The answer pressed is whichever button Tab reaches first; it's right ~50% of the time.
+    # What we test is that a keyboard answer REGISTERS (score x/1), not that the guess was right.
+    scored = "/1" in pg2.inner_text("#pres")
     br = t and on and off and pr and scored
     print(f"Beat Rates: table play/stop by Enter = {on}/{off}, practice answer by keyboard scored = {scored} -> {'ok' if br else 'FAIL'}")
     ok &= br
