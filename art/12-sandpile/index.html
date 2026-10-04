@@ -42,8 +42,22 @@ function settle(N){
 }
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const cv = document.getElementById('cv'), k = document.getElementById('k');
-function draw(){
-  const N = 1 << +k.value, {size, h, t} = settle(N), ctx = cv.getContext('2d');
+// cycle 140: the biggest pile took ~4 s and froze the page; settling now happens in a worker. Only the most recent
+// request is drawn, so dragging the slider never queues up stale piles. (Falls back to settling here if workers fail.)
+let worker = null, want = 0;
+try {
+  worker = new Worker(URL.createObjectURL(new Blob([settle.toString() +
+    '\nonmessage = e => { const r = settle(e.data); postMessage({N: e.data, size: r.size, h: r.h, t: r.t}, [r.h.buffer, r.t.buffer]); };'],
+    {type: 'text/javascript'})));
+  worker.onmessage = e => { if (e.data.N === want) draw(e.data); };
+} catch (err) { worker = null; }
+function request(){
+  want = 1 << +k.value;
+  document.getElementById('facts').textContent = `settling ${want.toLocaleString('en')} grains…`;
+  if (worker) worker.postMessage(want); else draw({N: want, ...settle(want)});
+}
+function draw({N, size, h, t}){
+  const ctx = cv.getContext('2d');
   let lo = size, hi = 0;                                                    // draw only the pile (+ a 2-cell margin)
   for (let i = 0; i < size * size; i++) if (h[i]){ const r = Math.floor(i / size), s = i % size; lo = Math.min(lo, r, s); hi = Math.max(hi, r, s); }
   lo = Math.max(0, lo - 2); hi = Math.min(size - 1, hi + 2); const w = hi - lo + 1;
@@ -56,6 +70,6 @@ function draw(){
   document.getElementById('facts').textContent = `${N.toLocaleString('en')} grains · ${top.toLocaleString('en')} topples`;
   window.sand = {N, size, grains, topples: top, grid: Array.from(h)};
 }
-k.addEventListener('input', draw);
-draw();
+k.addEventListener("input", request);
+request();
 </script></body></html>
