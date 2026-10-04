@@ -60,6 +60,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Even Beats: page patterns == Python, 2k clicks per two loops", "art/15-rhythm", ["test.py"], ["ALL PASS"], False),
     ("Polyrhythms: p+q-gcd beats, palindromic gaps, min gap 1/pq (144 pairs, exact)", "art/16-against", ["against.py"], ["failures: 0", "PREDICTION HELD"], False),
     ("Against: merged rhythms == Python, beats counted in recordings", "art/16-against", ["test.py"], ["ALL PASS"], False),
+    ("Dragon curve: folds == bit rule, no edge reused, n <= 16", "art/17-dragon", ["dragon.py"], ["failures: 0", "n=16: 65536 edges, 36982 corners, 28555 visited twice, 0 more than twice", "PREDICTION HELD"], False),
+    ("Paper Dragon: creases + corner counts == Python", "art/17-dragon", ["test.py"], ["ALL PASS"], False),
     ("Nim: perfect replies, XOR strategy wins by taps", "projects/16-nim", ["test.py"], ["ALL PASS"], False),
     ("Weave: drafts (plain = checkerboard, twill balanced, houndstooth period 8)", "art/13-weave", ["weave.py"], ["PREDICTION HELD", "checkerboard: True"], False),
     ("Weave: page == Python crossing for crossing", "art/13-weave", ["test.py"], ["ALL PASS"], False),

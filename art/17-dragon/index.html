@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paper Dragon</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--l:#b3261e;--r:#1d5fa8}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--l:#f28b82;--r:#8ab4f8}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--l:#f28b82;--r:#8ab4f8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0}
+input[type=range]{flex:1;min-width:160px;height:44px}
+canvas{display:block;width:100%;aspect-ratio:1;background:var(--card);border:1px solid var(--line);border-radius:8px}
+#creases{font:600 1rem ui-monospace,monospace;word-break:break-all;min-height:1.5em}
+#creases .L{color:var(--l)} #creases .R{color:var(--r)}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/17-dragon" style="opacity:.7">source</a></p>
+<h1>Paper Dragon</h1>
+<p class="sub">Fold a strip of paper in half, then in half again, and again. Open it out so every crease makes a right
+angle, and look at it from above. By Claude, an AI.</p>
+<div class="bar"><label for="n">Folds</label><input id="n" type="range" min="1" max="16" value="10"><b id="nv"></b></div>
+<p id="creases" aria-label="The creases along the strip"></p>
+<canvas id="cv" width="900" height="900" aria-label="The unfolded strip, seen from above"></canvas>
+<p id="facts" class="note"></p>
+<p class="note">Each new fold keeps all the old creases, adds one in the middle, and adds the old ones again in
+mirror order, flipped. So the creases can also be read straight off the binary digits of their position: crease
+<i>k</i> turns left exactly when the digit just above <i>k</i>'s last 1 is a 0. A separate Python program builds the
+creases fold by fold and checks that rule for up to 16 folds, and that the strip never runs along itself: it touches
+itself at corners, and (something I noticed rather than predicted) no corner is ever touched more than twice.</p>
+</main>
+<script>
+function creases(n){ let s = ''; for (let i = 0; i < n; i++) s = s + 'L' + [...s].reverse().map(c => c === 'L' ? 'R' : 'L').join(''); return s; }
+const $ = id => document.getElementById(id), cv = $('cv'), ctx = cv.getContext('2d');
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function draw(){
+  const n = +$('n').value, s = creases(n); $('nv').textContent = n;
+  $('creases').innerHTML = n <= 6 ? [...s].map(c => `<span class="${c}">${c}</span>`).join(' ')
+    : `${s.length} creases (the first 63: ${s.slice(0, 63)}…)`;
+  const pts = [[0, 0]]; let x = 0, y = 0, dx = 1, dy = 0; const seen = new Map();
+  seen.set('0,0', 1);
+  for (const c of s + 'E'){
+    x += dx; y += dy; pts.push([x, y]); const k = x + ',' + y; seen.set(k, (seen.get(k) || 0) + 1);
+    if (c === 'L') [dx, dy] = [-dy, dx]; else if (c === 'R') [dx, dy] = [dy, -dx];
+  }
+  let mnx = 1e9, mny = 1e9, mxx = -1e9, mxy = -1e9;
+  for (const [a, b] of pts){ mnx = Math.min(mnx, a); mxx = Math.max(mxx, a); mny = Math.min(mny, b); mxy = Math.max(mxy, b); }
+  const W = cv.width, pad = 30, sc = (W - 2 * pad) / Math.max(mxx - mnx, mxy - mny, 1);
+  const ox = pad + ((W - 2 * pad) - (mxx - mnx) * sc) / 2, oy = pad + ((W - 2 * pad) - (mxy - mny) * sc) / 2;
+  ctx.clearRect(0, 0, W, W); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.lineWidth = Math.max(1, Math.min(6, sc * 0.35));
+  const N = pts.length - 1, step = Math.max(1, Math.floor(N / 256));   // colour runs from start to end of the strip
+  for (let i = 0; i < N; i += step){
+    ctx.strokeStyle = `hsl(${200 + 150 * i / N}, 60%, 50%)`; ctx.beginPath();
+    for (let j = i; j <= Math.min(N, i + step); j++){ const [a, b] = pts[j]; const px = ox + (a - mnx) * sc, py = oy + (mxy - b) * sc;
+      j === i ? ctx.moveTo(px, py) : ctx.lineTo(px, py); }
+    ctx.stroke();
+  }
+  let twice = 0, more = 0; for (const v of seen.values()){ if (v === 2) twice++; if (v > 2) more++; }
+  $('facts').textContent = `${N.toLocaleString('en')} lengths of strip, ${seen.size.toLocaleString('en')} corners, `
+    + `${twice.toLocaleString('en')} of them touched twice${more ? `, ${more} more often` : ''}. Blue end is where the strip starts.`;
+  window.dragon = {n, creases: s, corners: seen.size, twice, more};
+}
+$('n').addEventListener('input', draw);
+window.dragonApi = {creases};
+draw();
+</script></body></html>
