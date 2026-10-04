@@ -44,6 +44,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Eleven Ants: page highways == Python survey", "art/07-ant-gallery", ["test.py"], ["ALL PASS"], False),
     ("Quiet Patterns: page == Python, every pattern quiet", "art/08-quiet-patterns", ["test.py"], ["ALL PASS"], False),
     ("Blue Line: rows == Python, schedule, audio level", "art/09-blue-line", ["test.py"], ["ALL PASS"], False),
+    ("Four-bell extents: 10,792 in all, 24 with no long places, 2 essentially different", "art/09-blue-line", ["extents.py"], ["extents from rounds (direction counted): 10792", "with no long places: 24", "Plain Bob Minimus found: True | has no long places: True", "essentially different: 2:", "repeat an 8-change lead: True"], True),
     ("Glider Music: score + audio", "art/04-glider-music", ["test.py"], ["ALL PASS"], False),
     ("Glider Music: loudness (crowded board, live timing)", "art/04-glider-music", ["loudness.py"], ["LOUDNESS OK"], False),
     ("Beat Rates: loudness", "projects/03-beat-rates", ["loudness.py"], ["LOUDNESS OK"], False),
