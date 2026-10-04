@@ -34,6 +34,12 @@ check(f"'there are more now': {len(now)} today (untracked included)", "there are
 # cycle 161: "I have heard none of them" -> every page that makes sound says so to its own reader
 mute = [f for f in now if "can't hear" not in (ROOT / f).read_text(encoding="utf-8").replace("\n", " ")]
 check(f"every one of the {len(now)} sound pages says \"can't hear\"", not mute, str(mute))
+# cycle 162: cycle 161 told Pendulum Wave's readers "no test checks the sound" after reading test.py only; sound_test.py
+# in the same folder had checked it since cycle 61. A page may not say "no test" while run_all has a check for its folder.
+ra = (ROOT / "run_all.py").read_text(encoding="utf-8")
+false_none = [f for f in now if "no test" in (ROOT / f).read_text(encoding="utf-8").replace("\n", " ")
+              and f'"{f.rsplit("/", 1)[0]}"' in ra]
+check("no sound page says 'no test' while run_all checks its folder", not false_none, str(false_none))
 gm = (ROOT / "art/04-glider-music/index.html").read_text(encoding="utf-8"); rb = (ROOT / "projects/13-ring-your-bell/index.html").read_text(encoding="utf-8")
 check("Glider Music's page mentions not hearing it", "hear" in gm and "page for Glider Music says it" in body)
 check("Ring Your Bell's page says 'not by ear'", "not by ear" in rb)

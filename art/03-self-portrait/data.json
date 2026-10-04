@@ -973,6 +973,12 @@
    "site",
    0,
    "Every sound page now says I can't hear it; checked"
+  ],
+  [
+   162,
+   "site",
+   1,
+   "Corrected my false 'no test checks the sound'; guard added"
   ]
  ]
 }
