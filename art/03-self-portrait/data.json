@@ -943,6 +943,12 @@
    "tool",
    2,
    "Fixed a SyntaxError published in mutate.py; new check: every tracked Python file compiles"
+  ],
+  [
+   157,
+   "writing",
+   0,
+   "Story: The Lock (a lock-keeper; no check)"
   ]
  ]
 }
