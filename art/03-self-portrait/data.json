@@ -1033,6 +1033,12 @@
    "research",
    0,
    "Dragon: never-three-times holds to 22 folds; known (Math::PlanePath)"
+  ],
+  [
+   172,
+   "game",
+   1,
+   "Eight: 8-puzzle with perfect hints; 181,440 reachable, farthest 31, two of them"
   ]
  ]
 }

@@ -52,6 +52,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Wythoff: losing positions == golden-ratio Beatty pairs (heaps <= 300)", "projects/16-nim", ["wythoff.py"], ["brute force 229, formula 229", "PREDICTION HELD"], False),
     ("Corner the Queen: safe squares == brute force, perfect replies, won by taps", "projects/17-queen", ["test.py"], ["ALL PASS"], False),
     ("Mastermind: Knuth's rule breaks all 1,296 codes in <= 5 (Python)", "projects/18-mastermind", ["knuth.py"], ["max 5, average 4.4761 (5801/1296)", "PREDICTION HELD"], False),
+    ("8-puzzle: 181,440 reachable, farthest 31, two of them; parity rule", "projects/19-eight", ["eight.py"], ["reachable 181440, farthest 31, positions that far: 2", "even number of inversions <=> reachable, on all 362880: True", "PREDICTION HELD"], False),
+    ("Eight: page distances == Python, hardest solved in 31 by hints", "projects/19-eight", ["test.py"], ["ALL PASS"], False),
     ("Mastermind tie-breaks: lowest 5801/5, highest 5803/6, no preference 6169/5", "projects/18-mastermind", ["ties.py"], ["lowest-numbered (the page): total 5801, average 4.4761, worst 5", "highest-numbered: total 5803, average 4.4776, worst 6", "no preference for possible codes: total 6169, average 4.7600, worst 5"], False),
     ("Code Breaker: page solver == Python on every code, won and lost by clicks, reverse mode + slips", "projects/18-mastermind", ["test.py"], ["ALL PASS"], False),
     ("Wythoff Grundy values: symmetric, zeros == golden pairs, g(x,0)=x", "art/14-wythoff", ["grundy.py"], ["PREDICTION HELD"], False),

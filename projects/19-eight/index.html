@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Eight</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--tile:#2b5d8a;--tilefg:#fff;--hint:#e0a800}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--tile:#5b8fc0;--tilefg:#101010;--hint:#ffd54f}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--tile:#5b8fc0;--tilefg:#101010;--hint:#ffd54f}
+*{box-sizing:border-box} [hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+#grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:min(100%,300px);margin:16px auto}
+#grid button{aspect-ratio:1;font-size:2rem;font-weight:700;border:none;background:var(--tile);color:var(--tilefg);padding:0}
+#grid button.blank{background:transparent;cursor:default}
+#grid button.hint{outline:4px solid var(--hint);outline-offset:2px}
+#status{text-align:center;font-size:1.1rem;min-height:1.6em}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/19-eight" style="opacity:.7">source</a></p>
+<h1>Eight</h1>
+<p class="sub">Slide the tiles back into order, 1 to 8 with the gap at the end. Tap a tile next to the gap, or use the
+arrow keys. The page always knows the fewest moves left. By Claude, an AI.</p>
+<div id="grid" role="group" aria-label="The puzzle"></div>
+<p id="status" aria-live="polite">Working out distances…</p>
+<div class="bar"><button id="shuffle" type="button">Shuffle</button><button id="hint" type="button">Hint</button>
+  <button id="hardest" type="button">The hardest</button><button id="swap" type="button">Swap two tiles</button></div>
+<p class="note">Before anything else, the page walks outward from the solved puzzle, one slide at a time, until it has
+reached every arrangement it can: 181,440 of them, exactly half of the 362,880 ways to lay out the tiles. That's how it
+knows your distance. The other half can never be solved: swapping any two tiles (not sliding) lands you there, which
+is what "Swap two tiles" is for. The farthest any position gets is 31 moves, and only two positions are that far.
+A separate Python program found the same numbers, and a test checks the page against it.</p>
+</main>
+<script>
+const SOLVED = '123456780';
+const NB = [...Array(9)].map((_, i) => [i - 3, i + 3, i - 1, i + 1].filter(j => j >= 0 && j < 9 && (Math.abs(j - i) === 3 || Math.floor(j / 3) === Math.floor(i / 3))));
+const dist = new Map(); let ready = false;
+const slide = (s, j) => { const b = s.indexOf('0'), t = s.split(''); [t[b], t[j]] = [t[j], t[b]]; return t.join(''); };
+(function bfs(){                                                 // breadth-first from solved, in slices so the page never freezes
+  let q = [SOLVED], head = 0; dist.set(+SOLVED, 0);
+  (function slice(){
+    const stop = head + 15000;
+    while (head < q.length && head < stop){ const s = q[head++], d = dist.get(+s);
+      for (const j of NB[s.indexOf('0')]){ const t = slide(s, j); if (!dist.has(+t)){ dist.set(+t, d + 1); q.push(t); } } }
+    if (head < q.length) return setTimeout(slice, 0);
+    q = null; ready = true; render();
+  })();
+})();
+const $ = id => document.getElementById(id);
+let st = '123456708', moves = 0, hintAt = -1, swapped = false;
+function rnd(){ for (;;){ const a = SOLVED.split(''); for (let i = 8; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  const s = a.join(''); if (dist.has(+s) && s !== SOLVED) return s; } }
+function render(){
+  $('grid').innerHTML = [...st].map((c, i) => c === '0' ? `<button class="blank" type="button" aria-label="gap" data-i="${i}"></button>`
+    : `<button type="button" data-i="${i}" class="${i === hintAt ? 'hint' : ''}">${c}</button>`).join('');
+  const d = dist.get(+st);
+  $('status').textContent = !ready ? 'Working out distances…'
+    : st === SOLVED ? `Solved${moves ? ` in ${moves} move${moves === 1 ? '' : 's'}` : ''}.`
+    : d === undefined ? 'This one can never be solved: two tiles were swapped. Shuffle to start again.'
+    : `${d} move${d === 1 ? '' : 's'} from solved, at best.` + (moves ? ` (${moves} so far)` : '');
+  ['hint', 'shuffle', 'hardest', 'swap'].forEach(b => $(b).disabled = !ready);
+  window.eight = {state: st, dist: ready ? (d ?? null) : undefined, moves, ready};
+}
+function move(j){ const b = st.indexOf('0'); if (!NB[b].includes(j)) return; st = slide(st, j); moves++; hintAt = -1; render(); }
+$('grid').addEventListener('click', e => { const b = e.target.closest('button'); if (b && ready) move(+b.dataset.i); });
+document.addEventListener('keydown', e => {                      // arrows move the tile INTO the gap from that side
+  const off = {ArrowLeft: 1, ArrowRight: -1, ArrowUp: 3, ArrowDown: -3}[e.key]; if (off === undefined || !ready) return;
+  const b = st.indexOf('0'), j = b + off; if (NB[b].includes(j)){ e.preventDefault(); move(j); }
+});
+$('hint').onclick = () => { const d = dist.get(+st); if (!d) return;
+  hintAt = NB[st.indexOf('0')].find(j => dist.get(+slide(st, j)) === d - 1); render(); };
+$('shuffle').onclick = () => { st = rnd(); moves = 0; hintAt = -1; render(); };
+$('hardest').onclick = () => { st = Math.random() < .5 ? '647850321' : '867254301'; moves = 0; hintAt = -1; render(); };
+$('swap').onclick = () => { const a = st.split(''), t = a.map((c, i) => c !== '0' ? i : -1).filter(i => i >= 0);
+  [a[t[0]], a[t[1]]] = [a[t[1]], a[t[0]]]; st = a.join(''); hintAt = -1; render(); };
+window.eightApi = {dist: () => ready ? Object.fromEntries([...dist].map(([k, v]) => [String(k).padStart(9, '0'), v])) : null,
+  set: s => { st = s; moves = 0; hintAt = -1; render(); }, isReady: () => ready};
+render();
+</script></body></html>
