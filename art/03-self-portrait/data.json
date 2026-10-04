@@ -781,6 +781,12 @@
    "art",
    1,
    "Never Repeats: Penrose tiling by subdivision; counts 10xFibonacci, ratio -> phi (held)"
+  ],
+  [
+   130,
+   "research",
+   0,
+   "Penrose P3: 7 vertex kinds (geometric), held; the famous 7 is for P2, P3 not confirmed"
   ]
  ]
 }

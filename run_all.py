@@ -48,6 +48,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Blue Line: rows == Python, schedule, audio level", "art/09-blue-line", ["test.py"], ["ALL PASS"], False),
     ("Never Repeats: Penrose counts -> golden ratio, area kept", "art/11-penrose", ["penrose.py"], ["area kept at every generation: True", "PREDICTION HELD"], False),
     ("Never Repeats: page counts == Python, area kept, honest labels", "art/11-penrose", ["test.py"], ["ALL PASS"], False),
+    ("Penrose vertex kinds: 7 (geometric), every interior angle sum 360", "art/11-penrose", ["vertices.py"], ["angle sums not 360: 0", "distinct vertex kinds: 7"], False),
     ("Ring Your Bell: rows == Python, scorer, robot ringer on time / 100 ms late", "projects/13-ring-your-bell", ["test.py"], ["ALL PASS"], False),
     ("Ring the Changes: rules == Python, every rule-mode extent wins by clicks", "projects/12-ring-the-changes", ["test.py"], ["ALL PASS"], True),
     ("Four-bell extents: 10,792 in all, 24 with no long places, 2 essentially different", "art/09-blue-line", ["extents.py"], ["extents from rounds (direction counted): 10792", "with no long places: 24", "Plain Bob Minimus found: True | has no long places: True", "essentially different: 2:", "repeat an 8-change lead: True"], True),
