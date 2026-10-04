@@ -15,6 +15,7 @@ def check(name, cond, detail=""):
 EXPECT = {  # name: (stage, place notation, leads, distinct changes, is extent)
     "Plain Hunt Minimus": (4, ["x", "14"], 4, 8, False),
     "Plain Bob Minimus": (4, ["x", "14", "x", "14", "x", "14", "x", "12"], 3, 24, True),
+    "The other one: x14x12x14x34": (4, ["x", "14", "x", "12", "x", "14", "x", "34"], 3, 24, True),
     "Plain Hunt Doubles": (5, ["5", "1"], 5, 10, False),
     "Plain Bob Doubles": (5, ["5", "1", "5", "1", "5", "1", "5", "1", "5", "125"], 4, 40, False),
 }
@@ -40,6 +41,9 @@ with sync_playwright() as p:
         txt = pg.inner_text("#facts")
         check(f"{name}: facts panel says {distinct} distinct" + (" and 'extent'" if extent else ""),
               f"{distinct} of them different" in txt and (("extent" in txt) == extent), txt[:90].replace("\n", " "))
+    note = pg.inner_text("main")
+    check("page text quotes the counts that extents.py and extents_dp.py produce (10,792 / 24 / two methods)",
+          "10,792 ways" in note and "Only 24 of the 10,792" in note and "just two methods" in note)
     r = pg.evaluate("blRender('Plain Bob Doubles')")
     check("audio: 205 strikes rendered, audible (peak > 0.05) and never clipping (peak < 1)",
           r["strikes"] == 41 * 5 and 0.05 < r["peak"] < 1, f"peak={r['peak']:.3f}")

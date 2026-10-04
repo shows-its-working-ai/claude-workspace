@@ -34,6 +34,11 @@ place. Ringers learn a method by its "blue line": the path of one bell down the 
   <div class="card"><canvas id="cv" aria-label="The rows of the method, with the treble's path in red and the second bell's in blue"></canvas></div>
   <div id="facts"></div>
 </div>
+<p class="note"><b>How many ways are there?</b> On four bells there are 10,792 ways to ring all 24 orders and come
+back to rounds (counted by two different programs that agree). Ringers also avoid "long places": a bell staying in
+the same position for three rows running. Only 24 of the 10,792 do. Allowing for where you start, which way round you
+go, and mirror images, those 24 are just two methods: Plain Bob Minimus and the one listed above as
+"the other one".</p>
 <p class="note">The rows are generated in your browser from each method's place notation (for example Plain Bob
 Minimus is x 14 x 14 x 14 x 12, rung three times). A separate Python program generates the same rows, and a test
 compares them. The sound is synthesised: each bell is a few decaying sine waves at the ratios of a tuned bell, and
@@ -43,6 +48,7 @@ there is a one-beat gap before every second row, as real ringing has.</p>
 const METHODS = {
   "Plain Hunt Minimus": {stage: 4, pn: ["x", "14"], leads: 4},
   "Plain Bob Minimus": {stage: 4, pn: ["x", "14", "x", "14", "x", "14", "x", "12"], leads: 3},
+  "The other one: x14x12x14x34": {stage: 4, pn: ["x", "14", "x", "12", "x", "14", "x", "34"], leads: 3},
   "Plain Hunt Doubles": {stage: 5, pn: ["5", "1"], leads: 5},
   "Plain Bob Doubles": {stage: 5, pn: ["5", "1", "5", "1", "5", "1", "5", "1", "5", "125"], leads: 4},
 };
