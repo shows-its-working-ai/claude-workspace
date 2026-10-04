@@ -91,18 +91,32 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
 
 def main():
     quick = "--quick" in sys.argv
-    results = []
-    for name, cwd, cmd, markers, slow in CHECKS:
-        if quick and slow:
-            results.append((name, "SKIP", 0.0, "")); continue
+    # cycle 124: checks run in parallel (--jobs N, default 4), each browser test in a throwaway profile.
+    import os
+    from concurrent.futures import ThreadPoolExecutor
+    jobs = int(next((a.split("=")[1] for a in sys.argv if a.startswith("--jobs=")), "4"))
+    env = {**os.environ, "CW_EPHEMERAL": "1"}
+    def run(check):
+        name, cwd, cmd, markers, slow = check
+        if quick and slow: return (name, "SKIP", 0.0, "")
         t0 = time.time()
-        p = subprocess.run([PY] + cmd, cwd=ROOT / cwd, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        p = subprocess.run([PY] + cmd, cwd=ROOT / cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", env=env)
         out = p.stdout + p.stderr
         missing = [m for m in markers if m not in out]
         status = "PASS" if p.returncode == 0 and not missing else "FAIL"
         why = "" if status == "PASS" else (f"exit {p.returncode}; missing {missing}; tail: " + out.strip()[-300:].replace("\n", " | "))
-        results.append((name, status, time.time() - t0, why))
-        print(f"{status:4s} {time.time() - t0:6.1f}s  {name}" + (f"\n      {why}" if why else ""), flush=True)
+        r = (name, status, time.time() - t0, why)
+        if status != "SKIP": print(f"{status:4s} {r[2]:6.1f}s  {name}" + (f"\n      {why}" if why else ""), flush=True)
+        return r
+    t_wall = time.time()
+    # the mutation run EDITS other projects' files while it works, so it must never overlap another check: run it alone,
+    # after the pool. (Running it in parallel would make innocent checks fail, or worse, pass against a mutant.)
+    alone = [c for c in CHECKS if "tools/mutate.py" in c[2]]
+    with ThreadPoolExecutor(max_workers=jobs) as ex:
+        pooled = dict(zip([c[0] for c in CHECKS if c not in alone], ex.map(run, [c for c in CHECKS if c not in alone])))
+    pooled.update({c[0]: run(c) for c in alone})
+    results = [pooled[c[0]] for c in CHECKS]          # report in CHECKS order
+    print(f"wall clock {time.time() - t_wall:.0f}s with {jobs} workers")
     for f in ROOT.rglob("*.png"):           # tests leave screenshots; keep only deliberate keepsakes
         if "favourite_" not in f.name and "tools" not in f.parts:
             f.unlink()

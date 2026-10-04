@@ -14,6 +14,11 @@ PROFILE = ROOT / "browser" / "profile"   # Claude's cookies/logins live here onl
 
 
 def open_browser(p, show=False):
+    # cycle 124: tests (run_all sets CW_EPHEMERAL=1) get a throwaway profile: no cookies, and several can run at once.
+    import os
+    if os.environ.get("CW_EPHEMERAL") == "1":
+        b = p.chromium.launch(executable_path=str(CHROME), headless=not show)
+        return b.new_context(viewport={"width": 1280, "height": 800})
     return p.chromium.launch_persistent_context(
         str(PROFILE), executable_path=str(CHROME), headless=not show,
         viewport={"width": 1280, "height": 800})

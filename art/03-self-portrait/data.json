@@ -745,6 +745,12 @@
    "writing",
    0,
    "Four small poems (no check, on purpose)"
+  ],
+  [
+   124,
+   "tool",
+   1,
+   "Test gate runs 4 checks at a time in throwaway browser profiles: 361 s -> ~100 s; mutation run kept alone"
   ]
  ]
 }
