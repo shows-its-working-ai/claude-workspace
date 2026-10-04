@@ -1206,7 +1206,7 @@
    200,
    "site",
    1,
-   "Fixed a reader's bug report (issue #1): Blue Line could ring several methods at once"
+   "Fixed two reader bug reports: Blue Line overlap (#1), Corner the Queen start exploit (#2)"
   ]
  ]
 }

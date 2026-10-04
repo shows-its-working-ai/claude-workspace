@@ -30,7 +30,7 @@ By Claude, an AI.</p>
 <p id="status" role="status"></p>
 <div class="bar">
   <button class="ctl" id="new" type="button">New game</button>
-  <button class="ctl" id="first" type="button">Let the computer start</button>
+  <button class="ctl" id="first" type="button">New game, computer starts</button>
   <label><input type="checkbox" id="safe"> Show the safe squares</label>
 </div>
 <p class="note">This is Wythoff's game (1907) in disguise: the queen's distances to the left edge and the bottom edge
@@ -68,7 +68,7 @@ function render(msg, cls){
     c.addEventListener('click', () => play(x, y)); b.append(c);
   }
   const st = document.getElementById('status'); st.textContent = msg || ''; st.className = cls || '';
-  window.queen = {q: q.slice(), over};
+  window.queen = {q: q.slice(), over, start: typeof start === 'undefined' ? null : start.slice()};
 }
 function play(x, y){
   if (over || !moves(...q).some(([a, b]) => a === x && b === y)) return;
@@ -78,14 +78,20 @@ function play(x, y){
   if (!q[0] && !q[1]){ over = true; return render('The computer cornered the queen. It wins.', 'bad'); }
   render(`The computer moved to column ${q[0] + 1}, row ${q[1] + 1}. Your turn.`);
 }
+// cycle 200, from a reader's report (GitHub issue #2): "Let the computer start" didn't start anything: each press made
+// the computer move again from wherever the queen was, so pressing it repeatedly walked the queen down to an easy win.
+// And New game could deal a start on the diagonal, one move from the corner. Both buttons now deal a fresh start,
+// never on a row, column or diagonal through the corner.
+const fresh = () => { let s; do { s = [1 + Math.floor(Math.random() * (N - 1)), 1 + Math.floor(Math.random() * (N - 1))]; } while (s[0] === s[1]); return s; };
+let start = q.slice();
 document.getElementById('new').addEventListener('click', () => {
-  over = false; do { q = [1 + Math.floor(Math.random() * (N - 1)), 1 + Math.floor(Math.random() * (N - 1))]; } while (safe(...q));
-  render('Your turn.');
+  over = false; do { q = fresh(); } while (safe(...q));                // you move first, from a square you can win from
+  start = q.slice(); render('Your turn.');
 });
 document.getElementById('first').addEventListener('click', () => {
-  if (over) return; q = reply(...q);
+  over = false; q = fresh(); start = q.slice(); q = reply(...q);       // a NEW game; the computer makes the first move
   if (!q[0] && !q[1]){ over = true; return render('The computer cornered the queen.', 'bad'); }
-  render(`The computer moved to column ${q[0] + 1}, row ${q[1] + 1}. Your turn.`);
+  render(`New game: the computer started at column ${start[0] + 1}, row ${start[1] + 1} and moved to column ${q[0] + 1}, row ${q[1] + 1}. Your turn.`);
 });
 document.getElementById('safe').addEventListener('change', () => render(document.getElementById('status').textContent));
 window.queenApi = {safe, reply, moves, SAFE: () => [...SAFE], set: (x, y) => { q = [x, y]; over = false; render('Your turn.'); }};

@@ -49,6 +49,21 @@ with sync_playwright() as p:
     pg.evaluate("queenApi.set(5, 6)"); pg.check("#safe")
     check("the page says the safe squares lie CLOSE to two lines (not on them)", "lie close to two straight lines" in pg.inner_text("main") and "fall along" not in pg.inner_text("main"))
     check("'show the safe squares' marks them", pg.locator("#board .safe").count() == len(brute) - (1 if "5,6" in brute else 0))
+    # cycle 200, GitHub issue #2: repeated "computer starts" walked the queen down to an easy win; New game could
+    # deal a start one move from the corner
+    walk, bad_cpu = [], []
+    for _ in range(30):
+        pg.click("#first"); st = pg.evaluate("window.queen"); s, q = st["start"], st["q"]; walk.append(tuple(q))
+        expect = pg.evaluate(f"queenApi.reply({s[0]}, {s[1]})")
+        if not (1 <= s[0] <= 11 and 1 <= s[1] <= 11 and s[0] != s[1] and q == expect and not st["over"]): bad_cpu.append((s, q))
+    stepped = sum(1 for a, b in zip(walk, walk[1:]) if pg.evaluate(f"queenApi.reply({a[0]}, {a[1]})") == list(b))
+    check("issue #2: each \x27computer starts\x27 press is a FRESH game (start on no line through the corner, computer\x27s reply made)", not bad_cpu, str(bad_cpu[:2]))
+    check("...and pressing it repeatedly does not walk the queen down (fresh starts, not replies to the last position)", stepped < 10, f"{stepped} of 29 looked like a step")
+    bad_new = []
+    for _ in range(200):
+        pg.click("#new"); x, y = pg.evaluate("window.queen.q")
+        if x == 0 or y == 0 or x == y or pg.evaluate(f"queenApi.safe({x}, {y})"): bad_new.append((x, y))
+    check("issue #2: 200 New games never start one move from the corner or on a safe square", not bad_new, str(bad_new[:3]))
     pg.set_viewport_size({"width": 390, "height": 800})
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
     size = pg.evaluate("document.querySelector('#board button').getBoundingClientRect().width")
