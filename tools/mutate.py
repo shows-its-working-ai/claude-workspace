@@ -162,6 +162,8 @@ MUTATIONS = [
     ("essay 27: a quote softened", "writing/27-the-check-that-checks.md",
      'that was a yes, "so it proved nothing"', 'that was a yes, "so it proved little"',
      "Essay 27: five quotes in the right cycles; 'about a hundred'; 'only the last on purpose'"),
+    ("poems 29: forty primes -> thirty-nine", "writing/29-four-results.md",
+     "forty times in a row.", "thirty-nine times in a row.", "Poems 29: Hex, Euler's forty, the ant, the crossed box == their pages' data"),
     ("story 28: the best round 2,200 -> 2,100", "writing/28-the-round.md",
      "Two thousand two hundred. That was", "Two thousand one hundred. That was",
      "Story 28: every distance == the town's map; odd corners; the walked route is real"),
