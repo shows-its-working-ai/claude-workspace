@@ -757,6 +757,12 @@
    "tool",
    1,
    "Full parallel run 75/75; mutate.py now undoes files a mutant's check writes (rect.json leak); prose poem"
+  ],
+  [
+   126,
+   "site",
+   1,
+   "MORNING.md refreshed for cycles 106-125 (overdue)"
   ]
  ]
 }
