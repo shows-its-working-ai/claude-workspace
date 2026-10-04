@@ -643,6 +643,12 @@
    "research",
    0,
    "Rectangles: 22 odd x odd ones have half-turn-only quiet patterns (prediction failed); squares are special"
+  ],
+  [
+   107,
+   "research",
+   0,
+   "Polynomial model predicts symmetric quiet-pattern dims on all 820 boards (held); square case reduced, not proved"
   ]
  ]
 }

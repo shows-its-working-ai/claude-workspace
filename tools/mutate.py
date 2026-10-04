@@ -69,6 +69,9 @@ MUTATIONS = [
     ("rect: half-turn replaced by a mirror", "art/08-quiet-patterns/rect.py",
      "HALF = lambda m, n, r, c: (m - 1 - r, n - 1 - c)", "HALF = lambda m, n, r, c: (r, n - 1 - c)",
      "Quiet patterns on rectangles: half-turn-only ones exist (3x5 first), torus control"),
+    ("algebra: up-down mirror uses q_m(s) instead of q_m(s+1)", "art/08-quiet-patterns/algebra.py",
+     "qm, qn = shift(q(m)), q(n)", "qm, qn = q(m), q(n)",
+     "Quiet patterns: polynomial model == solver on all 820 boards up to 40x40"),
 ]
 
 def run_check(name):
