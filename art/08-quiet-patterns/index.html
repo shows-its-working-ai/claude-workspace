@@ -24,6 +24,11 @@ presses that, taken together, change nothing at all: every light is flipped an e
 ones that also look the same after any rotation or reflection. By Claude, an AI.</p>
 <p class="sub" id="verdict"></p>
 <div id="out"></div>
+<h2 style="font-size:1.4rem;margin-top:36px">Turning, not mirrored</h2>
+<p class="sub">On a square board, a quiet pattern that survives a half-turn always survives both mirrors too (checked up
+to 60×60). Some rectangles break that rule. Each of these looks the same upside down, but not in a mirror. Up to 40×40,
+they only appear on boards whose sides are both odd.</p>
+<div class="row" id="turn"></div>
 <p class="note">Computed in your browser: the quiet patterns are the null space of the press matrix over the numbers
 0 and 1, and the page then presses each one on a dark board to confirm nothing lights up. A separate Python program
 finds the same patterns. On a 19×19 board there are 65,535 quiet patterns; only these 15 are perfectly symmetric.</p>
@@ -84,4 +89,46 @@ for (const n of SIZES){
 }
 document.getElementById('verdict').textContent = `${total} patterns, each checked just now: pressing ${allQuiet ? 'every one of them changes nothing' : 'SOME OF THEM CHANGES SOMETHING'}.`;
 window.quiet = {result, allQuiet, total};
+// Rectangles: quiet patterns constant on half-turn orbits, then one that a mirror changes.
+function rectCols(m, n){
+  const cols = [];
+  for (let r = 0; r < m; r++) for (let c = 0; c < n; c++){
+    let v = 0n;
+    for (const [dr, dc] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]){
+      const rr = r + dr, cc = c + dc; if (rr >= 0 && rr < m && cc >= 0 && cc < n) v |= 1n << BigInt(rr * n + cc); }
+    cols.push(v);
+  }
+  return cols;
+}
+function halfTurnKernel(m, n, cols){
+  const piv = new Map(), basis = [], seen = new Set();
+  for (let i = 0; i < m * n; i++){
+    if (seen.has(i)) continue;
+    const j = m * n - 1 - i; seen.add(i); seen.add(j);       // half-turn partner of cell i
+    let x = 1n << BigInt(i), v = cols[i];
+    if (j !== i){ x |= 1n << BigInt(j); v ^= cols[j]; }
+    let pr = x;
+    while (v){ const h = hb(v); if (piv.has(h)){ const [bv, bp] = piv.get(h); v ^= bv; pr ^= bp; } else { piv.set(h, [v, pr]); break; } }
+    if (!v) basis.push(pr);
+  }
+  return basis;
+}
+const mirrorLR = (m, n, x) => { let y = 0n; for (let i = 0; i < m * n; i++) if (x >> BigInt(i) & 1n){ const r = Math.floor(i / n), c = n - 1 - i % n; y |= 1n << BigInt(r * n + c); } return y; };
+const turnOut = document.getElementById('turn'), turned = [];
+for (const [m, n] of [[3, 5], [5, 11], [7, 11], [3, 17], [5, 19], [11, 17]]){
+  const cols = rectCols(m, n), basis = halfTurnKernel(m, n, cols);
+  const x = basis.find(b => mirrorLR(m, n, b) !== b);
+  if (x === undefined){ turned.push({m, n, found: false}); continue; }
+  const quiet = toggles(cols, x) === 0n, halfTurn = BigInt.asUintN(m * n, x) === x &&
+    [...Array(m * n).keys()].every(i => (x >> BigInt(i) & 1n) === (x >> BigInt(m * n - 1 - i) & 1n));
+  turned.push({m, n, found: true, quiet, halfTurn, mirrored: mirrorLR(m, n, x) === x, x: String(x)});
+  const s = Math.max(4, Math.floor(150 / n)), cv = document.createElement('canvas'); cv.width = n * s; cv.height = m * s;
+  const ctx = cv.getContext('2d'); ctx.fillStyle = css('--ink');
+  for (let i = 0; i < m * n; i++) if (x >> BigInt(i) & 1n) ctx.fillRect((i % n) * s + 1, Math.floor(i / n) * s + 1, s - 2, s - 2);
+  cv.setAttribute('aria-label', `A quiet pattern on a ${m} by ${n} board that survives a half-turn but not a mirror`);
+  const fig = document.createElement('figure'), cap = document.createElement('figcaption');
+  cap.innerHTML = `${m} × ${n} · ${quiet ? '<span class="ok">changes nothing</span>' : 'CHANGES SOMETHING'}`;
+  fig.append(cv, cap); turnOut.append(fig);
+}
+window.turned = turned;
 </script></body></html>

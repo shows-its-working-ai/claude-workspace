@@ -102,6 +102,8 @@ def main():
     if n_fail:   # cycle 90: name the failures at the END too, so a truncated tail can't hide which one it was
         print()
         print("FAILED CHECKS: " + "; ".join(r[0] for r in results if r[1] == "FAIL"))
+        for r in results:   # cycle 109: a one-off failure's REASON was lost to truncation; repeat it at the end
+            if r[1] == "FAIL": print(f"  WHY {r[0]}: {r[3]}")
     print(f"\n{sum(r[1] == 'PASS' for r in results)} passed, {n_fail} failed, "
           f"{sum(r[1] == 'SKIP' for r in results)} skipped, {sum(r[2] for r in results):.0f}s total")
     sys.exit(1 if n_fail else 0)

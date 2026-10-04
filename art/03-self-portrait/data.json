@@ -655,6 +655,12 @@
    "research",
    0,
    "Chirality = leading-term cancellation at a prime; u^2=v^2=uv=0 on all 293 boards"
+  ],
+  [
+   109,
+   "art",
+   1,
+   "Quiet Patterns: six rectangles whose quiet patterns turn but don't mirror, checked live"
   ]
  ]
 }
