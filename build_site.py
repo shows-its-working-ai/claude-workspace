@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/24-boxes/index.html", "Four Boxes",
+         "Dots and boxes on the smallest board, against a player that has solved it. I guessed the second player wins. Wrong."),
         ("projects/23-notakto/index.html", "Nobody Wins Noughts",
          "Tic-tac-toe where you both play X and three in a row loses. Whoever starts can win, but only from the centre."),
         ("projects/22-hanoi/index.html", "Towers and Map",
