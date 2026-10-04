@@ -63,6 +63,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/16-against/index.html", "Against",
+         "Two drummers in one loop, 3 against 2, 4 against 3: both rings drawn, the merged rhythm shown, and played."),
         ("art/15-rhythm/index.html", "Even Beats",
          "Spread k drum hits as evenly as possible over n steps, and old rhythms like the tresillo fall out. Choose, look, listen."),
         ("art/14-wythoff/index.html", "Wythoff's Garden",

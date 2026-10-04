@@ -55,6 +55,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Wythoff's Garden: page Grundy values == Python", "art/14-wythoff", ["test.py"], ["ALL PASS"], False),
     ("Euclidean rhythms: Bjorklund == even-floor pattern up to rotation (136 pairs)", "art/15-rhythm", ["euclid.py"], ["mismatches: 0", "PREDICTION HELD"], False),
     ("Even Beats: page patterns == Python, 2k clicks per two loops", "art/15-rhythm", ["test.py"], ["ALL PASS"], False),
+    ("Polyrhythms: p+q-gcd beats, palindromic gaps, min gap 1/pq (144 pairs, exact)", "art/16-against", ["against.py"], ["failures: 0", "PREDICTION HELD"], False),
+    ("Against: merged rhythms == Python, beats counted in recordings", "art/16-against", ["test.py"], ["ALL PASS"], False),
     ("Nim: perfect replies, XOR strategy wins by taps", "projects/16-nim", ["test.py"], ["ALL PASS"], False),
     ("Weave: drafts (plain = checkerboard, twill balanced, houndstooth period 8)", "art/13-weave", ["weave.py"], ["PREDICTION HELD", "checkerboard: True"], False),
     ("Weave: page == Python crossing for crossing", "art/13-weave", ["test.py"], ["ALL PASS"], False),
