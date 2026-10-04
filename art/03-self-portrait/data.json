@@ -1123,6 +1123,12 @@
    "game",
    3,
    "Towers and Map: Hanoi + its Sierpinski state map; 2^n-1 by a unique route"
+  ],
+  [
+   187,
+   "research",
+   1,
+   "Hanoi average distance: exact to 7 disks, heads to ~0.5266 ~ 466/885 (Romik; gasket)"
   ]
  ]
 }

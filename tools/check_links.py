@@ -19,6 +19,7 @@ for f in files:
 CITES = {
     "https://programmingpraxis.com/2009/11/20/master-mind-part-2/2/": "5801",
     "https://mathworld.wolfram.com/Mastermind.html": "4.478",
+    "https://arxiv.org/abs/math/0310109": "average distance 466/885 between two random points on the Sierpinski gasket of unit side",
     "https://manpages.debian.org/trixie/libmath-planepath-perl/Math::PlanePath::DragonCurve.3pm.en.html": "X=-2,Y=1 which is N=7 and also N=11",
 }
 def fetch(u):

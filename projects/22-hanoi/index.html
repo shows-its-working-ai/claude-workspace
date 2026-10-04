@@ -38,6 +38,11 @@ disks taking big steps (with one twist: inside each part, the other two corners 
 is the shape you see. The quickest way across, from one corner of the map
 to another, is 2ⁿ − 1 moves, and there's exactly one such way. A separate program checked those numbers for up to
 eight disks, and that no two positions are ever further apart than that, for up to six.</p>
+<p class="note">And two positions picked at random? Counting exactly, up to seven disks, they're on average about 0.524 ×
+2ⁿ moves apart, and that number creeps up as the stack grows, toward about 0.5266. That looks like
+466/885 ≈ 0.52655, which is the average distance between two random points on the Sierpinski triangle itself
+(side 1), a figure <a href="https://arxiv.org/abs/math/0310109">Dan Romik re-derived</a> from shortest paths in this
+very puzzle. My numbers fit it; I haven't proved they reach it.</p>
 </main>
 <script>
 const $ = id => document.getElementById(id);

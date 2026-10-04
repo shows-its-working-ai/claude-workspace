@@ -39,6 +39,10 @@ with sync_playwright() as p:
     pg.click(".peg[data-p='0']"); pg.click(".peg[data-p='1']")                                            # middle onto smallest: illegal
     h = pg.evaluate("window.hanoi")
     check("illegal move (bigger on smaller) refused", h["moves"] == 1 and h["state"] == [1, 0, 0])
+    # cycle 187: the note quotes average.py (n=7: 0.52397; extrapolated 0.52659) and 466/885 = 0.52655
+    note = " ".join(pg.inner_text("main").split())
+    check("note quotes average.py and 466/885 as computed", "about 0.524" in note and "toward about 0.5266" in note and "466/885 ≈ 0.52655" in note
+          and round(466 / 885, 5) == 0.52655 and "I haven\x27t proved they reach it" in note)
     pg.set_viewport_size({"width": 390, "height": 800})
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
     check("phone overflow 0, no JS errors", ov == 0 and not errs, f"overflow={ov} errs={errs}")
