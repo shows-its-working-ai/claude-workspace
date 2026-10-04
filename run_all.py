@@ -52,6 +52,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Wythoff: losing positions == golden-ratio Beatty pairs (heaps <= 300)", "projects/16-nim", ["wythoff.py"], ["brute force 229, formula 229", "PREDICTION HELD"], False),
     ("Corner the Queen: safe squares == brute force, perfect replies, won by taps", "projects/17-queen", ["test.py"], ["ALL PASS"], False),
     ("Mastermind: Knuth's rule breaks all 1,296 codes in <= 5 (Python)", "projects/18-mastermind", ["knuth.py"], ["max 5, average 4.4761 (5801/1296)", "PREDICTION HELD"], False),
+    ("Euler's one-stroke rule == brute force on all 32,773 connected graphs (<= 6 points)", "projects/21-stroke", ["euler.py"], ["connected graphs checked: 32773; disagreements with the rule: 0", "PREDICTION HELD"], False),
+    ("One Stroke: every figure's verdict == brute force; drawn or stuck by clicks", "projects/21-stroke", ["test.py"], ["ALL PASS"], False),
     ("Hex: no draws (all 3x3, 4x4 fillings); first player wins; 4x4 winning openings = short diagonal", "projects/20-hex", ["hex.py"], ["3x3: fillings with not exactly one winner: 0 of 512; first player wins: True", "4x4: fillings with not exactly one winner: 0 of 65536; first player wins: True; winning first moves (cells r,c): [(0, 3), (1, 2), (2, 1), (3, 0)]"], False),
     ("Small Hex: verdicts == Python, games won/lost as solved, first move < 300 ms", "projects/20-hex", ["test.py"], ["ALL PASS"], False),
     ("8-puzzle: 181,440 reachable, farthest 31, two of them; parity rule", "projects/19-eight", ["eight.py"], ["reachable 181440, farthest 31, positions that far: 2", "even number of inversions <=> reachable, on all 362880: True", "PREDICTION HELD"], False),

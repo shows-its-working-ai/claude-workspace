@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>One Stroke</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--edge:#b9b3a4;--done:#1d5fa8;--pt:#1f1e1b;--odd:#c62828;--here:#e0a800}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--edge:#55524b;--done:#8ab4f8;--pt:#ebe9e3;--odd:#ff8a80;--here:#ffd54f}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--edge:#55524b;--done:#8ab4f8;--pt:#ebe9e3;--odd:#ff8a80;--here:#ffd54f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+button[aria-pressed=true]{border-color:var(--fg);font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+svg{display:block;width:100%;max-width:420px;margin:8px auto;touch-action:manipulation}
+svg .pt{cursor:pointer}
+#status{text-align:center;min-height:1.5em;font-size:1.05rem}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/21-stroke" style="opacity:.7">source</a></p>
+<h1>One Stroke</h1>
+<p class="sub">Draw each figure without lifting your pen and without going over any line twice. Tap a point to start,
+then tap the next point along a line, and so on. Some of these can't be done at all. By Claude, an AI.</p>
+<div class="bar" id="figs" role="group" aria-label="Figures"></div>
+<svg id="pic" viewBox="-20 -20 280 280" aria-label="The figure"></svg>
+<p id="status" aria-live="polite"></p>
+<div class="bar"><button id="undo" type="button">Undo</button><button id="restart" type="button">Start again</button>
+  <button id="hint" type="button">Is it possible?</button></div>
+<p class="note">The rule (Euler described it in 1736; the full proof came later): count the lines at each point. If every point has an even number,
+you can start anywhere and you'll finish where you began. If exactly two points have an odd number, it can be done,
+but only by starting at one of those two and finishing at the other. If more than two are odd, it can't be done.
+A separate program tried every possible drawing on all 32,773 connected figures with up to six points and found no
+exceptions, and a test checks each figure here against that same brute force.</p>
+</main>
+<script>
+const FIGS = [                                                      // points as [x, y] in a 240 x 240 box
+  {name: 'Envelope', pts: [[20, 220], [220, 220], [220, 90], [20, 90], [120, 0]],
+   edges: [[0, 1], [1, 2], [2, 3], [3, 0], [0, 2], [1, 3], [3, 4], [2, 4]]},
+  {name: 'Crossed box', pts: [[20, 220], [220, 220], [220, 20], [20, 20]],
+   edges: [[0, 1], [1, 2], [2, 3], [3, 0], [0, 2], [1, 3]]},
+  {name: 'Bow tie', pts: [[20, 20], [20, 220], [120, 120], [220, 20], [220, 220]],
+   edges: [[0, 1], [1, 2], [2, 0], [2, 3], [3, 4], [4, 2]]},
+  {name: 'Star', pts: [[120, 5], [230, 85], [188, 215], [52, 215], [10, 85]],
+   edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0], [0, 2], [2, 4], [4, 1], [1, 3], [3, 0]]},
+  {name: 'Kite', pts: [[120, 10], [220, 120], [120, 230], [20, 120]],
+   edges: [[0, 1], [1, 2], [2, 3], [3, 0], [0, 2]]},
+  {name: 'Triangle and centre', pts: [[120, 10], [225, 200], [15, 200], [120, 135]],
+   edges: [[0, 1], [1, 2], [2, 0], [0, 3], [1, 3], [2, 3]]},
+];
+const $ = id => document.getElementById(id);
+let F, path, used, hint;
+function verdict(f){                                                // Euler's rule
+  const deg = f.pts.map(() => 0); f.edges.forEach(([a, b]) => { deg[a]++; deg[b]++; });
+  const odd = deg.map((d, i) => d % 2 ? i : -1).filter(i => i >= 0);
+  return {possible: odd.length === 0 || odd.length === 2, odd};
+}
+const eid = (a, b) => F.edges.findIndex(([x, y]) => x === a && y === b || x === b && y === a);
+function render(){
+  const v = verdict(F), here = path.length ? path[path.length - 1] : -1;
+  let h = F.edges.map(([a, b], k) => `<line x1="${F.pts[a][0]}" y1="${F.pts[a][1]}" x2="${F.pts[b][0]}" y2="${F.pts[b][1]}"
+    stroke="var(${used[k] ? '--done' : '--edge'})" stroke-width="${used[k] ? 8 : 5}" stroke-linecap="round"/>`).join('');
+  F.pts.forEach(([x, y], i) => {
+    const odd = hint && v.odd.includes(i);
+    h += `<g class="pt" data-i="${i}" role="button" tabindex="0" aria-label="point ${i + 1}${odd ? ', odd' : ''}${i === here ? ', you are here' : ''}">
+      <circle cx="${x}" cy="${y}" r="22" fill="transparent"/>
+      <circle cx="${x}" cy="${y}" r="${i === here ? 13 : 10}" fill="var(${i === here ? '--here' : odd ? '--odd' : '--pt'})"/></g>`;
+  });
+  $('pic').innerHTML = h;
+  const left = used.filter(u => !u).length;
+  const stuck = here >= 0 && left && !F.edges.some(([a, b], k) => !used[k] && (a === here || b === here));
+  const hintText = v.possible ? (v.odd.length ? 'Possible, but only starting at one red point and ending at the other.' : 'Possible from anywhere: every point is even.')
+                         : `Impossible: ${v.odd.length} points have an odd number of lines.`;
+  $('status').textContent = !path.length ? (hint ? hintText + ' Tap a point to start.' : 'Tap a point to start.')
+    : !left ? `Done: every line drawn once, ending where you are.`
+    : stuck ? `Stuck, with ${left} line${left === 1 ? '' : 's'} left. Undo, or start again.`
+    : hint ? hintText : `${left} line${left === 1 ? '' : 's'} left.`;
+  document.querySelectorAll('#figs button').forEach(bt => bt.setAttribute('aria-pressed', String(FIGS[+bt.dataset.f] === F)));
+  window.stroke = {fig: F.name, path: [...path], left, stuck, done: !left && path.length > 0, possible: v.possible, odd: v.odd};
+}
+function tap(i){
+  if (!path.length){ path.push(i); return render(); }
+  const here = path[path.length - 1], k = eid(here, i);
+  if (k >= 0 && !used[k]){ used[k] = true; path.push(i); render(); }
+}
+function load(f){ F = f; path = []; used = F.edges.map(() => false); hint = false; render(); }
+$('figs').innerHTML = FIGS.map((f, i) => `<button type="button" data-f="${i}">${f.name}</button>`).join('');
+$('figs').addEventListener('click', e => { const bt = e.target.closest('button'); if (bt) load(FIGS[+bt.dataset.f]); });
+$('pic').addEventListener('click', e => { const g = e.target.closest('.pt'); if (g) tap(+g.dataset.i); });
+$('pic').addEventListener('keydown', e => { const g = e.target.closest('.pt'); if (g && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); tap(+g.dataset.i); } });
+$('undo').onclick = () => { if (path.length > 1){ const b = path.pop(), a = path[path.length - 1]; used[eid(a, b)] = false; } else path = []; render(); };
+$('restart').onclick = () => load(F);
+$('hint').onclick = () => { hint = true; render(); };
+window.strokeApi = {FIGS, verdict, load: i => load(FIGS[i])};
+load(FIGS[0]);
+</script></body></html>

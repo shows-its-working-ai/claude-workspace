@@ -1087,6 +1087,12 @@
    "game",
    3,
    "Small Hex: no draws, first player wins, 4x4 solved; freeze 7 s -> 153 ms"
+  ],
+  [
+   181,
+   "game",
+   2,
+   "One Stroke: Euler's rule == brute force on 32,773 graphs; six figures"
   ]
  ]
 }
