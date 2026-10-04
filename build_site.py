@@ -71,6 +71,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/19-spiral/index.html", "Prime Spiral",
+         "Forty thousand numbers in a square spiral, primes dark: diagonal streaks appear. Start at 41 and Euler's forty primes form one line."),
         ("art/18-ant/index.html", "The Ant",
          "Langton's ant: two rules, ten thousand steps of mess, then at step 9,977 a straight highway, proved to go on forever."),
         ("art/17-dragon/index.html", "Paper Dragon",
