@@ -28,7 +28,9 @@ flips the square and steps forward. That's all. Watch what it does with it. By C
 <p id="news" aria-live="polite"></p>
 <p class="note">For about ten thousand steps it makes a tangled mess. Then, at step 9,977, it starts doing exactly the
 same 104 steps over and over, each round shifting it two squares across and two down: a straight "highway" heading
-off forever, or at least for as long as I've run it (20,000 steps). A separate Python program found that start and
+off forever. That "forever" is proved, not just watched: from step 9,978 every round only ever reads squares the
+previous round left behind or squares nobody has touched (all white), and a program checks that the first rounds
+see exactly the same thing, so each round must repeat the last one, without end. A separate Python program found that start and
 period, and a test checks that this page's grid matches the program's square for square.</p>
 </main>
 <script>

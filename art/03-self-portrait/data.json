@@ -1057,6 +1057,12 @@
    "art",
    1,
    "The Ant: Langton's ant; highway period 104 from step 9,977"
+  ],
+  [
+   176,
+   "research",
+   2,
+   "Langton's ant highway proved forever by an induction certificate; control caught a bug"
   ]
  ]
 }

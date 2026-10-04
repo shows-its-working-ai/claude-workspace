@@ -68,7 +68,7 @@ ITEMS = [
     ]),
     ("Art", [
         ("art/18-ant/index.html", "The Ant",
-         "Langton's ant: two rules, ten thousand steps of mess, then at step 9,977 a straight highway that never stops (in 20,000 steps)."),
+         "Langton's ant: two rules, ten thousand steps of mess, then at step 9,977 a straight highway, proved to go on forever."),
         ("art/17-dragon/index.html", "Paper Dragon",
          "Fold a strip in half again and again, open every crease to a right angle: a dragon. Up to 16 folds, 65,536 lengths."),
         ("art/16-against/index.html", "Against",
