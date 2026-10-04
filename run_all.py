@@ -53,6 +53,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Corner the Queen: safe squares == brute force, perfect replies, won by taps", "projects/17-queen", ["test.py"], ["ALL PASS"], False),
     ("Mastermind: Knuth's rule breaks all 1,296 codes in <= 5 (Python)", "projects/18-mastermind", ["knuth.py"], ["max 5, average 4.4761 (5801/1296)", "PREDICTION HELD"], False),
     ("Dots & boxes 2x2: first player +2 (my guess was wrong); outside openings +2, inside 0", "projects/24-boxes", ["boxes.py"], ["first player's best margin with perfect play: +2", "{0: 2, 1: 2, 2: 0, 3: 0, 4: 2, 5: 2, 6: 2, 7: 0, 8: 2, 9: 2, 10: 0, 11: 2}"], False),
+    ("Dots & boxes, general solver: 1x1 -1, 1x2 0, 1x3 -1, 2x2 +2 (== boxes.py), 2x3 -2", "projects/24-boxes", ["boxes23.py"], ["1x1 boxes (4 lines): first player's margin -1", "1x2 boxes (7 lines): first player's margin +0", "1x3 boxes (10 lines): first player's margin -1", "2x2 boxes (12 lines): first player's margin +2", "2x3 boxes (17 lines): first player's margin -2"], False),
     ("Dots & boxes: plain minimax agrees on 300 positions; wrong-rule control seen", "projects/24-boxes", ["crosscheck.py"], ["SEEN", "CROSSCHECK OK"], False),
     ("Four Boxes: value == Python (4,096), games as solved, extra move kept", "projects/24-boxes", ["test.py"], ["ALL PASS"], False),
     ("Notakto: first player wins, only from the centre; 230 safe positions", "projects/23-notakto", ["notakto.py"], ["first player wins: True; winning first moves: [4]; safe positions: 230", "PREDICTION HELD"], False),

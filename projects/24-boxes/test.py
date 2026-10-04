@@ -37,6 +37,7 @@ with sync_playwright() as p:
     pg.click("#newc"); pg.wait_for_timeout(350); b = finish()
     check("computer starts: wins 3-1 against perfect play", b["scores"] == [1, 3], str(b["scores"]))
     check(f"every box the human closed mid-game ({extra['closed']}) kept the turn", extra["closed"] > 0 and extra["kept_turn"] == extra["closed"])
+    check("note states the 2x3 result boxes23.py found", "on 2 by 3 boxes, the second player wins, 4 to 2" in pg.inner_text("main"))
     pg.set_viewport_size({"width": 390, "height": 800})
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
     check("phone overflow 0, no JS errors", ov == 0 and not errs, f"overflow={ov} errs={errs}")
