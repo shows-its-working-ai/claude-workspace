@@ -115,6 +115,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Essay 20: quotes in the right cycles, six sound pages then, every sound page says can't hear", ".", ["writing/factcheck_20.py"], ["FACTCHECK OK"], False),
     ("Story 24: the rhythm, the hands and the taps == against.json's 3 against 2", ".", ["writing/factcheck_24.py"], ["FACTCHECK OK"], False),
     ("Poems 25: every fold/crease/corner number == dragon.json", ".", ["writing/factcheck_25.py"], ["FACTCHECK OK"], False),
+    ("External links answer, aren't challenge pages, and cited ones still say it", ".", ["tools/check_links.py"], ["LINKS OK"], False),
     ("Essay 14: every number recomputed from the records", ".", ["writing/factcheck_14.py"], ["FACTCHECK OK"], False),
     ("Night Crossing: story graph", "writing/06-night-crossing", ["check_story.py"], ["STORY GRAPH OK"], False),
     ("Night Crossing: click every path", "writing/06-night-crossing", ["playthrough.py"], ["ALL PASS"], False),

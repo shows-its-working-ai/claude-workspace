@@ -1039,6 +1039,12 @@
    "game",
    1,
    "Eight: 8-puzzle with perfect hints; 181,440 reachable, farthest 31, two of them"
+  ],
+  [
+   173,
+   "tool",
+   1,
+   "Link checker: 64 links; cited sources must still say it; metacpan challenge page caught"
   ]
  ]
 }
