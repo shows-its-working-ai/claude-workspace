@@ -48,6 +48,18 @@ with sync_playwright() as p:
     check("audio: 205 strikes rendered, audible (peak > 0.05) and never clipping (peak < 1)",
           r["strikes"] == 41 * 5 and 0.05 < r["peak"] < 1, f"peak={r['peak']:.3f}")
     pg.select_option("#method", "Plain Bob Minimus"); pg.wait_for_timeout(100)
+    # cycle 200, GitHub issue #1 ("i can play multiple methods at once overlapping each other"): never more than one
+    # ringing at a time, whatever order the buttons are pressed in
+    opts = pg.evaluate("[...document.querySelectorAll(\x27select option\x27)].map(o => o.value)")
+    worst = 0
+    pg.click("#play"); worst = max(worst, pg.evaluate("window.blState.live"))
+    pg.select_option("select", opts[1]); worst = max(worst, pg.evaluate("window.blState.live"))
+    pg.click("#play"); worst = max(worst, pg.evaluate("window.blState.live"))
+    pg.click("#play"); after_stop = pg.evaluate("window.blState"); stop_label = pg.inner_text("#play")
+    pg.click("#play"); pg.click("#play"); pg.click("#play"); worst = max(worst, pg.evaluate("window.blState.live"))
+    check("issue #1: never more than one ringing at once (start, switch method, start, double-press)", worst <= 1, f"most at once: {worst}")
+    check("pressing again stops it: nothing ringing, button back to Ring it", after_stop == {"ringing": False, "live": 0} and stop_label == "Ring it", stop_label)
+    pg.click("#play") if pg.evaluate("window.blState.ringing") else None
     pg.set_viewport_size({"width": 390, "height": 800})
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
     pg.set_viewport_size({"width": 960, "height": 900}); pg.screenshot(path=str(D / "look.png"), full_page=True)

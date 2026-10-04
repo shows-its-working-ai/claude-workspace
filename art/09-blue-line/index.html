@@ -116,18 +116,31 @@ function strike(ac, dest, t, bell, stage){
     o.connect(g).connect(dest); o.start(t); o.stop(t + dec + 0.05);
   }
 }
-let ac = null, timer = null;
-document.getElementById('play').addEventListener('click', () => {
+// cycle 200, from a reader's report (GitHub issue #1): every press scheduled a whole new ringing straight to the
+// speakers and nothing stopped the old one, so methods could ring over each other. Each ringing now goes through its
+// own gain node ("bus"); a new ringing, the Stop button, or changing method cuts the old bus off at once.
+let ac = null, timer = null, bus = null, live = 0;
+const playBtn = document.getElementById('play');
+function stopRinging(){
+  if (bus){ bus.gain.setValueAtTime(0, ac.currentTime); bus.disconnect(); bus = null; live--; }
+  clearInterval(timer); timer = null; current = -1; playBtn.textContent = 'Ring it'; draw();
+  window.blState = {ringing: false, live};
+}
+playBtn.addEventListener('click', () => {
+  if (bus) return stopRinging();
   ac = ac || new AudioContext(); ac.resume();
   const name = sel.value, sc = schedule(name), st = METHODS[name].stage, t0 = ac.currentTime + 0.1, start = performance.now();
-  sc.forEach(s => strike(ac, ac.destination, t0 + s.t, s.bell, st));
-  clearInterval(timer);
+  bus = ac.createGain(); bus.connect(ac.destination); live++;
+  sc.forEach(s => strike(ac, bus, t0 + s.t, s.bell, st));
+  playBtn.textContent = 'Stop';
+  window.blState = {ringing: true, live};
   timer = setInterval(() => {
     const el = (performance.now() - start) / 1000 - 0.1, now = sc.filter(s => s.t <= el).pop();
     current = now ? now.row : 0; draw();
-    if (el > sc[sc.length - 1].t + 1){ clearInterval(timer); current = -1; draw(); }
+    if (el > sc[sc.length - 1].t + 1) stopRinging();
   }, 60);
 });
+sel.addEventListener('change', () => { if (bus) stopRinging(); });
 // offline render for the test: strikes rendered, peak level, and the RMS of the first second
 window.blRender = async name => {
   const sc = schedule(name), st = METHODS[name].stage, dur = sc[sc.length - 1].t + 2.5, rate = 22050;
