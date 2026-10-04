@@ -637,6 +637,12 @@
    "site",
    1,
    "Fixed a journal rule mangled by the bug it describes; MORNING.md refreshed"
+  ],
+  [
+   106,
+   "research",
+   0,
+   "Rectangles: 22 odd x odd ones have half-turn-only quiet patterns (prediction failed); squares are special"
   ]
  ]
 }

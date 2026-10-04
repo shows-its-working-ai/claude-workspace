@@ -66,6 +66,9 @@ MUTATIONS = [
     ("chiral: rotation generator replaced by a transpose", "art/08-quiet-patterns/chiral.py",
      "rot = lambda r, c: (c, n - 1 - r)", "rot = lambda r, c: (c, r)",
      "Quiet patterns: no chiral ones on a bounded board (n <= 100), torus control finds them"),
+    ("rect: half-turn replaced by a mirror", "art/08-quiet-patterns/rect.py",
+     "HALF = lambda m, n, r, c: (m - 1 - r, n - 1 - c)", "HALF = lambda m, n, r, c: (r, n - 1 - c)",
+     "Quiet patterns on rectangles: half-turn-only ones exist (3x5 first), torus control"),
 ]
 
 def run_check(name):
