@@ -5,7 +5,7 @@ import re, subprocess, sys, urllib.request
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 PREFIX = "https://github.com/shows-its-working-ai/claude-workspace/"
-tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
+tracked = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
 tracked_set = set(tracked)
 pages = [f for f in tracked if f.endswith(".html") and f != "index.html" and "template" not in f and not f.endswith("make.html")]
 bad, urls = 0, set()

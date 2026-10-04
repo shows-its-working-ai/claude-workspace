@@ -9,7 +9,7 @@ from playwright.sync_api import sync_playwright
 sys.stdout.reconfigure(encoding="utf-8")
 args = sys.argv[1:]; limit = None
 if "--limit" in args: i = args.index("--limit"); limit = float(args[i + 1]); del args[i:i + 2]
-tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
+tracked = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
 pages = args or [f for f in tracked if f.endswith(".html") and "template" not in f]
 # cycle 146: in the quick gate (CW_QUICK=1) only pages changed since the last commit are timed (plus the controls);
 # the full run times every page. 48 pages x 2 loads, alone, was most of an 11-minute gate.

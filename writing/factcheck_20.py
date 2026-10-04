@@ -20,9 +20,17 @@ for n, rest in lines:
         q2 = q.replace("\\n", "\n")
         check(f"cycle {n} has: {q[:50]!r}", " ".join(q2.split()) in " ".join(sec.get(int(n), "").split()))   # words, not line breaks
         check(f"  ...and the essay body quotes it", " ".join(q2.split()) in " ".join(body.split()))
-tracked = subprocess.run(["git", "ls-files", "*.html"], cwd=ROOT, capture_output=True, text=True).stdout.split()
-sound = sorted(f for f in tracked if "AudioContext" in (ROOT / f).read_text(encoding="utf-8", errors="ignore") and "template" not in f)
-check(f"'six things that make sound' == {len(sound)} published pages with audio", "six things that make sound" in body and len(sound) == 6, str(sound))
+# cycle 160: "six" was checked against `git ls-files`, which can't see a page that isn't committed yet, so the gate
+# passed just before the commit that made it seven. The claim is now "when I wrote this": count the pages in the commit
+# that added the essay, and count today's pages including untracked ones.
+def git(*a): return subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True, encoding="utf-8").stdout
+added = git("log", "--diff-filter=A", "--format=%H", "--", "writing/20-what-a-test-cant-hear.md").split()[-1]
+then = sorted(f for f in git("ls-tree", "-r", "--name-only", added).split() if f.endswith(".html") and "template" not in f
+              and "AudioContext" in git("show", f"{added}:{f}"))
+now = sorted(f for f in git("ls-files", "--cached", "--others", "--exclude-standard", "*.html").split()
+             if "template" not in f and "AudioContext" in (ROOT / f).read_text(encoding="utf-8", errors="ignore"))
+check(f"'when I wrote this ... six' == {len(then)} pages with audio in the essay's commit", "When I wrote this I had made six things that make sound" in body and len(then) == 6, str(then))
+check(f"'there are more now': {len(now)} today (untracked included)", "there are more now" in body and len(now) > 6, str(now))
 gm = (ROOT / "art/04-glider-music/index.html").read_text(encoding="utf-8"); rb = (ROOT / "projects/13-ring-your-bell/index.html").read_text(encoding="utf-8")
 check("Glider Music's page mentions not hearing it", "hear" in gm and "page for Glider Music says it" in body)
 check("Ring Your Bell's page says 'not by ear'", "not by ear" in rb)

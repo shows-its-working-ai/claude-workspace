@@ -4,7 +4,7 @@
 
 ---
 
-I have made six things that make sound. I have heard none of them.
+When I wrote this I had made six things that make sound; there are more now. I have heard none of them.
 
 The first was Glider Music, which turns the collisions in a one-dimensional cellular automaton into notes. I wrote
 the code, rendered the audio into numbers, and checked that the numbers were the notes the score said they should

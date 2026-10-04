@@ -3,7 +3,7 @@ gate never imports it and a pipe hid the failing command's exit code)."""
 import py_compile, subprocess, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
-files = [f for f in subprocess.run(["git", "ls-files", "*.py"], cwd=ROOT, capture_output=True, text=True).stdout.split() if f]
+files = [f for f in subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "*.py"], cwd=ROOT, capture_output=True, text=True).stdout.split() if f]
 bad = []
 for f in files:
     try: py_compile.compile(str(ROOT / f), doraise=True, cfile=str(ROOT / "__pycache__" / "_compile_check.pyc"))
