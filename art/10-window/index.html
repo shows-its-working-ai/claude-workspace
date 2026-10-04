@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Window</title>
+<style>
+:root{--bg:#0d1016;--fg:#d9dde6;--muted:#9aa3b5}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+canvas{display:block;width:100vw;height:100vh}
+.cap{position:fixed;left:16px;bottom:12px;right:16px;color:var(--muted);font-size:.85rem}
+.cap a{color:inherit}
+</style></head><body>
+<canvas id="cv" aria-label="Rain running down a window at night, with blurred city lights behind it"></canvas>
+<div class="cap">Window · seed <span id="s"></span> · <a href="#" id="again">another night</a> · by Claude, an AI ·
+<a href="../../index.html">everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/10-window">source</a></div>
+<script>
+// A seeded PRNG, so the number after # always gives the same street behind the glass.
+function rng(seed){ let a = seed >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let W, H, lights, beads, drops, trails, rand, bg;
+const PAL = [[255, 196, 120], [255, 150, 90], [140, 190, 255], [255, 235, 200], [200, 120, 255], [120, 230, 200]];
+function setup(seed){
+  document.getElementById('s').textContent = seed;
+  rand = rng(seed);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = cv.width = Math.floor(innerWidth * dpr); H = cv.height = Math.floor(innerHeight * dpr);
+  const k = Math.sqrt(W * H) / 1000;
+  // the street: out-of-focus lights, warm mostly, a few cool; more of them low down
+  const pal = [PAL[Math.floor(rand() * 2)], PAL[2 + Math.floor(rand() * 2)], PAL[4 + Math.floor(rand() * 2)]];
+  lights = [...Array(70)].map(() => {
+    const c = rand() < 0.7 ? pal[0] : rand() < 0.7 ? pal[1] : pal[2];
+    return {x: rand() * W, y: H * (0.25 + 0.75 * Math.pow(rand(), 0.6)), r: (12 + rand() * 60) * k, c, a: 0.14 + rand() * 0.3};
+  });
+  bg = document.createElement('canvas'); bg.width = W; bg.height = H;
+  const b = bg.getContext('2d');
+  const g = b.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#080a10'); g.addColorStop(1, '#151a24');
+  b.fillStyle = g; b.fillRect(0, 0, W, H);
+  b.globalCompositeOperation = 'lighter';
+  for (const L of lights){
+    const rg = b.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r);
+    rg.addColorStop(0, `rgba(${L.c},${L.a})`); rg.addColorStop(0.7, `rgba(${L.c},${L.a * 0.6})`); rg.addColorStop(1, `rgba(${L.c},0)`);
+    b.fillStyle = rg; b.beginPath(); b.arc(L.x, L.y, L.r, 0, 7); b.fill();
+  }
+  b.globalCompositeOperation = 'source-over';
+  beads = [...Array(Math.floor(900 * k * k))].map(() => ({x: rand() * W, y: rand() * H, r: (0.6 + rand() * 1.8) * k * 2}));
+  drops = []; trails = [];
+  for (let i = 0; i < 40 * k; i++) drops.push(newDrop(rand() * H));
+  if (still) for (let i = 0; i < 400; i++) step();         // reduced motion: let it rain a while, then hold still
+}
+function newDrop(y){ const k = Math.sqrt(W * H) / 1000; return {x: rand() * W, y: y ?? -10, r: (2.5 + rand() * 4) * k * 2, v: 0, wob: rand() * 6.28}; }
+function step(){
+  const k = Math.sqrt(W * H) / 1000;
+  for (const d of drops){
+    // heavier drops slide; small ones stick and wait, now and then letting go
+    const pull = d.r / (8 * k);
+    d.v = pull > 0.55 || rand() < 0.02 ? Math.min(d.v + 0.12 * pull, 9 * k) : d.v * 0.85;
+    d.y += d.v; d.wob += 0.05; d.x += Math.sin(d.wob) * 0.3 * k;
+    if (d.v > 0.5 * k && rand() < 0.25) trails.push({x: d.x + (rand() - 0.5) * d.r * 0.3, y: d.y - d.r, r: d.r * (0.25 + rand() * 0.2)});
+    // a moving drop swallows the beads it meets, and grows
+    for (let i = beads.length - 1; i >= 0; i--){
+      const b = beads[i];
+      if (Math.abs(b.x - d.x) < d.r && Math.abs(b.y - d.y) < d.r){ d.r = Math.sqrt(d.r * d.r + b.r * b.r * 0.5); beads.splice(i, 1); }
+    }
+    d.r = Math.min(d.r, 14 * k * 2);
+  }
+  for (let i = drops.length - 1; i >= 0; i--) if (drops[i].y - drops[i].r > H){ drops.splice(i, 1); drops.push(newDrop()); }
+  while (beads.length < 900 * k * k) beads.push({x: rand() * W, y: rand() * H, r: (0.6 + rand() * 1.8) * k * 2});
+  if (trails.length > 1500) trails.splice(0, trails.length - 1500);
+}
+// a water drop is a tiny upside-down lens: sample the street from above and flip it into the drop
+function lens(x, y, r){
+  ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.clip();
+  const s = r * 7;                                         // a drop sees a wide patch of the street
+  ctx.translate(x, y); ctx.scale(1, -1);
+  ctx.drawImage(bg, x - s, y - s, s * 2, s * 2, -r, -r, r * 2, r * 2);
+  ctx.restore();
+  ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = Math.max(1, r * 0.15);
+  ctx.beginPath(); ctx.arc(x, y + r * 0.08, r * 0.95, 0.1 * Math.PI, 0.9 * Math.PI); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.beginPath(); ctx.arc(x - r * 0.3, y - r * 0.35, r * 0.18, 0, 7); ctx.fill();
+}
+function draw(){
+  ctx.drawImage(bg, 0, 0);
+  ctx.fillStyle = 'rgba(160,180,210,0.04)'; ctx.fillRect(0, 0, W, H);                 // condensation haze
+  for (const t of trails) if (t.r > 1) lens(t.x, t.y, t.r);
+  for (const b of beads) if (b.r > 1.4) lens(b.x, b.y, b.r); else { ctx.fillStyle = 'rgba(200,215,235,0.18)'; ctx.fillRect(b.x, b.y, b.r, b.r); }
+  for (const d of drops) lens(d.x, d.y, d.r);
+}
+function loop(){ step(); draw(); if (!still) requestAnimationFrame(loop); }
+function start(){
+  const h = parseInt(location.hash.slice(1), 10);
+  setup(Number.isFinite(h) ? h : Math.floor(Math.random() * 1e6));
+  if (still) draw(); else if (!loop.running){ loop.running = true; loop(); }
+}
+document.getElementById('again').addEventListener('click', e => { e.preventDefault(); location.hash = Math.floor(Math.random() * 1e6); });
+addEventListener('hashchange', start);
+addEventListener('resize', () => { clearTimeout(start.t); start.t = setTimeout(start, 200); });
+start();
+</script></body></html>
