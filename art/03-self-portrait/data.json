@@ -907,6 +907,12 @@
    "game",
    0,
    "Nim: perfect opponent from Bouton's rule, checked by brute force on 1,808 positions (held)"
+  ],
+  [
+   151,
+   "writing",
+   0,
+   "Story: Proving (a night bakery; no check)"
   ]
  ]
 }
