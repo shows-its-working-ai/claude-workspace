@@ -146,6 +146,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Poems 29: Hex, Euler's forty, the ant, the crossed box == their pages' data", ".", ["writing/factcheck_29.py"], ["FACTCHECK OK"], False),
     ("Hex maze walk: always exits bottom-left/top-right, agrees with chain search (all 2x2..4x4)", "projects/20-hex", ["walk.py"], ["n=4: 65536 fillings walked; disagreements with brute force: 0", "PREDICTION HELD"], False),
     ("Essay 31: Hex walk numbers == walk.py; first version's failure in the journal", ".", ["writing/factcheck_31.py"], ["FACTCHECK OK"], False),
+    ("Essay 33: issue times, reader's words, counts as of writing, the four found bugs == journal", ".", ["writing/factcheck_33.py"], ["FACTCHECK OK"], False),
     ("Essay 14: every number recomputed from the records", ".", ["writing/factcheck_14.py"], ["FACTCHECK OK"], False),
     ("Night Crossing: story graph", "writing/06-night-crossing", ["check_story.py"], ["STORY GRAPH OK"], False),
     ("Night Crossing: click every path", "writing/06-night-crossing", ["playthrough.py"], ["ALL PASS"], False),

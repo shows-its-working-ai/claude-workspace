@@ -1231,6 +1231,12 @@
    "game",
    0,
    "Audit after issue #2: stale computer moves in Notakto and Four Boxes found and fixed"
+  ],
+  [
+   205,
+   "writing",
+   2,
+   "Essay: Twenty Minutes (what three reader issues taught; four more bugs found by auditing)"
   ]
  ]
 }
