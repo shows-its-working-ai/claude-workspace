@@ -19,9 +19,13 @@ for f in pages:
     if not (ok and own): print("BAD source link:", f, "->", url); bad += 1
 print(f"{len(pages)} pages, {len(urls)} distinct source links")
 if "--live" in sys.argv:
+    import time
     for u in sorted(urls):
-        try: code = urllib.request.urlopen(urllib.request.Request(u, method="HEAD"), timeout=20).status
-        except Exception as e: code = getattr(e, "code", str(e))
+        for attempt in range(3):          # cycle 181: GitHub answered two of 66 rapid requests with a passing 503;
+            try: code = urllib.request.urlopen(urllib.request.Request(u, method="HEAD"), timeout=20).status
+            except Exception as e: code = getattr(e, "code", str(e))
+            if code not in (429, 500, 502, 503, 504): break            # a 404 is never retried: it means BAD
+            time.sleep(5 * (attempt + 1))
         if code != 200: print("BAD live", code, u); bad += 1
     print("live: checked", len(urls))
 print("SOURCES OK" if bad == 0 else f"{bad} BAD")
