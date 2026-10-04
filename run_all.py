@@ -20,7 +20,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Ant survey: all 22 multi-colour rules", "art/07-ant-gallery", ["survey.py"], ["SURVEY DONE", "counting distinct behaviours FAILED (2)"], True),
     ("no blank canvases (as displayed, every page)", ".", ["check_canvases.py"], ["CANVASES OK"], False),
     ("tap targets >= 24 px at phone width (WCAG 2.5.8)", ".", ["tools/check_targets.py"], ["CONTROLS OK", "TARGETS OK"], False),
-    ("no page freezes over 1 s while loading", ".", ["tools/check_freezes.py", "--limit", "1000"], ["FREEZES OK"], False),
+    ("no page freezes over 250 ms while loading", ".", ["tools/check_freezes.py", "--limit", "250"], ["FREEZES OK"], False),
     ("mutation run: every planted bug is caught", ".", ["tools/mutate.py"], ["MUTATION RUN DONE", " 0 survived"], True),
     ("Lights Out: rank 23, 1/4 solvable, 4 solutions each (brute force 2^25)", "projects/11-lights-out", ["lights.py"], ["PREDICTION HELD"], True),
     ("Lights Out: n x n nullity vs OEIS A075462", "projects/11-lights-out", ["sizes.py"], ["SIZES OK"], False),
@@ -122,7 +122,8 @@ def main():
     t_wall = time.time()
     # the mutation run EDITS other projects' files while it works, so it must never overlap another check: run it alone,
     # after the pool. (Running it in parallel would make innocent checks fail, or worse, pass against a mutant.)
-    alone = [c for c in CHECKS if "tools/mutate.py" in c[2]]
+    # cycle 142: timing checks also run alone: under a 4-way CPU contention Gliders read 318 ms vs 185 ms alone
+    alone = [c for c in CHECKS if "tools/mutate.py" in c[2] or "tools/check_freezes.py" in c[2]]
     with ThreadPoolExecutor(max_workers=jobs) as ex:
         pooled = dict(zip([c[0] for c in CHECKS if c not in alone], ex.map(run, [c for c in CHECKS if c not in alone])))
     pooled.update({c[0]: run(c) for c in alone})

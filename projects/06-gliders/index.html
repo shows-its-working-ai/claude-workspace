@@ -142,7 +142,9 @@ function draw(cv, seed){
 }
 const results = {};
 const g = document.getElementById('g');
+(async () => {                                        // cycle 142: one glider at a time, yielding in between
 for (const gl of GLIDERS){
+  await new Promise(r => setTimeout(r));
   const m = measure(gl.seed), [cn, cd] = gl.cat;
   const match = m && m.num * cd === cn * m.den && (!gl.period || m.p === gl.period);   // cycle 64: period too
   results[gl.name] = m && {p: m.p, d: m.d, speed: `${m.num}/${m.den}`, match};
@@ -155,13 +157,15 @@ for (const gl of GLIDERS){
   g.appendChild(fig); draw(fig.querySelector('canvas'), gl.seed);
 }
 window.gliderResults = results;
+})();
 // ---- cycle 57: the E-speed ladder, rebuilt live (same experiment as e_family.py) ----
-(function(){
+(async function(){                                   // cycle 142: async, so the cut search can yield
   const NL = 60, WL = 14 * NL, L0 = 14 * 30;
   const stepN = r => { const n = r.length; return r.map((v, x) => rule(r[(x + n - 1) % n], v, r[(x + 1) % n])); };
   const base = Array.from({length: WL}, (_, i) => TILE[i % 14]);
   const nxt = stepN(base);
   let SH = 0; for (let d = 0; d < WL; d++) if (base.every((_, i) => base[((i - d) % WL + WL) % WL] === nxt[i])) { SH = d; break; }
+  await new Promise(r => setTimeout(r));                         // let the gliders above paint first
   let row = base.slice(), clean = base.slice(); row[L0 + 6] ^= 1;
   for (let t = 0; t < 3600; t++){
     if (t === 4) for (const o of [2, 18]) row[(L0 + 14 * 4 + o + SH * t) % WL] ^= 1;
@@ -174,7 +178,10 @@ window.gliderResults = results;
     const cells = hist[0].reduce((a, b) => a + b, 0);
     for (let p = 1; p <= 60; p++) for (let d = -20; d <= 20; d++){
       let ok = true;
-      for (let k = 0; k < 3 && ok; k++){ const a = roll(hist[k * p], d), b = hist[(k + 1) * p]; ok = a.every((v, i) => v === b[i]); }
+      for (let k = 0; k < 3 && ok; k++){                  // cycle 142: compare in place (no rolled copy), stop at first mismatch
+        const a = hist[k * p], b = hist[(k + 1) * p];
+        for (let i = 0; i < n; i++) if (a[((i - d) % n + n) % n] !== b[i]){ ok = false; break; }
+      }
       if (ok) return {p, d, cells, hist};
     }
     return {p: null, d: null, cells, hist};
@@ -184,7 +191,10 @@ window.gliderResults = results;
   const xs = row.map((v, i) => v !== clean[i] ? i : -1).filter(i => i >= 0), lo = Math.min(...xs), hi = Math.max(...xs);
   const KS = [-2, -1, 0, 1, 2, 3]; let rungs = null, M = null;
   for (let m = lo + 1; m < hi - 28 && !rungs; m++){            // first cut point where every rung is a clean glider
-    const rs = KS.map(k => ({k, ...measureRow(k ? cut(row, m, k) : row, k ? cut(clean, m, k) : clean)}));
+    const rs = [];                                               // one rung at a time, yielding in between
+    for (const k of KS){ rs.push({k, ...measureRow(k ? cut(row, m, k) : row, k ? cut(clean, m, k) : clean)});
+      await new Promise(r => setTimeout(r)); if (rs[rs.length - 1].p !== 30 || rs[rs.length - 1].d !== -8) break; }
+    if (rs.length < KS.length) continue;
     if (rs.every(r => r.p === 30 && r.d === -8)) { rungs = rs; M = m - lo; }
   }
   const box = document.getElementById('ladder');

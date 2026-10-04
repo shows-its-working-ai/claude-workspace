@@ -27,12 +27,14 @@ ok = True
 with sync_playwright() as p:
     ctx = open_browser(p); pg = ctx.new_page(); errs = []
     pg.on("pageerror", lambda e: errs.append(str(e)))
-    pg.goto((D / "index.html").as_uri()); js = pg.evaluate("window.gliderResults")
+    pg.goto((D / "index.html").as_uri()); pg.wait_for_function("window.gliderResults !== undefined", timeout=30000)   # cycle 142: async
+    js = pg.evaluate("window.gliderResults")
     for name in ["A", "B", "B̄", "C2", "C3", "E", "Ē", "G"]:
         r = js[name]; jsv = Fr(r["d"], r["p"]); pyv = py_measure(SEEDS[name])
         good = r["match"] and jsv == CAT[name] and pyv == CAT[name] and r["p"] == CAT_PERIOD.get(name, r["p"]); ok &= good
         print(f"{name.replace(chr(274), 'Ebar').replace('B' + chr(772), 'Bbar')}: page measured period {r['p']} shift {r['d']:+d} = {jsv} | Python {pyv} | catalogue {CAT[name]} -> {'ok' if good else 'FAIL'}")
     # cycle 57: the live E-speed ladder must match e_family.py's result (cycle 56): (30,-8) at 20..60 cells
+    pg.wait_for_function("window.ladder !== undefined", timeout=30000)   # cycle 142: the ladder now builds asynchronously
     lad = js_l = pg.evaluate("window.ladder")
     want = [20, 28, 36, 44, 52, 60]
     lg = bool(lad) and [r["cells"] for r in lad] == want and all(r["p"] == 30 and r["d"] == -8 for r in lad)

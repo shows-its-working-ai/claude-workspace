@@ -853,6 +853,12 @@
    "tool",
    1,
    "Freeze check across all pages: Quiet Patterns froze 3.9 s, now 0 (direct symmetric solve); gate at 1 s"
+  ],
+  [
+   142,
+   "tool",
+   2,
+   "Freeze check rebuilt (longtask API was blind in the test profile); Gliders async: 743 -> 119 ms; timing checks run alone"
   ]
  ]
 }

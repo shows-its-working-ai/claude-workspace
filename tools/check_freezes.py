@@ -11,8 +11,15 @@ args = sys.argv[1:]; limit = None
 if "--limit" in args: i = args.index("--limit"); limit = float(args[i + 1]); del args[i:i + 2]
 tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
 pages = args or [f for f in tracked if f.endswith(".html") and "template" not in f]
-INIT = """window.__long = []; try { new PerformanceObserver(l => { for (const e of l.getEntries()) window.__long.push(e.duration); })
-  .observe({type: 'longtask', buffered: true}); } catch (e) { window.__long = null; }"""
+# cycle 142: Chrome's 'longtask' entries never arrived in the throwaway test profile, so under run_all this check
+# measured nothing (a mutant with a 3.9 s freeze survived). Measure directly instead, the same in any profile:
+#  - script blocking during load = time from document start to DOMContentLoaded (local files: parsing is ~instant);
+#  - after that, a 10 ms heartbeat; the longest gap between beats is the longest freeze.
+INIT = """(() => { const t0 = performance.now(); window.__long = [];
+  document.addEventListener('DOMContentLoaded', () => {
+    window.__long.push(performance.now() - t0);
+    let last = performance.now(); setInterval(() => { const t = performance.now(); if (t - last > 50) window.__long.push(t - last); last = t; }, 10);
+  }); })();"""
 rows = []
 with sync_playwright() as p:
     ctx = open_browser(p); ctx.add_init_script(INIT); pg = ctx.new_page(); pg.set_viewport_size({"width": 390, "height": 800})
