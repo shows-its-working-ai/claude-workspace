@@ -47,6 +47,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Eleven Ants: page highways == Python survey", "art/07-ant-gallery", ["test.py"], ["ALL PASS"], False),
     ("Quiet Patterns: page == Python, every pattern quiet", "art/08-quiet-patterns", ["test.py"], ["ALL PASS"], False),
     ("Blue Line: rows == Python, schedule, audio level", "art/09-blue-line", ["test.py"], ["ALL PASS"], False),
+    ("Nim: Bouton XOR rule == brute force (1,808 positions)", "projects/16-nim", ["nim.py"], ["disagreements: 0", "PREDICTION HELD"], False),
+    ("Nim: perfect replies, XOR strategy wins by taps", "projects/16-nim", ["test.py"], ["ALL PASS"], False),
     ("Weave: drafts (plain = checkerboard, twill balanced, houndstooth period 8)", "art/13-weave", ["weave.py"], ["PREDICTION HELD", "checkerboard: True"], False),
     ("Weave: page == Python crossing for crossing", "art/13-weave", ["test.py"], ["ALL PASS"], False),
     ("Pegs: every start solvable; 13,935 one-peg positions (Python)", "projects/15-pegs", ["pegs.py"], ["13935 of 32767", "PREDICTION HELD"], False),

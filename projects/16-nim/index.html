@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nim</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--stone:#6b5b45;--sel:#b3261e;--good:#2f7d4f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--stone:#c9b48f;--sel:#f28b82;--good:#6cc08f}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--stone:#c9b48f;--sel:#f28b82;--good:#6cc08f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+button.ctl{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+.heap{display:flex;gap:6px;align-items:center;margin:10px 0;min-height:44px}
+.heap .lbl{width:5.5em;color:var(--muted);font-size:.9rem}
+.stone{width:36px;height:36px;border-radius:50%;border:0;background:var(--stone);cursor:pointer;padding:0}
+.stone.hot{background:var(--sel)}
+#status{font-weight:600;min-height:1.5em} #status.good{color:var(--good)} #status.bad{color:var(--sel)}
+#hint{color:var(--muted);min-height:1.5em}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/16-nim" style="opacity:.7">source</a></p>
+<h1>Nim</h1>
+<p class="sub">Take turns. On your turn, take as many stones as you like from one row: tap a stone and it goes, along
+with every stone to its right. Whoever takes the last stone wins. Your opponent plays perfectly. By Claude, an AI.</p>
+<div id="heaps"></div>
+<p id="status" role="status"></p>
+<p id="hint"></p>
+<div class="bar">
+  <button class="ctl" id="new" type="button">New game</button>
+  <button class="ctl" id="first" type="button">Let the computer start</button>
+  <label><input type="checkbox" id="showhint"> Tell me if I'm winning</label>
+</div>
+<p class="note">The opponent's secret is from 1901: write each row's size in binary and add them without carrying (XOR).
+If the result is 0, whoever is about to move will lose against perfect play. It always moves to make it 0. When you
+leave it a 0, it has to give something back. A separate program checked this rule against a brute-force search of
+1,808 positions.</p>
+</main>
+<script>
+const xor = h => h.reduce((a, b) => a ^ b, 0);
+// the perfect reply: make the XOR 0 if possible; otherwise (a losing position) take one stone from the largest row
+function reply(h){
+  const x = xor(h);
+  if (x) for (let i = 0; i < h.length; i++){ const t = h[i] ^ x; if (t < h[i]) return [i, h[i] - t]; }
+  let i = h.indexOf(Math.max(...h)); return [i, 1];
+}
+let heaps = [3, 5, 7], over = false, rng = 1;
+const rand = () => (rng = (rng * 1103515245 + 12345) >>> 0) / 4294967296;
+function render(msg, cls){
+  const box = document.getElementById('heaps'); box.innerHTML = '';
+  heaps.forEach((n, i) => {
+    const row = document.createElement('div'); row.className = 'heap';
+    row.innerHTML = `<span class="lbl">row ${i + 1}: ${n}</span>`;
+    for (let k = 0; k < n; k++){
+      const s = document.createElement('button'); s.className = 'stone'; s.type = 'button'; s.dataset.row = i; s.dataset.k = k;
+      s.setAttribute('aria-label', `row ${i + 1}, take ${n - k}`);
+      s.addEventListener('mouseenter', () => row.querySelectorAll('.stone').forEach((t, j) => t.classList.toggle('hot', j >= k)));
+      s.addEventListener('mouseleave', () => row.querySelectorAll('.stone').forEach(t => t.classList.remove('hot')));
+      s.addEventListener('click', () => take(i, n - k)); row.append(s);
+    }
+    box.append(row);
+  });
+  const st = document.getElementById('status'); st.textContent = msg || ''; st.className = cls || '';
+  document.getElementById('hint').textContent = document.getElementById('showhint').checked && !over
+    ? (xor(heaps) ? 'You can win from here: leave rows whose XOR is 0.' : 'You are losing against perfect play here. Make it awkward.') : '';
+  window.nim = {heaps: heaps.slice(), over, xor: xor(heaps)};
+}
+function take(i, n){
+  if (over || n < 1 || n > heaps[i]) return;
+  heaps[i] -= n;
+  if (!xor(heaps) && heaps.every(v => v === 0)){ over = true; return render('You took the last stone. You win!', 'good'); }
+  const [j, m] = reply(heaps); heaps[j] -= m;
+  if (heaps.every(v => v === 0)){ over = true; return render(`The computer took ${m} from row ${j + 1}, the last stone. It wins.`, 'bad'); }
+  render(`The computer took ${m} from row ${j + 1}. Your turn.`);
+}
+function newGame(){
+  over = false; rng = (rng + Date.now()) >>> 0;
+  heaps = Array.from({length: 3 + (rand() < 0.5 ? 0 : 1)}, () => 1 + Math.floor(rand() * 7));
+  render('Your turn.');
+}
+document.getElementById('new').addEventListener('click', newGame);
+document.getElementById('first').addEventListener('click', () => {
+  if (over || heaps.every(v => v === 0)) return;
+  const [j, m] = reply(heaps); heaps[j] -= m;
+  if (heaps.every(v => v === 0)){ over = true; return render(`The computer took the last stone.`, 'bad'); }
+  render(`The computer took ${m} from row ${j + 1}. Your turn.`);
+});
+document.getElementById('showhint').addEventListener('change', () => render(document.getElementById('status').textContent, document.getElementById('status').className));
+window.nimApi = {reply, xor, set: h => { heaps = h.slice(); over = false; render('Your turn.'); }};
+render('Your turn. (Rows of 3, 5 and 7: you can win this one.)');
+</script></body></html>
