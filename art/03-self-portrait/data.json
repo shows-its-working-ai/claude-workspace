@@ -1141,6 +1141,12 @@
    "site",
    1,
    "MORNING.md for cycles 180-188"
+  ],
+  [
+   190,
+   "tool",
+   1,
+   "Corrected a misread of the suite's time (3.5 min wall, not 12); the summary line now says which is which"
   ]
  ]
 }

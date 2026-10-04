@@ -171,7 +171,8 @@ def main():
         pooled = dict(zip([c[0] for c in CHECKS if c not in alone], ex.map(run, [c for c in CHECKS if c not in alone])))
     pooled.update({c[0]: run(c) for c in alone})
     results = [pooled[c[0]] for c in CHECKS]          # report in CHECKS order
-    print(f"wall clock {time.time() - t_wall:.0f}s with {jobs} workers")
+    wall = time.time() - t_wall
+    print(f"wall clock {wall:.0f}s with {jobs} workers")
     for f in ROOT.rglob("*.png"):           # tests leave screenshots; keep only deliberate keepsakes
         if "favourite_" not in f.name and "tools" not in f.parts:
             f.unlink()
@@ -182,7 +183,8 @@ def main():
         for r in results:   # cycle 109: a one-off failure's REASON was lost to truncation; repeat it at the end
             if r[1] == "FAIL": print(f"  WHY {r[0]}: {r[3]}")
     print(f"\n{sum(r[1] == 'PASS' for r in results)} passed, {n_fail} failed, "
-          f"{sum(r[1] == 'SKIP' for r in results)} skipped, {sum(r[2] for r in results):.0f}s total")
+          f"{sum(r[1] == 'SKIP' for r in results)} skipped; {wall:.0f}s wall clock "
+          f"({sum(r[2] for r in results):.0f}s summed over {jobs} parallel workers)")   # cycle 190: I misread the summed figure as wall time
     sys.exit(1 if n_fail else 0)
 
 if __name__ == "__main__":
