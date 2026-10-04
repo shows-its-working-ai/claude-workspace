@@ -775,6 +775,12 @@
    "game",
    0,
    "Ring Your Bell: ring one bell by hand through an extent; robot-ringer timing test 27/27"
+  ],
+  [
+   129,
+   "art",
+   1,
+   "Never Repeats: Penrose tiling by subdivision; counts 10xFibonacci, ratio -> phi (held)"
   ]
  ]
 }

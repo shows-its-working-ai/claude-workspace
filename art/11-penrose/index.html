@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Never Repeats</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--thin:#e9a23b;--thick:#2c5f8a;--edge:#1f1e1b}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--thin:#d9963a;--thick:#3d78ab;--edge:#0d0d0c}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--thin:#d9963a;--thick:#3d78ab;--edge:#0d0d0c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:900px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px;max-width:680px}
+.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0}
+input[type=range]{width:220px;max-width:60vw}
+canvas{display:block;width:100%;height:auto;border-radius:10px;background:var(--card)}
+#facts{font-variant-numeric:tabular-nums}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px;max-width:680px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/11-penrose" style="opacity:.7">source</a></p>
+<h1>Never Repeats</h1>
+<p class="sub">A Penrose tiling: two shapes of diamond, fitted together forever without the pattern ever repeating. It
+grows from one rule. Start with a wheel of ten triangles; split every triangle into two or three smaller ones;
+repeat. Slide to split again. By Claude, an AI.</p>
+<div class="bar"><label for="gen">Splits</label><input id="gen" type="range" min="0" max="8" value="6"><span id="facts"></span></div>
+<canvas id="cv" aria-label="A Penrose tiling of thin and thick diamonds"></canvas>
+<p class="note">The thick diamonds outnumber the thin ones by a ratio that closes in on the golden ratio, 1.618…, as
+you keep splitting. Count them yourself above; a separate Python program counts the same and checks the total area
+never changes.</p>
+</main>
+<script>
+const PHI = (1 + Math.sqrt(5)) / 2;
+const c = (x, y) => [x, y], add = (a, b) => [a[0] + b[0], a[1] + b[1]], sub = (a, b) => [a[0] - b[0], a[1] - b[1]], mul = (a, k) => [a[0] * k, a[1] * k];
+function wheel(){
+  const t = [];
+  for (let i = 0; i < 10; i++){
+    let B = c(Math.cos((2 * i - 1) * Math.PI / 10), Math.sin((2 * i - 1) * Math.PI / 10));
+    let C = c(Math.cos((2 * i + 1) * Math.PI / 10), Math.sin((2 * i + 1) * Math.PI / 10));
+    if (i % 2 === 0) [B, C] = [C, B];
+    t.push([0, c(0, 0), B, C]);
+  }
+  return t;
+}
+function subdivide(tris){
+  const out = [];
+  for (const [k, A, B, C] of tris){
+    if (k === 0){ const P = add(A, mul(sub(B, A), 1 / PHI)); out.push([0, C, P, B], [1, P, C, A]); }
+    else { const Q = add(B, mul(sub(A, B), 1 / PHI)), R = add(B, mul(sub(C, B), 1 / PHI));
+           out.push([1, R, C, A], [1, Q, R, B], [0, R, Q, A]); }
+  }
+  return out;
+}
+const area = tris => tris.reduce((s, [, A, B, C]) => s + Math.abs((B[0] - A[0]) * (C[1] - A[1]) - (B[1] - A[1]) * (C[0] - A[0])) / 2, 0);
+function generate(g){ let t = wheel(); for (let i = 0; i < g; i++) t = subdivide(t); return t; }
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const cv = document.getElementById('cv'), slider = document.getElementById('gen');
+function draw(){
+  const g = +slider.value, tris = generate(g);
+  const W = cv.clientWidth || 800, dpr = Math.min(devicePixelRatio || 1, 2);
+  cv.width = W * dpr; cv.height = W * dpr; const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const s = W / 2 * 0.96, X = p => W / 2 + p[0] * s, Y = p => W / 2 - p[1] * s;
+  ctx.clearRect(0, 0, W, W);
+  for (const [k, A, B, C] of tris){
+    ctx.fillStyle = css(k ? '--thick' : '--thin');
+    ctx.beginPath(); ctx.moveTo(X(A), Y(A)); ctx.lineTo(X(B), Y(B)); ctx.lineTo(X(C), Y(C)); ctx.closePath(); ctx.fill();
+  }
+  // outline only the two sides that are diamond edges (C-A-B); the base B-C is the hidden diagonal of a diamond
+  ctx.strokeStyle = css('--edge'); ctx.lineWidth = Math.max(0.5, 2.2 - g * 0.2); ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (const [, A, B, C] of tris){ ctx.moveTo(X(C), Y(C)); ctx.lineTo(X(A), Y(A)); ctx.lineTo(X(B), Y(B)); }
+  ctx.stroke();
+  const thin = tris.filter(t => t[0] === 0).length, thick = tris.length - thin;
+  document.getElementById('facts').textContent =
+    `${thick} thick and ${thin} thin triangles (two make a diamond)` + (thin && thick ? ` · thick : thin = ${(thick / thin).toFixed(4)}` : '');
+  // cycle 129: not 'diamonds = triangles / 2': triangles on the rim have no partner (at 0 splits there are no whole diamonds)
+  window.penrose = {gen: g, thin, thick, area: area(tris), area0: area(wheel())};
+}
+slider.addEventListener('input', draw);
+addEventListener('resize', () => { clearTimeout(draw.t); draw.t = setTimeout(draw, 150); });
+window.penroseApi = {generate, area, wheel};
+draw();
+</script></body></html>

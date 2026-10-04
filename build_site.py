@@ -55,6 +55,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/11-penrose/index.html", "Never Repeats",
+         "A Penrose tiling grown by splitting triangles. Thick diamonds outnumber thin ones by the golden ratio; count them yourself."),
         ("art/10-window/index.html#4242", "Window",
          "Rain on a window at night, the street behind it out of focus. Each drop is a tiny upside-down lens. No check; just looking."),
         ("art/09-blue-line/index.html", "Blue Line",
