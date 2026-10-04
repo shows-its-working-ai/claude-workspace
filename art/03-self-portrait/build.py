@@ -37,7 +37,11 @@ if FAKE_N:
         rows.append({"n": n, "kind": data["kinds"][n % 6], "caught": n % 3, "summary": "placeholder",
                      "title": "placeholder", "predicted": n % 4 == 0})
 else:
-    assert [r["n"] for r in rows] == sorted(sections), "data.json must cover every journal cycle"
+    # cycle 179: the newest journal section may be the cycle still in progress (end_cycle adds its row just before the
+    # build). Requiring it made this check fail on clean code mid-cycle, which the mutation run's baseline guard
+    # rightly refused. Allow exactly that one, and only it, to be missing.
+    have, want = [r["n"] for r in rows], sorted(sections)
+    assert have == want or have == want[:-1], "data.json must cover every journal cycle (but the newest)"
 
 total_caught = sum(r["caught"] for r in rows)
 # cycle 148: label spacing grows with the record (columns get narrower): every 5 up to 150 cycles, every 10 up to
