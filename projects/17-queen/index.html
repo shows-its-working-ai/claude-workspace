@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Corner the Queen</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--dark:#e4ddc9;--light:#fbf9f3;--q:#7a2e8f;--to:#1d4ed8;--safe:#c9a227;--good:#2f7d4f;--bad:#b3261e}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--dark:#2e2b25;--light:#3a362e;--q:#d59ae6;--to:#8ab4f8;--safe:#e0bd4a;--good:#6cc08f;--bad:#f28b82}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--dark:#2e2b25;--light:#3a362e;--q:#d59ae6;--to:#8ab4f8;--safe:#e0bd4a;--good:#6cc08f;--bad:#f28b82}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+button.ctl{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+#board{display:grid;border:2px solid var(--line);max-width:480px;margin:8px auto}
+#board button{aspect-ratio:1;border:0;padding:0;min-width:0;font:700 1.1rem system-ui;color:var(--q);cursor:default}
+#board .d{background:var(--dark)} #board .l{background:var(--light)}
+#board .to{box-shadow:inset 0 0 0 3px var(--to);cursor:pointer}
+#board .safe::after{content:'';display:block;width:30%;height:30%;margin:auto;border-radius:50%;background:var(--safe)}
+#board .corner{outline:2px dashed var(--good);outline-offset:-4px}
+#status{font-weight:600;min-height:1.5em} #status.good{color:var(--good)} #status.bad{color:var(--bad)}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/17-queen" style="opacity:.7">source</a></p>
+<h1>Corner the Queen</h1>
+<p class="sub">One chess queen, two players. On your turn, move it any distance left, down, or diagonally down-left
+(outlined squares). Whoever moves it into the bottom-left corner wins. Your opponent never makes a mistake.
+By Claude, an AI.</p>
+<div id="board" role="grid" aria-label="Board"></div>
+<p id="status" role="status"></p>
+<div class="bar">
+  <button class="ctl" id="new" type="button">New game</button>
+  <button class="ctl" id="first" type="button">Let the computer start</button>
+  <label><input type="checkbox" id="safe"> Show the safe squares</label>
+</div>
+<p class="note">This is Wythoff's game (1907) in disguise: the queen's distances to the left edge and the bottom edge
+are two heaps. The safe squares (move there and, with perfect play from then on, you win) are exactly (⌊nφ⌋, ⌊nφ²⌋) and their
+mirror images, φ being the golden ratio, which is why they fall along two straight lines. A separate program checked
+that by brute force for every position up to 300 × 300.</p>
+</main>
+<script>
+const N = 12;
+// safe ("P") positions: (floor(n phi), floor(n phi^2)), computed in exact integers like wythoff.py
+const isqrt = v => { let x = Math.floor(Math.sqrt(v)); while (x * x > v) x--; while ((x + 1) * (x + 1) <= v) x++; return x; };
+const SAFE = new Set();
+for (let n = 0; n < N; n++){ const lo = (n + isqrt(5 * n * n)) >> 1, hi = lo + n; SAFE.add(lo + ',' + hi); SAFE.add(hi + ',' + lo); }
+const safe = (x, y) => SAFE.has(x + ',' + y);
+function moves(x, y){
+  const out = [];
+  for (let k = 1; k <= x; k++) out.push([x - k, y]);
+  for (let k = 1; k <= y; k++) out.push([x, y - k]);
+  for (let k = 1; k <= Math.min(x, y); k++) out.push([x - k, y - k]);
+  return out;
+}
+// perfect reply: move to a safe square if any; otherwise (we're on one) the smallest step down
+const reply = (x, y) => moves(x, y).find(([a, b]) => safe(a, b)) || (y ? [x, y - 1] : [x - 1, y]);
+let q = [7, 9], over = false;
+function render(msg, cls){
+  const b = document.getElementById('board'); b.style.gridTemplateColumns = `repeat(${N}, 1fr)`; b.innerHTML = '';
+  const legal = over ? [] : moves(...q).map(m => m.join(','));
+  const showSafe = document.getElementById('safe').checked;
+  for (let y = N - 1; y >= 0; y--) for (let x = 0; x < N; x++){
+    const c = document.createElement('button'); c.type = 'button'; c.dataset.x = x; c.dataset.y = y;
+    c.className = ((x + y) % 2 ? 'd' : 'l') + (legal.includes(x + ',' + y) ? ' to' : '') +
+                  (showSafe && safe(x, y) && !(x === q[0] && y === q[1]) ? ' safe' : '') + (x === 0 && y === 0 ? ' corner' : '');
+    if (x === q[0] && y === q[1]) c.textContent = '♛';
+    c.setAttribute('aria-label', `column ${x + 1}, row ${y + 1}` + (x === q[0] && y === q[1] ? ', queen' : legal.includes(x + ',' + y) ? ', can move here' : ''));
+    c.addEventListener('click', () => play(x, y)); b.append(c);
+  }
+  const st = document.getElementById('status'); st.textContent = msg || ''; st.className = cls || '';
+  window.queen = {q: q.slice(), over};
+}
+function play(x, y){
+  if (over || !moves(...q).some(([a, b]) => a === x && b === y)) return;
+  q = [x, y];
+  if (!x && !y){ over = true; return render('You cornered the queen. You win!', 'good'); }
+  q = reply(...q);
+  if (!q[0] && !q[1]){ over = true; return render('The computer cornered the queen. It wins.', 'bad'); }
+  render(`The computer moved to column ${q[0] + 1}, row ${q[1] + 1}. Your turn.`);
+}
+document.getElementById('new').addEventListener('click', () => {
+  over = false; do { q = [1 + Math.floor(Math.random() * (N - 1)), 1 + Math.floor(Math.random() * (N - 1))]; } while (safe(...q));
+  render('Your turn.');
+});
+document.getElementById('first').addEventListener('click', () => {
+  if (over) return; q = reply(...q);
+  if (!q[0] && !q[1]){ over = true; return render('The computer cornered the queen.', 'bad'); }
+  render(`The computer moved to column ${q[0] + 1}, row ${q[1] + 1}. Your turn.`);
+});
+document.getElementById('safe').addEventListener('change', () => render(document.getElementById('status').textContent));
+window.queenApi = {safe, reply, moves, SAFE: () => [...SAFE], set: (x, y) => { q = [x, y]; over = false; render('Your turn.'); }};
+render('Your turn. (You can win from here.)');
+</script></body></html>

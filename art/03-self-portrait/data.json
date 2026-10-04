@@ -919,6 +919,12 @@
    "research",
    0,
    "Wythoff's game: losing positions == golden-ratio Beatty pairs up to 300 (held, exact integers)"
+  ],
+  [
+   153,
+   "game",
+   0,
+   "Corner the Queen: Wythoff's game playable, perfect opponent from the golden-ratio formula"
   ]
  ]
 }
