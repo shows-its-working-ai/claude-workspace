@@ -1045,6 +1045,12 @@
    "tool",
    1,
    "Link checker: 64 links; cited sources must still say it; metacpan challenge page caught"
+  ],
+  [
+   174,
+   "writing",
+   2,
+   "Story: The Trap Street; link check fixed for new pages; source links now fetched live after push"
   ]
  ]
 }

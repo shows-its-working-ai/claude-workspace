@@ -71,6 +71,8 @@ def main(argv):
     step("push", [PY, "tools/gh_publish.py", "push"], must="push exit: 0")
     if live:
         time.sleep(50); step("live site", [PY, "check_live.py"], must="LIVE SITE OK")
+        # cycle 174: links into my own repo can only be fetched after the push; nothing did fetch them until now
+        step("source links live", [PY, "check_sources.py", "--live"], must="SOURCES OK")
     print("CYCLE CLOSED")
     # cycle 127: reminders for promises I keep forgetting (MORNING.md went 21 cycles stale; the token has a date)
     import datetime

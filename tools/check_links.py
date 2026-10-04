@@ -7,10 +7,12 @@ from concurrent.futures import ThreadPoolExecutor
 ROOT = Path(__file__).resolve().parents[1]
 files = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "*.html", "writing/*.md"],
                        cwd=ROOT, capture_output=True, text=True).stdout.split()
+OWN = "https://github.com/shows-its-working-ai/claude-workspace/"   # cycle 174: see below
 uses = {}
 for f in files:
     t = (ROOT / f).read_text(encoding="utf-8", errors="ignore")
     for u in re.findall(r'href="(https?://[^"#]+)', t) + re.findall(r"\]\((https?://[^)#\s]+)\)", t):
+        if u.startswith(OWN): continue      # my own repo: check_sources.py covers these, and a new page's link 404s until pushed
         uses.setdefault(u, set()).add(f)
 # cycle 173: pages I cite as evidence must still SAY the thing. A 200 alone proved nothing for metacpan, which
 # answered 200 with a 3 KB bot-challenge page; a body-size floor and these phrases catch that.
