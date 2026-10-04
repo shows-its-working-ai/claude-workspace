@@ -78,6 +78,9 @@ MUTATIONS = [
     ("story 15: the kink sends the third DOWN (the error I first wrote)", "writing/15-the-extent.md",
      "hunting up, and the two at the back dodge", "hunting down, and the two at the back dodge",
      "Story 15: ringing recomputed from place notation"),
+    ("blue line: swaps step one place instead of two", "art/09-blue-line/index.html",
+     "[r[i], r[i + 1]] = [r[i + 1], r[i]]; i += 2;", "[r[i], r[i + 1]] = [r[i + 1], r[i]]; i += 1;",
+     "Blue Line: rows == Python, schedule, audio level"),
 ]
 
 def run_check(name):

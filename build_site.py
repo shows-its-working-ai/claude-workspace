@@ -51,6 +51,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/09-blue-line/index.html", "Blue Line",
+         "Church bell methods drawn as the ringers' 'blue line', and rung aloud. Rows generated live; Python agrees."),
         ("art/08-quiet-patterns/index.html", "Quiet Patterns",
          "Sets of Lights Out presses that change nothing at all, and look the same from every side. Computed live."),
         ("art/07-ant-gallery/index.html", "Eleven Ants",

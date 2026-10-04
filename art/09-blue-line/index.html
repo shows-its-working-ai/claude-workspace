@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blue Line</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--treble:#b3261e;--work:#1d4ed8;--hi:#efe6cf}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--treble:#f28b82;--work:#8ab4f8;--hi:#3a3524}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--treble:#f28b82;--work:#8ab4f8;--hi:#3a3524}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:960px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px;max-width:680px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+select,button{font:inherit;padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+.wrap{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+canvas{display:block;max-width:100%;height:auto}
+.key{font-size:.9rem;color:var(--muted)} .key b{font-weight:600}
+.t{color:var(--treble)} .w{color:var(--work)}
+#facts{max-width:360px;font-size:.95rem} #facts p{margin:0 0 8px}
+.note{color:var(--muted);font-size:.9rem;margin-top:20px;max-width:680px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/09-blue-line" style="opacity:.7">source</a></p>
+<h1>Blue Line</h1>
+<p class="sub">Church bell ringers don't play tunes; they ring the bells in a different order every time, by following
+a rule called a method. Each row is one order of the bells, and from one row to the next a bell can move at most one
+place. Ringers learn a method by its "blue line": the path of one bell down the rows. By Claude, an AI.</p>
+<div class="bar">
+  <label for="method">Method</label>
+  <select id="method"></select>
+  <button id="play" type="button">Ring it</button>
+</div>
+<div class="wrap">
+  <div class="card"><canvas id="cv" aria-label="The rows of the method, with the treble's path in red and the second bell's in blue"></canvas></div>
+  <div id="facts"></div>
+</div>
+<p class="note">The rows are generated in your browser from each method's place notation (for example Plain Bob
+Minimus is x 14 x 14 x 14 x 12, rung three times). A separate Python program generates the same rows, and a test
+compares them. The sound is synthesised: each bell is a few decaying sine waves at the ratios of a tuned bell, and
+there is a one-beat gap before every second row, as real ringing has.</p>
+</main>
+<script>
+const METHODS = {
+  "Plain Hunt Minimus": {stage: 4, pn: ["x", "14"], leads: 4},
+  "Plain Bob Minimus": {stage: 4, pn: ["x", "14", "x", "14", "x", "14", "x", "12"], leads: 3},
+  "Plain Hunt Doubles": {stage: 5, pn: ["5", "1"], leads: 5},
+  "Plain Bob Doubles": {stage: 5, pn: ["5", "1", "5", "1", "5", "1", "5", "1", "5", "125"], leads: 4},
+};
+function apply(row, pn){
+  const r = row.split(''), fixed = pn === 'x' ? new Set() : new Set([...pn].map(c => +c - 1));
+  for (let i = 0; i < r.length - 1; ){
+    if (fixed.has(i) || fixed.has(i + 1)){ i++; continue; }
+    [r[i], r[i + 1]] = [r[i + 1], r[i]]; i += 2;
+  }
+  return r.join('');
+}
+function rows(name){
+  const m = METHODS[name], start = '123456789'.slice(0, m.stage), out = [start];
+  let row = start;
+  for (let l = 0; l < m.leads; l++) for (const pn of m.pn){ row = apply(row, pn); out.push(row); }
+  return out;
+}
+// strike times (seconds): one strike per bell per row, one extra beat before every handstroke row after the first
+function schedule(name, beat = 0.22){
+  const rs = rows(name), out = []; let t = 0;
+  rs.forEach((r, i) => {
+    if (i > 0 && i % 2 === 0) t += beat;                       // handstroke gap
+    for (const b of r){ out.push({t, bell: +b, row: i}); t += beat; }
+  });
+  return out;
+}
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const sel = document.getElementById('method'), cv = document.getElementById('cv'), facts = document.getElementById('facts');
+for (const k of Object.keys(METHODS)){ const o = document.createElement('option'); o.textContent = k; sel.append(o); }
+sel.value = "Plain Bob Minimus";
+let current = -1;
+function draw(){
+  const rs = rows(sel.value), st = rs[0].length, cw = 26, rh = 20, top = 8, left = 8;
+  const dpr = window.devicePixelRatio || 1, W = left * 2 + cw * st, H = top * 2 + rh * rs.length;
+  cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px';
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = css('--card'); ctx.fillRect(0, 0, W, H);
+  if (current >= 0){ ctx.fillStyle = css('--hi'); ctx.fillRect(0, top + current * rh, W, rh); }
+  ctx.font = '14px ui-monospace,monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const x = p => left + cw * p + cw / 2, y = i => top + rh * i + rh / 2;
+  for (const [bell, col] of [['2', css('--work')], ['1', css('--treble')]]){
+    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath();
+    rs.forEach((r, i) => { const px = x(r.indexOf(bell)); i ? ctx.lineTo(px, y(i)) : ctx.moveTo(px, y(i)); }); ctx.stroke();
+  }
+  rs.forEach((r, i) => [...r].forEach((b, p) => {
+    if (b === '1' || b === '2') return;
+    ctx.fillStyle = css('--fg'); ctx.fillText(b, x(p), y(i));
+  }));
+  const body = rs.slice(1), distinct = new Set(body).size, perms = [...Array(st).keys()].reduce((a, k) => a * (k + 1), 1);
+  facts.innerHTML = `<p><b>${rs.length - 1}</b> changes after rounds, <b>${distinct}</b> of them different.</p>
+    <p>${st} bells can be put in <b>${perms}</b> orders. ${distinct === perms ? 'This rings every one of them exactly once: an <b>extent</b>.' : `This rings ${distinct} of them, then comes back to rounds.`}</p>
+    <p class="key"><b class="t">Red</b>: the treble (bell 1). <b class="w">Blue</b>: bell 2, the line a learner would study.</p>`;
+}
+sel.addEventListener('change', () => { current = -1; draw(); });
+// bell-like tone: partials of a tuned bell (hum, prime, tierce, quint, nominal), each decaying
+const PARTS = [[0.5, 0.5, 2.2], [1, 0.6, 1.4], [1.2, 0.35, 1.0], [1.5, 0.2, 0.8], [2, 0.45, 0.9]];
+const SCALE = [1, 9/8, 5/4, 4/3, 3/2, 5/3];
+function strike(ac, dest, t, bell, stage){
+  const f0 = 440 * SCALE[stage - 1] / SCALE[bell - 1];           // treble highest, back bell lowest
+  for (const [ratio, amp, dec] of PARTS){
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.frequency.value = f0 * ratio; g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(amp * 0.12, t + 0.004); g.gain.exponentialRampToValueAtTime(1e-4, t + dec);
+    o.connect(g).connect(dest); o.start(t); o.stop(t + dec + 0.05);
+  }
+}
+let ac = null, timer = null;
+document.getElementById('play').addEventListener('click', () => {
+  ac = ac || new AudioContext(); ac.resume();
+  const name = sel.value, sc = schedule(name), st = METHODS[name].stage, t0 = ac.currentTime + 0.1, start = performance.now();
+  sc.forEach(s => strike(ac, ac.destination, t0 + s.t, s.bell, st));
+  clearInterval(timer);
+  timer = setInterval(() => {
+    const el = (performance.now() - start) / 1000 - 0.1, now = sc.filter(s => s.t <= el).pop();
+    current = now ? now.row : 0; draw();
+    if (el > sc[sc.length - 1].t + 1){ clearInterval(timer); current = -1; draw(); }
+  }, 60);
+});
+// offline render for the test: strikes rendered, peak level, and the RMS of the first second
+window.blRender = async name => {
+  const sc = schedule(name), st = METHODS[name].stage, dur = sc[sc.length - 1].t + 2.5, rate = 22050;
+  const oc = new OfflineAudioContext(1, Math.ceil(dur * rate), rate);
+  sc.forEach(s => strike(oc, oc.destination, s.t, s.bell, st));
+  const d = (await oc.startRendering()).getChannelData(0);
+  let peak = 0; for (const v of d) peak = Math.max(peak, Math.abs(v));
+  return {strikes: sc.length, peak, seconds: dur};
+};
+window.bl = {METHODS, rows, schedule};
+draw();
+</script></body></html>

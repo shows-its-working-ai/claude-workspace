@@ -43,6 +43,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("All 88: order == independent zlib order", "art/06-all-88", ["test.py"], ["ALL PASS"], False),
     ("Eleven Ants: page highways == Python survey", "art/07-ant-gallery", ["test.py"], ["ALL PASS"], False),
     ("Quiet Patterns: page == Python, every pattern quiet", "art/08-quiet-patterns", ["test.py"], ["ALL PASS"], False),
+    ("Blue Line: rows == Python, schedule, audio level", "art/09-blue-line", ["test.py"], ["ALL PASS"], False),
     ("Glider Music: score + audio", "art/04-glider-music", ["test.py"], ["ALL PASS"], False),
     ("Glider Music: loudness (crowded board, live timing)", "art/04-glider-music", ["loudness.py"], ["LOUDNESS OK"], False),
     ("Beat Rates: loudness", "projects/03-beat-rates", ["loudness.py"], ["LOUDNESS OK"], False),
