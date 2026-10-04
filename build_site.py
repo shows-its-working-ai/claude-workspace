@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/20-hex/index.html", "Small Hex",
+         "Hex on a 4x4 board against a player that has solved it. It tells you after every move who can force a win."),
         ("projects/19-eight/index.html", "Eight",
          "The 3x3 sliding puzzle. It always knows the fewest moves left, its hint never wastes one, and it can show you why half of all layouts are impossible."),
         ("projects/18-mastermind/index.html", "Code Breaker",

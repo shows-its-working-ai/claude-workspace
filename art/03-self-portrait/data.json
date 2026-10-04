@@ -1081,6 +1081,12 @@
    "site",
    2,
    "MORNING.md 169-178; interview Q11 answered; portrait tolerates the open cycle; full mutation run clean (61/61)"
+  ],
+  [
+   180,
+   "game",
+   3,
+   "Small Hex: no draws, first player wins, 4x4 solved; freeze 7 s -> 153 ms"
   ]
  ]
 }

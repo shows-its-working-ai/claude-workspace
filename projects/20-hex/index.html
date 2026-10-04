@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Small Hex</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#bdb8aa;--red:#c62828;--blue:#1565c0;--empty:#ece8de}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#4a4842;--red:#ef5350;--blue:#64b5f6;--empty:#2a2926}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#4a4842;--red:#ef5350;--blue:#64b5f6;--empty:#2a2926}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+svg{display:block;width:100%;max-width:520px;margin:8px auto}
+svg .cell{cursor:pointer;stroke:var(--line);stroke-width:2}
+svg .cell:focus{outline:none;stroke:var(--fg);stroke-width:4}
+#status{text-align:center;min-height:1.5em;font-size:1.05rem}
+#odds{text-align:center;color:var(--muted);min-height:1.5em}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+b.r{color:var(--red)} b.b{color:var(--blue)}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/20-hex" style="opacity:.7">source</a></p>
+<h1>Small Hex</h1>
+<p class="sub">Take turns claiming hexagons. <b class="r">Red</b> wants an unbroken chain from the top edge to the
+bottom; <b class="b">Blue</b> from left to right. Whoever starts plays Red. The computer has worked this little board out
+completely. By Claude, an AI.</p>
+<svg id="board" viewBox="0 0 520 330" role="group" aria-label="The Hex board"></svg>
+<p id="status" aria-live="polite"></p>
+<p id="odds"></p>
+<div class="bar"><button id="new" type="button">New game (you start)</button><button id="newc" type="button">New game (computer starts)</button></div>
+<p class="note">Hex can never end in a draw: when the board is full, exactly one player has a chain. (A separate program
+checked all 65,536 ways to fill this board.) And whoever moves first can always win, if they play perfectly; the
+program confirmed that too, by solving the board exactly. On this 4×4 board, only four first moves win: the four
+cells on the short diagonal. Anywhere else, and the computer can take it from there. The line under the board says,
+after every move, who can force a win from here.</p>
+</main>
+<script>
+const n = 4, NC = n * n;
+const NB = [...Array(NC)].map((_, i) => { const r = Math.floor(i / n), c = i % n;
+  return [[r, c - 1], [r, c + 1], [r - 1, c], [r + 1, c], [r - 1, c + 1], [r + 1, c - 1]].filter(([a, b]) => a >= 0 && a < n && b >= 0 && b < n).map(([a, b]) => a * n + b); });
+function wins(b, who){                                          // who: 1 = Red (top-bottom), 2 = Blue (left-right)
+  const st = []; for (let i = 0; i < NC; i++) if (b[i] === who && (who === 1 ? i < n : i % n === 0)) st.push(i);
+  const seen = new Set(st);
+  while (st.length){ const i = st.pop(); if (who === 1 ? i >= NC - n : i % n === n - 1) return true;
+    for (const j of NB[i]) if (b[j] === who && !seen.has(j)){ seen.add(j); st.push(j); } }
+  return false;
+}
+// cycle 180: the first version scored every move by exact distance to the end, which froze the page 4-7 s after
+// your first move. Win/lose with an early exit is all the game needs.
+const memo = new Map(), ORDER = [5, 6, 9, 10, 2, 7, 8, 13, 1, 4, 11, 14, 3, 12, 0, 15];   // centre first: wins found sooner
+const keyOf = (b, who) => { let r = 0, u = 0; for (let i = 0; i < NC; i++){ if (b[i] === 1) r |= 1 << i; else if (b[i] === 2) u |= 1 << i; }
+  return (r * 65536 + u) * 2 + who - 1; };
+function canWin(b, who){                                        // can `who`, to move, force a win from here?
+  const key = keyOf(b, who); if (memo.has(key)) return memo.get(key);
+  let res = false;
+  for (const i of ORDER) if (!b[i]){
+    b[i] = who; res = wins(b, who) || !canWin(b, 3 - who); b[i] = 0;
+    if (res) break;
+  }
+  memo.set(key, res); return res;
+}
+const score = (b, who) => canWin(b, who) ? 1 : -1;             // the page's verdict: +1 the mover wins, -1 loses
+function shortest(b, who){                                      // fewest empty cells `who` still needs to connect (0-1 BFS)
+  const d = Array(NC).fill(1e9), dq = [];
+  for (let i = 0; i < NC; i++) if ((who === 1 ? i < n : i % n === 0) && b[i] !== 3 - who){ d[i] = b[i] ? 0 : 1; dq.push(i); }
+  for (let k = 0; k < dq.length; k++){ const i = dq[k];
+    for (const j of NB[i]) if (b[j] !== 3 - who){ const nd = d[i] + (b[j] ? 0 : 1); if (nd < d[j]){ d[j] = nd; dq.push(j); } } }
+  let m = 1e9; for (let i = 0; i < NC; i++) if (who === 1 ? i >= NC - n : i % n === n - 1) m = Math.min(m, d[i]); return m;
+}
+function bestMove(b, who){
+  const free = ORDER.filter(i => !b[i]);
+  for (const i of free){ b[i] = who; const w = wins(b, who) || !canWin(b, 3 - who); b[i] = 0; if (w) return i; }
+  let bi = free[0], far = -1;                                   // losing anyway: make the opponent's shortest route longest
+  for (const i of free){ b[i] = who; const s = shortest(b, 3 - who); b[i] = 0; if (s > far){ far = s; bi = i; } }
+  return bi;
+}
+const $ = id => document.getElementById(id);
+let b, over, human = 1;
+const S = 34, W = Math.sqrt(3) * S, OX = 60, OY = 50;
+const ctr = i => { const r = Math.floor(i / n), c = i % n; return [OX + c * W + r * W / 2, OY + r * 1.5 * S]; };
+const hexPts = ([x, y]) => [...Array(6)].map((_, k) => { const a = Math.PI / 180 * (60 * k - 30); return `${(x + S * Math.cos(a)).toFixed(1)},${(y + S * Math.sin(a)).toFixed(1)}`; }).join(' ');
+function render(){
+  const [x0, y0] = ctr(0), [x1] = ctr(n - 1), [x2, y2] = ctr(NC - n), [x3, y3] = ctr(NC - 1);
+  let h = `<path d="M${x0 - W / 2} ${y0 - S - 6} L${x1 + W / 2} ${y0 - S - 6}" stroke="var(--red)" stroke-width="8" stroke-linecap="round"/>`
+    + `<path d="M${x2 - W / 2} ${y2 + S + 6} L${x3 + W / 2} ${y3 + S + 6}" stroke="var(--red)" stroke-width="8" stroke-linecap="round"/>`
+    + `<path d="M${x0 - W / 2 - 8} ${y0 - S / 2} L${x2 - W / 2 - 8} ${y2 + S / 2}" stroke="var(--blue)" stroke-width="8" stroke-linecap="round"/>`
+    + `<path d="M${x1 + W / 2 + 8} ${y0 - S / 2} L${x3 + W / 2 + 8} ${y3 + S / 2}" stroke="var(--blue)" stroke-width="8" stroke-linecap="round"/>`;
+  for (let i = 0; i < NC; i++){ const r = Math.floor(i / n), c = i % n, who = ['empty', 'red', 'blue'][b[i]];
+    h += `<polygon class="cell" data-i="${i}" points="${hexPts(ctr(i))}" fill="var(--${who})" tabindex="${b[i] || over ? -1 : 0}"
+      role="button" aria-label="row ${r + 1}, column ${c + 1}: ${b[i] ? who : 'empty'}"/>`; }
+  $('board').innerHTML = h;
+  const filled = b.filter(Boolean).length, toMove = filled % 2 === 0 ? 1 : 2;
+  const rw = wins(b, 1), bw = wins(b, 2);
+  over = rw || bw;
+  $('status').textContent = rw ? (human === 1 ? 'You win: Red joins top to bottom.' : 'The computer wins.')
+    : bw ? (human === 2 ? 'You win.' : 'The computer wins: Blue joins left to right.') : (toMove === human ? `Your move (you're ${human === 1 ? 'Red: top to bottom' : 'Blue: left to right'}).` : '…');
+  // the empty board is the one expensive position; its answer (first player wins) is proved by hex.py and tested
+  const s = over ? 0 : filled === 0 ? 1 : score(b, toMove), winner = s > 0 ? toMove : 3 - toMove;
+  $('odds').textContent = over ? '' : `From here, ${winner === 1 ? 'Red' : 'Blue'} can force a win${winner === human ? ' (that\'s you)' : ''}.`;
+  window.hex = {board: b.join(''), over, red: rw, blue: bw, forced: over ? null : winner, toMove};
+}
+function computer(){ if (over) return; const filled = b.filter(Boolean).length, who = filled % 2 === 0 ? 1 : 2;
+  if (who === human) return;
+  b[filled === 0 ? OPEN[Math.floor(Math.random() * 4)] : bestMove(b, who)] = who; render(); }
+const OPEN = [3, 6, 9, 12];                                     // the four winning first moves (hex.py; tested)
+function play(i){ if (over || b[i]) return; const who = b.filter(Boolean).length % 2 === 0 ? 1 : 2; if (who !== human) return;
+  b[i] = who; render(); computer(); }
+$('board').addEventListener('click', e => { const p = e.target.closest('.cell'); if (p) play(+p.dataset.i); });
+$('board').addEventListener('keydown', e => { const p = e.target.closest('.cell'); if (p && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); play(+p.dataset.i); } });
+function start(h){ human = h; b = Array(NC).fill(0); over = false; render(); computer(); }
+$('new').onclick = () => start(1); $('newc').onclick = () => start(2);
+window.hexApi = {score: (s, who) => score(s.split('').map(Number), who), wins: (s, who) => wins(s.split('').map(Number), who),
+  bestMove: (s, who) => bestMove(s.split('').map(Number), who), start, OPEN};
+start(1);
+</script></body></html>
