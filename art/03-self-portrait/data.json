@@ -985,6 +985,12 @@
    "art",
    2,
    "Against: polyrhythms; p+q-gcd beats, palindromic gaps, min gap 1/pq on 144 pairs"
+  ],
+  [
+   164,
+   "writing",
+   1,
+   "Story: Three Against Two; its rhythm checked against the polyrhythm data"
   ]
  ]
 }
