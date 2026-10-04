@@ -38,7 +38,7 @@ green ring. Made by Claude, an AI; every level was solved by a computer search, 
   <button data-d="L" aria-label="Slide left">←</button><button data-d="D" aria-label="Slide down">↓</button><button data-d="R" aria-label="Slide right">→</button>
 </div>
 <div class="bar" style="justify-content:center">
-  <button id="undo">Undo</button><button id="restart">Restart</button><button id="daily">Today's level</button><button id="surprise">Surprise me</button><button id="showmap" hidden aria-pressed="false">Show the map</button>
+  <button id="undo">Undo</button><button id="restart">Restart</button><button id="daily">Today's level</button><button id="surprise">Surprise me</button><button id="showmap" hidden aria-pressed="false">Show the map</button><button id="share" hidden>Copy my result</button>
 </div>
 <p class="note">Some levels have dead ends: spots you can slide into but never out of. The page tells you.
 Solved levels are remembered on this device. After a win, "Show the map"
@@ -114,6 +114,7 @@ const board = document.getElementById('board'), status = document.getElementById
 function load(i){
   li = i; const L = LEVELS[i]; pos = L.start.slice(); hist = []; moves = 0;
   const sm = document.getElementById('showmap'); if (sm){ sm.hidden = true; setMap(false); }
+  const sh = document.getElementById('share'); if (sh) sh.hidden = true;
   L.livePar = bfsPar(L);
   board.style.gridTemplateColumns = `repeat(${L.grid[0].length}, 1fr)`;
   status.textContent = ''; status.className = ''; render();
@@ -141,6 +142,7 @@ function move(d){
     const L = LEVELS[li]; best[li] = Math.min(best[li] || Infinity, moves); saveBest();
     status.className = 'win'; document.getElementById('showmap').hidden = false;
     status.textContent = moves === L.par ? `Solved in ${moves}: that's par, the fewest possible.` : `Solved in ${moves} (par ${L.par}).`;
+    if (L.name.startsWith('Daily ')) document.getElementById('share').hidden = false;
   }
   else if (!canReachGoal(LEVELS[li], pos)){ status.className = 'trap'; status.textContent = 'No way out from here: undo (U) or restart (R).'; }
   render();
@@ -203,6 +205,19 @@ document.getElementById('daily').onclick = () => {
   if (at >= 0) load(at); else { LEVELS.push(L); load(LEVELS.length - 1); }
   board.focus();
 };
+// cycle 122: share a daily result. No spoilers: date, moves, par, a link. Nothing about the route.
+const LIVE = 'https://shows-its-working-ai.github.io/claude-workspace/projects/07-slide/index.html#daily';
+function shareText(){
+  const L = LEVELS[li], mark = moves === L.par ? ' (par!)' : ` (par ${L.par})`;
+  return `Slide · ${L.name} · solved in ${moves}${mark}\n${LIVE}`;
+}
+document.getElementById('share').onclick = async () => {
+  const t = shareText(), b = document.getElementById('share');
+  try { await navigator.clipboard.writeText(t); b.textContent = 'Copied'; }
+  catch { prompt('Copy your result:', t); }                              // clipboard blocked: show it to copy by hand
+  setTimeout(() => { b.textContent = 'Copy my result'; }, 1500);
+};
+// (the #daily link is handled after the startup load(0) at the end, or that load would override it)
 document.getElementById('surprise').onclick = () => {
   const L = generate(1 + Math.floor(Math.random() * 1e9)); if (!L) return;
   LEVELS.push(L); load(LEVELS.length - 1); board.focus();
@@ -223,4 +238,5 @@ board.addEventListener('pointerup', e => {
 });
 window.slideGame = {LEVELS, bfsPar, move, load, state: () => ({li, pos: pos.slice(), moves, won: won()}), best: () => ({...best}), generate, analyse, dailyFor};
 load(0);
+if (location.hash === "#daily") document.getElementById("daily").click();   // cycle 122: a shared link opens today's level
 </script></body></html>

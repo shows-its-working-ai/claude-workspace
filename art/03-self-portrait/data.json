@@ -733,6 +733,12 @@
    "tool",
    0,
    "Tap-target check: inline exemption tightened (107 -> 37), self-controls added; still all pass"
+  ],
+  [
+   122,
+   "game",
+   2,
+   "Slide: spoiler-free share of the daily result + #daily link; two bugs caught by the new test"
   ]
  ]
 }
