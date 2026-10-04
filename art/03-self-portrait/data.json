@@ -721,6 +721,12 @@
    "art",
    0,
    "Window: rain on glass at night, drops as lenses; no check, on purpose"
+  ],
+  [
+   120,
+   "tool",
+   1,
+   "Tap-target check (WCAG 2.5.8) on all 40 pages: only Ant Golf failed, by 1 px; fixed (prediction failed)"
   ]
  ]
 }
