@@ -1213,6 +1213,12 @@
    "site",
    2,
    "Issue #3: self-portrait unreadable at 200 cycles; rows of 25; a test that required one row replaced"
+  ],
+  [
+   202,
+   "tool",
+   0,
+   "Button masher: 60 random actions on all 46 pages, 0 JS errors; control seen"
   ]
  ]
 }
