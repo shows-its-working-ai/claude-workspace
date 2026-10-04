@@ -19,7 +19,11 @@ for m in re.finditer(r"^## Cycle (\d+) - [\d-]+ - (.+)$", journal, re.M):
     nxt = re.search(r"^## ", journal[start:], re.M)
     sections[int(m.group(1))] = (m.group(2).strip(), journal[start:start + (nxt.start() if nxt else len(journal))])
 
-PRED = re.compile(r"\*\*(Hypothes\w*|Pre-registered|Protocol|Predictions?)\b")
+# cycle 115: the label must START a line (or a "- " bullet). A note that QUOTES the label mid-line (cycle 114 did,
+# writing about a mislabel) must not count as a prediction.
+PRED = re.compile(r"^(?:- )?\*\*(Hypothes\w*|Pre-registered|Protocol|Predictions?)\b", re.M)
+assert PRED.search("**Prediction (written first):") and PRED.search("- **Hypothesis 1 (written first):")
+assert not PRED.search('I labelled it "**Prediction (written first...)", and')
 rows = []
 for n, kind, caught, summary in data["cycles"]:
     assert n in sections, f"cycle {n} not in journal"

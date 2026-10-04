@@ -691,6 +691,12 @@
    "art",
    1,
    "Blue Line: the second no-long-places extent + the counts; mislabelled prediction fixed"
+  ],
+  [
+   115,
+   "tool",
+   1,
+   "Portrait parser: prediction labels count only at line start (quoted labels no longer count); live count fixed to 51"
   ]
  ]
 }

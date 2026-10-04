@@ -38,6 +38,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Confluence: pointer A/B", "art/02-confluence", ["look.py"], ["errors: []"], False),
     ("Self-portrait: caught counts vs journal (one-way)", "art/03-self-portrait", ["audit_caught.py"], ["CAUGHT AUDIT OK"], False),
     ("Self-portrait: layout", "art/03-self-portrait", ["rows.py"], ["OK"], False),
+    ("Self-portrait: build (prediction labels count only at line start)", "art/03-self-portrait", ["build.py"], ["built:"], False),
     ("Pendulum Wave: groups + physics + controls", "art/05-pendulum-wave", ["test.py"], ["ALL PASS"], False),
     ("Pendulum Wave: sound == independent synthesis", "art/05-pendulum-wave", ["sound_test.py"], ["ALL PASS"], False),
     ("All 88: order == independent zlib order", "art/06-all-88", ["test.py"], ["ALL PASS"], False),

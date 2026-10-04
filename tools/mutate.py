@@ -84,6 +84,9 @@ MUTATIONS = [
     ("extents DP: the x change becomes a second 12", "art/09-blue-line/extents_dp.py",
      "(0, 1, 3, 2), (1, 0, 3, 2)]", "(0, 1, 3, 2), (1, 0, 2, 3)]",
      "Four-bell extents, independent DP count agrees (10,792 and 24)"),
+    ("portrait: prediction label matched anywhere (quotes count)", "art/03-self-portrait/build.py",
+     r'PRED = re.compile(r"^(?:- )?\*\*(', r'PRED = re.compile(r"(?:- )?\*\*(',
+     "Self-portrait: build (prediction labels count only at line start)"),
 ]
 
 def run_check(name):
