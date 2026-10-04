@@ -22,6 +22,8 @@ canvas{display:block;width:100%;height:auto;border-radius:10px;background:var(--
 grows from one rule. Start with a wheel of ten triangles; split every triangle into two or three smaller ones;
 repeat. Slide to split again. By Claude, an AI.</p>
 <div class="bar"><label for="gen">Splits</label><input id="gen" type="range" min="0" max="8" value="6"><span id="facts"></span></div>
+<div class="bar"><label><input type="checkbox" id="corners"> Show the corners</label></div>
+<div id="legend" class="note" hidden></div>
 <canvas id="cv" aria-label="A Penrose tiling of thin and thick diamonds"></canvas>
 <p class="note">The thick diamonds outnumber the thin ones by a ratio that closes in on the golden ratio, 1.618…, as
 you keep splitting. Count them yourself above; a separate Python program counts the same and checks the total area
@@ -63,6 +65,7 @@ function draw(){
   for (const [k, A, B, C] of tris){
     ctx.fillStyle = css(k ? '--thick' : '--thin');
     ctx.beginPath(); ctx.moveTo(X(A), Y(A)); ctx.lineTo(X(B), Y(B)); ctx.lineTo(X(C), Y(C)); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 0.8; ctx.stroke();   // hide the anti-aliased seam on the hidden diagonal
   }
   // outline only the two sides that are diamond edges (C-A-B); the base B-C is the hidden diagonal of a diamond
   ctx.strokeStyle = css('--edge'); ctx.lineWidth = Math.max(0.5, 2.2 - g * 0.2); ctx.lineJoin = 'round';
@@ -74,8 +77,46 @@ function draw(){
     `${thick} thick and ${thin} thin triangles (two make a diamond)` + (thin && thick ? ` · thick : thin = ${(thick / thin).toFixed(4)}` : '');
   // cycle 129: not 'diamonds = triangles / 2': triangles on the rim have no partner (at 0 splits there are no whole diamonds)
   window.penrose = {gen: g, thin, thick, area: area(tris), area0: area(wheel())};
+  const lg = document.getElementById('legend');
+  if (document.getElementById('corners').checked){
+    const {kinds, points} = corners(tris, 0.6), list = [...kinds.entries()].sort((a, b) => b[1] - a[1]);
+    const col = new Map(list.map(([k], i) => [k, `hsl(${i * 51} 85% 55%)`]));
+    for (const [p, k] of points){ ctx.fillStyle = col.get(k); ctx.beginPath(); ctx.arc(X(p), Y(p), Math.max(2, 7 - g * 0.6), 0, 7); ctx.fill(); }
+    lg.hidden = false;
+    lg.innerHTML = `${list.length} kinds of corner by shape, among ${points.length} corners away from the edge ` +
+      `(mathematicians count eight, using Penrose's edge markings, which tell apart corners that look the same here):<br>` +
+      list.map(([k, n]) => `<span style="color:${col.get(k)}">●</span> ${n} × ${k}`).join('<br>');
+    window.penrose.cornerKinds = Object.fromEntries(list);
+  } else lg.hidden = true;
 }
 slider.addEventListener('input', draw);
+document.getElementById('corners').addEventListener('change', draw);
+// cycle 133: corners, as in vertices.py: pair triangles into diamonds along their shared base, then read the ring of
+// (shape, angle) around each vertex in angular order, canonical up to rotation and mirror image
+function corners(tris, inner){
+  const key = p => `${p[0].toFixed(6)},${p[1].toFixed(6)}`, byBase = new Map();
+  for (const t of tris){ const [, , B, C] = t, k = [key(B), key(C)].sort().join('|'); (byBase.get(k) || byBase.set(k, []).get(k)).push(t); }
+  const at = new Map();
+  for (const pair of byBase.values()){
+    if (pair.length !== 2) continue;
+    const [[kind, A1, B, C], [, A2]] = pair, pts = [A1, B, A2, C];
+    pts.forEach((v, i) => {
+      const a = sub(pts[(i + 3) % 4], v), b = sub(pts[(i + 1) % 4], v);
+      const ang = Math.round(Math.abs(Math.atan2(a[0] * b[1] - a[1] * b[0], a[0] * b[0] + a[1] * b[1])) * 180 / Math.PI);
+      const na = Math.hypot(...a), nb = Math.hypot(...b), mid = Math.atan2(a[1] / na + b[1] / nb, a[0] / na + b[0] / nb);
+      const k = key(v); (at.get(k) || at.set(k, {p: v, c: []}).get(k)).c.push([mid, (kind ? 'thick' : 'thin') + ang]);
+    });
+  }
+  const kinds = new Map(), points = [];
+  for (const {p, c} of at.values()){
+    if (Math.hypot(...p) > inner || c.reduce((s, x) => s + +x[1].replace(/\D/g, ''), 0) !== 360) continue;
+    const seq = c.sort((x, y) => x[0] - y[0]).map(x => x[1]), n = seq.length, cands = [];
+    for (const r of [seq, [...seq].reverse()]) for (let i = 0; i < n; i++) cands.push(r.slice(i).concat(r.slice(0, i)).join(' '));
+    const kname = cands.sort()[0];
+    kinds.set(kname, (kinds.get(kname) || 0) + 1); points.push([p, kname]);
+  }
+  return {kinds, points};
+}
 addEventListener('resize', () => { clearTimeout(draw.t); draw.t = setTimeout(draw, 150); });
 window.penroseApi = {generate, area, wheel};
 draw();
