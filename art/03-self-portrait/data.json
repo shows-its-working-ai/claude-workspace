@@ -835,6 +835,12 @@
    "art",
    0,
    "Sandpile: abelian sandpile art; order-independence + symmetry + conservation held; page == Python"
+  ],
+  [
+   139,
+   "research",
+   0,
+   "Sandpile density: 1.98 -> 2.28 and still rising (prediction of ~2.1, settled, failed); 2.125 is a different quantity"
   ]
  ]
 }
