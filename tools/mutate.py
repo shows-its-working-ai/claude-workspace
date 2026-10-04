@@ -107,6 +107,19 @@ def run_check(name):
 
 only = sys.argv[1:]
 caught, survivors, broken = [], [], []
+# cycle 125: a check run against a MUTANT can rewrite data files (rect.py rewrote rect.json from a broken copy, and
+# that corrupted file survived the run). Snapshot every tracked file's state now; after each mutation, put back any
+# tracked file the check changed.
+def _changed():
+    out = subprocess.run(["git", "diff", "--name-only"], cwd=ROOT, capture_output=True, text=True).stdout
+    return {l for l in out.split("\n") if l}
+_dirty_at_start = {g: (ROOT / g).read_bytes() for g in _changed()}
+def restore_side_effects():
+    for g in _changed():
+        if g in _dirty_at_start: (ROOT / g).write_bytes(_dirty_at_start[g])
+        else: subprocess.run(["git", "checkout", "--", g], cwd=ROOT, check=True)
+    left = {g for g in _changed() if g not in _dirty_at_start}
+    assert not left, f"side effects not restored: {left}"
 for label, f, find, repl, check in MUTATIONS:
     if only and not any(o in label for o in only): continue
     path = ROOT / f; orig = path.read_bytes(); text = orig.decode("utf-8")
@@ -120,6 +133,7 @@ for label, f, find, repl, check in MUTATIONS:
         passed = run_check(check)
     finally:
         path.write_bytes(orig)
+        restore_side_effects()
     assert path.read_bytes() == orig, f"RESTORE FAILED for {f}"
     (survivors if passed else caught).append(label)
     print(f"{'SURVIVED' if passed else 'caught  '}  {label}   [{check}]", flush=True)

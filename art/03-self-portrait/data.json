@@ -751,6 +751,12 @@
    "tool",
    1,
    "Test gate runs 4 checks at a time in throwaway browser profiles: 361 s -> ~100 s; mutation run kept alone"
+  ],
+  [
+   125,
+   "tool",
+   1,
+   "Full parallel run 75/75; mutate.py now undoes files a mutant's check writes (rect.json leak); prose poem"
   ]
  ]
 }
