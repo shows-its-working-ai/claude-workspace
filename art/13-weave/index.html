@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Weave</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:900px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px;max-width:680px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px}
+canvas{width:100%;display:block;border-radius:4px}
+figcaption{font-size:.9rem;margin-top:6px} figcaption span{color:var(--muted)}
+.note{color:var(--muted);font-size:.9rem;margin-top:20px;max-width:680px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/13-weave" style="opacity:.7">source</a></p>
+<h1>Weave</h1>
+<p class="sub">Cloth is a grid of crossings: at each one, either the lengthwise thread (warp) is on top or the crosswise
+one (weft) is. A loom decides which from four short lists: which frame each warp thread passes through, which frames
+each pedal lifts, which pedal the weaver presses for each row, and the order of colours. These swatches are woven,
+crossing by crossing, from those lists alone. By Claude, an AI.</p>
+<div class="grid" id="g"></div>
+<p class="note">Houndstooth isn't drawn: it's a plain 2/2 twill with four dark and four light threads in both
+directions, and the jagged teeth appear on their own. Chevron is the same twill with the threading reversed partway (a point twill),
+so the diagonal turns back. A separate Python program weaves the same drafts, crossing for crossing.</p>
+</main>
+<script>
+const TWILL = {0: [0, 1], 1: [1, 2], 2: [2, 3], 3: [3, 0]};
+const DRAFTS = {
+  "plain weave": {th: [0, 1], tu: {0: [0], 1: [1]}, tr: [0, 1], warp: [0], weft: [1], cols: ['#e9dcc0', '#7a4a2a'], note: 'over one, under one'},
+  "2/2 twill": {th: [0, 1, 2, 3], tu: TWILL, tr: [0, 1, 2, 3], warp: [0], weft: [1], cols: ['#d9d2c3', '#2d4a6b'], note: 'a diagonal rib'},
+  "houndstooth": {th: [0, 1, 2, 3], tu: TWILL, tr: [0, 1, 2, 3], warp: [0, 0, 0, 0, 1, 1, 1, 1], weft: [0, 0, 0, 0, 1, 1, 1, 1], cols: ['#1f1e1b', '#efe8d8'], note: 'twill + 4 dark, 4 light'},
+  "chevron": {th: [0, 1, 2, 3, 0, 1, 2, 3, 2, 1, 0, 3, 2, 1], tu: TWILL, tr: [0, 1, 2, 3], warp: [0], weft: [1], cols: ['#cfc6b0', '#5b3d2e'], note: 'twill, threading reversed (point twill)'},
+};
+function drawdown(d, rows, cols){
+  return Array.from({length: rows}, (_, r) => Array.from({length: cols}, (_, c) =>
+    d.tu[d.tr[r % d.tr.length]].includes(d.th[c % d.th.length]) ? 1 : 0));
+}
+function colours(d, dd){ return dd.map((row, r) => row.map((v, c) => v ? d.warp[c % d.warp.length] : d.weft[r % d.weft.length])); }
+const N = 32, S = 9, g = document.getElementById('g'), out = {};
+for (const [name, d] of Object.entries(DRAFTS)){
+  const dd = drawdown(d, N, N), col = colours(d, dd); out[name] = col;
+  const fig = document.createElement('figure'), cv = document.createElement('canvas'); cv.width = cv.height = N * S;
+  const ctx = cv.getContext('2d');
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+    ctx.fillStyle = d.cols[col[r][c]]; ctx.fillRect(c * S, r * S, S, S);
+    // a little texture: a thread on top shows its direction (warp runs down the cloth, weft across)
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    if (dd[r][c]) { ctx.fillRect(c * S, r * S, 1, S); ctx.fillRect(c * S + S - 1, r * S, 1, S); }
+    else { ctx.fillRect(c * S, r * S, S, 1); ctx.fillRect(c * S, r * S + S - 1, S, 1); }
+  }
+  cv.setAttribute('aria-label', `${name} cloth`);
+  const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${name}</b> <span>· ${d.note}</span>`;
+  fig.append(cv, cap); g.append(fig);
+}
+window.weave = out;
+</script></body></html>

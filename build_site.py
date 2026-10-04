@@ -59,6 +59,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/13-weave/index.html", "Weave",
+         "Cloth woven crossing by crossing from a loom's draft. Houndstooth isn't drawn: it appears on its own."),
         ("art/12-sandpile/index.html", "Sandpile",
          "Pour sand on one square; anything with four grains topples. Thousands of topples later, this lace appears."),
         ("art/11-penrose/index.html", "Never Repeats",
