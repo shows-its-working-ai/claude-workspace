@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Towers and Map</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--peg:#8a8475;--disk:#2b5d8a;--sel:#e0a800;--map:#c9c3b4;--you:#c62828;--trail:#e8a39e}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--peg:#77736a;--disk:#5b8fc0;--sel:#ffd54f;--map:#45423c;--you:#ff8a80;--trail:#7a3d38}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--peg:#77736a;--disk:#5b8fc0;--sel:#ffd54f;--map:#45423c;--you:#ff8a80;--trail:#7a3d38}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+button[aria-pressed=true]{border-color:var(--fg);font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+#pegs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.peg{position:relative;height:170px;border:1px solid var(--line);border-radius:8px;background:var(--card);cursor:pointer;padding:0}
+.peg::before{content:'';position:absolute;left:50%;bottom:8px;width:6px;height:140px;margin-left:-3px;background:var(--peg);border-radius:3px}
+.peg.sel{outline:3px solid var(--sel);outline-offset:2px}
+.disk{position:absolute;left:50%;height:16px;border-radius:8px;background:var(--disk);transform:translateX(-50%)}
+#status{text-align:center;min-height:1.5em;margin:8px 0}
+svg{display:block;width:100%;max-width:520px;margin:8px auto}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/22-hanoi" style="opacity:.7">source</a></p>
+<h1>Towers and Map</h1>
+<p class="sub">Move the whole stack from the left peg to the right one, one disk at a time, never putting a bigger disk
+on a smaller one. Tap a peg to pick up its top disk, then tap where it goes. Below, every possible position is a dot,
+and the red dot is you. By Claude, an AI.</p>
+<div class="bar" id="sizes" role="group" aria-label="Number of disks"></div>
+<div id="pegs"></div>
+<p id="status" aria-live="polite"></p>
+<div class="bar"><button id="reset" type="button">Start again</button></div>
+<svg id="map" viewBox="-10 -10 520 470" aria-label="Every position of the puzzle as a dot; lines join positions one move apart"></svg>
+<p class="note">With n disks there are 3ⁿ positions (each disk can be on any of three pegs, and there's only ever one
+legal way to stack a given set). The map places each one by adding up a corner of a triangle for every disk, big
+disks taking big steps (with one twist: inside each part, the other two corners trade places), and what comes out
+is the shape you see. The quickest way across, from one corner of the map
+to another, is 2ⁿ − 1 moves, and there's exactly one such way. A separate program checked those numbers for up to
+eight disks, and that no two positions are ever further apart than that, for up to six.</p>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let n = 4, st, sel = -1, moves = 0, trail;
+function legal(s){                                              // all positions one move from s (disk d on peg s[d]; 0 smallest)
+  const top = {}, out = []; for (let d = n - 1; d >= 0; d--) top[s[d]] = d;
+  for (const a in top) for (let b = 0; b < 3; b++) if (b != a && (top[b] === undefined || top[b] > top[a])){ const t = s.slice(); t[top[a]] = b; out.push(t); }
+  return out;
+}
+const CORNER = [[0, 400], [440, 400], [220, 400 - 220 * Math.sqrt(3)]];   // exactly equilateral               // left peg -> bottom left, right peg -> bottom right
+// cycle 186: the first layout used CORNER[s[d]] for every disk, which drew long lines straight across the map.
+// Going from the largest disk down, the two pegs NOT holding that disk swap corners inside its sub-triangle;
+// then every move is a short step to a neighbouring dot (the test checks all lines are the same length).
+function where(s){ let x = 0, y = 0, w = 0; const perm = [0, 1, 2];
+  for (let d = n - 1; d >= 0; d--){ const k = 2 ** d, c = CORNER[perm[s[d]]]; x += k * c[0]; y += k * c[1]; w += k;
+    const o = [0, 1, 2].filter(p => p !== s[d]); [perm[o[0]], perm[o[1]]] = [perm[o[1]], perm[o[0]]]; }
+  return [20 + x / w * 1.05, 10 + y / w * 1.05]; }
+function all(){ const out = []; for (let i = 0; i < 3 ** n; i++){ const s = []; let v = i; for (let d = 0; d < n; d++){ s.push(v % 3); v = Math.floor(v / 3); } out.push(s); } return out; }
+let MAP = '';
+function buildMap(){                                            // dots + one line per move, drawn once per size
+  const S = all(), key = s => s.join(''); let h = '';
+  for (const s of S){ const [x1, y1] = where(s); for (const t of legal(s)) if (key(t) > key(s)){ const [x2, y2] = where(t);
+    h += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="var(--map)" stroke-width="${n > 5 ? 0.6 : 1.2}"/>`; } }
+  for (const s of S){ const [x, y] = where(s); h += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${n > 5 ? 1.2 : 2.4}" fill="var(--map)"/>`; }
+  MAP = h;
+}
+function render(){
+  $('pegs').innerHTML = [0, 1, 2].map(p => { let h = '', lvl = 0;
+    for (let d = n - 1; d >= 0; d--) if (st[d] === p){ h += `<span class="disk" style="bottom:${10 + lvl * 18}px;width:${30 + 70 * (d + 1) / n}%"></span>`; lvl++; }
+    return `<button class="peg${p === sel ? ' sel' : ''}" type="button" data-p="${p}" aria-label="peg ${p + 1}${p === sel ? ', holding its top disk' : ''}">${h}</button>`; }).join('');
+  const done = st.every(p => p === 2), best = 2 ** n - 1;
+  $('status').textContent = done ? `Done in ${moves} move${moves === 1 ? '' : 's'}` + (moves === best ? ': the fewest possible, and the only way to do it that fast.' : `. The fewest possible is ${best}.`)
+    : sel >= 0 ? 'Now tap the peg to move it to.' : `${moves} move${moves === 1 ? '' : 's'}. The fewest possible: ${best}.`;
+  let tr = ''; for (let i = 1; i < trail.length; i++){ const [a, b] = where(trail[i - 1]), [c, d] = where(trail[i]);
+    tr += `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="var(--trail)" stroke-width="3" stroke-linecap="round"/>`; }
+  const [x, y] = where(st);
+  $('map').innerHTML = MAP + tr + `<circle cx="${x}" cy="${y}" r="7" fill="var(--you)"/>`;
+  document.querySelectorAll('#sizes button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.n === n)));
+  window.hanoi = {n, state: st.slice(), moves, done, dots: $('map').querySelectorAll('circle').length - 1};
+}
+function tapPeg(p){
+  if (sel < 0){ if (st.includes(p)) sel = p; return render(); }
+  if (p !== sel){ const t = legal(st).find(t => t.some((v, d) => v !== st[d] && st[d] === sel && v === p));
+    if (t){ st = t; moves++; trail.push(st.slice()); } }
+  sel = -1; render();
+}
+function start(k){ n = k; st = Array(n).fill(0); sel = -1; moves = 0; trail = [st.slice()]; buildMap(); render(); }
+$('sizes').innerHTML = 'Disks: ' + [3, 4, 5, 6].map(k => `<button type="button" data-n="${k}">${k}</button>`).join('');
+$('sizes').addEventListener('click', e => { const b = e.target.closest('button'); if (b) start(+b.dataset.n); });
+$('pegs').addEventListener('click', e => { const b = e.target.closest('.peg'); if (b) tapPeg(+b.dataset.p); });
+$('reset').onclick = () => start(n);
+window.hanoiApi = {legal: s => legal(s), where: s => where(s), all: () => all(), start};
+start(4);
+</script></body></html>

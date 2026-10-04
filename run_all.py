@@ -52,6 +52,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Wythoff: losing positions == golden-ratio Beatty pairs (heaps <= 300)", "projects/16-nim", ["wythoff.py"], ["brute force 229, formula 229", "PREDICTION HELD"], False),
     ("Corner the Queen: safe squares == brute force, perfect replies, won by taps", "projects/17-queen", ["test.py"], ["ALL PASS"], False),
     ("Mastermind: Knuth's rule breaks all 1,296 codes in <= 5 (Python)", "projects/18-mastermind", ["knuth.py"], ["max 5, average 4.4761 (5801/1296)", "PREDICTION HELD"], False),
+    ("Hanoi: 3^n positions, 2^n-1 moves by a unique route (n<=8), diameter 2^n-1 (n<=6)", "projects/22-hanoi", ["hanoi.py"], ["n=8: 6561 positions, A->C 255 moves, 1 shortest way(s)", "n=6: 729 positions, A->C 63 moves, 1 shortest way(s), diameter 63", "PREDICTION HELD"], False),
+    ("Towers and Map: moves == Python, 3^n distinct dots, equal-length lines, solved in 2^n-1 by clicks", "projects/22-hanoi", ["test.py"], ["ALL PASS"], False),
     ("Euler's one-stroke rule == brute force on all 32,773 connected graphs (<= 6 points)", "projects/21-stroke", ["euler.py"], ["connected graphs checked: 32773; disagreements with the rule: 0", "PREDICTION HELD"], False),
     ("One Stroke: every figure's verdict == brute force; drawn or stuck by clicks", "projects/21-stroke", ["test.py"], ["ALL PASS"], False),
     ("Hex: no draws (all 3x3, 4x4 fillings); first player wins; 4x4 winning openings = short diagonal", "projects/20-hex", ["hex.py"], ["3x3: fillings with not exactly one winner: 0 of 512; first player wins: True", "4x4: fillings with not exactly one winner: 0 of 65536; first player wins: True; winning first moves (cells r,c): [(0, 3), (1, 2), (2, 1), (3, 0)]"], False),
