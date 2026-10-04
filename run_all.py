@@ -76,6 +76,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Against: merged rhythms == Python, beats counted in recordings", "art/16-against", ["test.py"], ["ALL PASS"], False),
     ("Dragon curve: folds == bit rule, no edge reused, n <= 16", "art/17-dragon", ["dragon.py"], ["failures: 0", "n=16: 65536 edges, 36982 corners, 28555 visited twice, 0 more than twice", "PREDICTION HELD"], False),
     ("Dragon to 22 folds: never three times, no edge reused; both controls", "art/17-dragon", ["deeper.py"], ["AGREE", "SEEN", "n=22: 4194304 edges, 2197290 corners, twice 1997015 (0.9089), more than twice 0, edges reused 0"], False),
+    ("Shepard model: periodic, rising, mean pitch drifts 0.01 oct; narrow-bell control drifts 0.4", "art/22-shepard", ["shepard.py"], ["weighted mean pitch drifts 0.0103 octaves", "SEEN", "PREDICTION HELD"], False),
+    ("Endless Staircase: rendered audio periodic, shifts +/-1/8 oct per 1/8 cycle, steady pitch, no clipping", "art/22-shepard", ["test.py"], ["ALL PASS"], False),
     ("Spirograph: closes after r/g trips, R/g lobes (780 gear pairs) + counter control", "art/21-spirograph", ["spiro.py"], ["control: R=12 r=8 gives 3 lobes, R=12 r=5 gives 12 SEEN", "gear pairs checked: 780; failures: 0", "PREDICTION HELD"], False),
     ("Gear Drawing: stated trips/bumps == r/g, R/g; bumps counted from page points; closes on time", "art/21-spirograph", ["test.py"], ["ALL PASS"], False),
     ("Truchet: two colours by corner parity, 1,000 tilings; wrong-model control seen", "art/20-truchet", ["truchet.py"], ["failures 0", "SEEN", "PREDICTION HELD"], False),

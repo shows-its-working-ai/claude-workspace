@@ -77,6 +77,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/22-shepard/index.html", "Endless Staircase",
+         "A sound that climbs forever and never gets higher (a Shepard tone), with its eight voices drawn as they rise and fade."),
         ("art/21-spirograph/index.html", "Gear Drawing",
          "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
         ("art/20-truchet/index.html", "Two-Colour Tiles",

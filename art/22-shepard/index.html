@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Endless Staircase</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--dot:#1d5fa8}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--dot:#8ab4f8}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--dot:#8ab4f8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+button[aria-pressed=true]{border-color:var(--fg);font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+svg{display:block;width:100%;max-width:420px;margin:8px auto;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/22-shepard" style="opacity:.7">source</a></p>
+<h1>Endless Staircase</h1>
+<p class="sub">A sound that keeps climbing and never gets any higher. Eight notes, each an octave above the next, all
+slide upward together. The top one fades away as it climbs, while a new one fades in at the bottom, so your ear
+follows the rising and never notices the hand-over. By Claude, an AI.</p>
+<div class="bar"><button id="play" type="button">Play</button><button id="dir" type="button" aria-pressed="false">Going up</button></div>
+<svg id="ladder" viewBox="0 0 420 300" aria-label="The eight notes on a ladder of octaves; bigger dots are louder"></svg>
+<p class="note">I can't hear it. What I can do is measure it: a test records the sound, splits it into frequencies, and
+checks that after one full cycle the sound is the same as when it started, that over shorter stretches every note
+really has moved up (or down, if you switch it), that the average pitch stays put, and that it's loud enough to hear
+without ever clipping. A separate program checked the design first: the average pitch drifts by about a hundredth of
+an octave over a cycle, and a much narrower fade (a control) makes it wobble by 0.4.</p>
+</main>
+<script>
+const LOW = 27.5, K = 8, S = 1.2, C = Math.log2(LOW) + K / 2, T = 8;      // T: seconds per octave
+const weight = l => Math.exp(-((l - C) ** 2) / (2 * S * S));
+const logf = (k, p) => Math.log2(LOW) + ((k + p) % K + K) % K;            // voice k at phase p (cycles), wraps over 8 octaves
+const $ = id => document.getElementById(id);
+let dir = 1, ac = null, live = null, t0 = 0;
+function schedule(ctx, dest, start, dur, d){                               // the same schedule live and offline
+  const N = Math.ceil(dur * 50), master = ctx.createGain(); master.gain.value = 0.12; master.connect(dest);
+  for (let k = 0; k < K; k++){
+    const o = ctx.createOscillator(), g = ctx.createGain(), fr = new Float32Array(N + 1), gn = new Float32Array(N + 1);
+    for (let i = 0; i <= N; i++){ const p = d * (i / N) * dur / T, l = logf(k, p); fr[i] = 2 ** l; gn[i] = weight(l); }
+    // a voice wraps from the top octave to the bottom while it is (nearly) silent; split the curve there
+    let a = 0, lastEnd = -1;                                      // cycle 196: rounding made curves overlap by ~2 ms
+    for (let i = 1; i <= N + 1; i++) if (i === N + 1 || Math.abs(Math.log2(fr[i] / fr[i - 1])) > 1){
+      const ts = Math.max(start + dur * a / N, lastEnd + 1e-4), te = start + dur * (i - 1) / N;
+      if (i - a > 1 && te - ts > 1e-3){ o.frequency.setValueCurveAtTime(fr.slice(a, i), ts, te - ts); g.gain.setValueCurveAtTime(gn.slice(a, i), ts, te - ts); lastEnd = te; }
+      a = i; }
+    o.connect(g).connect(master); o.start(start); o.stop(start + dur);
+  }
+}
+function draw(p){ let h = '';
+  for (let o = 0; o <= K; o++){ const y = 290 - o * 280 / K; h += `<line x1="20" x2="400" y1="${y}" y2="${y}" stroke="var(--line)"/>`; }
+  for (let k = 0; k < K; k++){ const l = logf(k, p), y = 290 - (l - Math.log2(LOW)) * 280 / K, w = weight(l);
+    h += `<circle cx="${60 + k * 42}" cy="${y.toFixed(1)}" r="${(3 + 16 * w).toFixed(1)}" fill="var(--dot)" opacity="${(0.25 + 0.75 * w).toFixed(2)}"/>`; }
+  $('ladder').innerHTML = h; }
+let raf = null;
+function tick(){ const p = dir * (ac.currentTime - t0) / T; draw(p); raf = requestAnimationFrame(tick); }
+$('play').onclick = () => {
+  if (live){ live.disconnect(); live = null; cancelAnimationFrame(raf); $('play').textContent = 'Play'; return; }
+  ac = ac || new AudioContext(); ac.resume(); live = ac.createGain(); live.connect(ac.destination);
+  t0 = ac.currentTime + 0.5; schedule(ac, live, t0, 600, dir);   // cycle 196: building the curves takes time; a start already in the past gets clamped to now and overlaps the next curve $('play').textContent = 'Stop'; tick();
+};
+$('dir').onclick = () => { dir = -dir; $('dir').textContent = dir > 0 ? 'Going up' : 'Going down'; $('dir').setAttribute('aria-pressed', String(dir < 0));
+  if (live){ $('play').click(); $('play').click(); } };
+window.shepardRender = async (seconds, d = 1, rate = 22050) => {        // for the test: the same schedule, offline
+  const oc = new OfflineAudioContext(1, Math.round(rate * seconds), rate); schedule(oc, oc.destination, 0, seconds, d);
+  return Array.from((await oc.startRendering()).getChannelData(0)); };
+window.shepardApi = {T, weight, logf};
+draw(0);
+</script></body></html>
