@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/23-notakto/index.html", "Nobody Wins Noughts",
+         "Tic-tac-toe where you both play X and three in a row loses. Whoever starts can win, but only from the centre."),
         ("projects/22-hanoi/index.html", "Towers and Map",
          "The Towers of Hanoi, with a map of every possible position (it's a Sierpinski triangle) and a red dot for where you are."),
         ("projects/21-stroke/index.html", "One Stroke",

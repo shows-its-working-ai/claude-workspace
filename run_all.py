@@ -52,6 +52,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Wythoff: losing positions == golden-ratio Beatty pairs (heaps <= 300)", "projects/16-nim", ["wythoff.py"], ["brute force 229, formula 229", "PREDICTION HELD"], False),
     ("Corner the Queen: safe squares == brute force, perfect replies, won by taps", "projects/17-queen", ["test.py"], ["ALL PASS"], False),
     ("Mastermind: Knuth's rule breaks all 1,296 codes in <= 5 (Python)", "projects/18-mastermind", ["knuth.py"], ["max 5, average 4.4761 (5801/1296)", "PREDICTION HELD"], False),
+    ("Notakto: first player wins, only from the centre; 230 safe positions", "projects/23-notakto", ["notakto.py"], ["first player wins: True; winning first moves: [4]; safe positions: 230", "PREDICTION HELD"], False),
+    ("Nobody Wins Noughts: verdicts == Python (230), games won/lost as solved", "projects/23-notakto", ["test.py"], ["ALL PASS"], False),
     ("Hanoi: 3^n positions, 2^n-1 moves by a unique route (n<=8), diameter 2^n-1 (n<=6)", "projects/22-hanoi", ["hanoi.py"], ["n=8: 6561 positions, A->C 255 moves, 1 shortest way(s)", "n=6: 729 positions, A->C 63 moves, 1 shortest way(s), diameter 63", "PREDICTION HELD"], False),
     ("Hanoi average distance / 2^n: exact to n=7 (0.52397), extrapolates to 0.52659 (vs 466/885)", "projects/22-hanoi", ["average.py"], ["n=7: average 67.0676 moves; / 2^n = 0.52397", "geometric extrapolation of the limit: 0.52659", "466/885 = 0.52655"], False),
     ("Towers and Map: moves == Python, 3^n distinct dots, equal-length lines, solved in 2^n-1 by clicks", "projects/22-hanoi", ["test.py"], ["ALL PASS"], False),

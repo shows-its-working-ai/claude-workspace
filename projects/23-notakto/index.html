@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nobody Wins Noughts</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--x:#1f1e1b;--last:#1d5fa8;--bad:#c62828}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--x:#ebe9e3;--last:#8ab4f8;--bad:#ff8a80}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--x:#ebe9e3;--last:#8ab4f8;--bad:#ff8a80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:560px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+#grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(100%,330px);margin:16px auto}
+#grid button{aspect-ratio:1;font-size:3rem;font-weight:700;padding:0;color:var(--x)}
+#grid button.last{color:var(--last)} #grid button.bad{color:var(--bad);border-color:var(--bad)}
+#status{text-align:center;min-height:1.5em;font-size:1.05rem} #odds{text-align:center;color:var(--muted);min-height:1.5em}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/23-notakto" style="opacity:.7">source</a></p>
+<h1>Nobody Wins Noughts</h1>
+<p class="sub">Tic-tac-toe where you both play X, and whoever makes three in a row <i>loses</i>. Take turns with
+the computer, which has worked out every position. The game is sometimes called Notakto. By Claude, an AI.</p>
+<div id="grid" role="group" aria-label="The board"></div>
+<p id="status" aria-live="polite"></p>
+<p id="odds"></p>
+<div class="bar"><button id="new" type="button">New game (you start)</button><button id="newc" type="button">New game (computer starts)</button></div>
+<p class="note">Whoever starts can always win, and only one first move does it: the centre. A separate program
+worked out every one of the 230 positions you can reach without anyone losing, and a test checks this page agrees
+with it everywhere. When the computer is losing it still plays on, choosing the move that leaves the most safe
+squares, so you have to finish the job yourself.</p>
+</main>
+<script>
+const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const dead = m => LINES.some(L => L.every(i => m >> i & 1));
+const memo = new Map();
+function wins(m){ if (memo.has(m)) return memo.get(m); let r = false;
+  for (let i = 0; i < 9 && !r; i++) if (!(m >> i & 1)){ const t = m | 1 << i; if (!dead(t) && !wins(t)) r = true; }
+  memo.set(m, r); return r; }
+const safeMoves = m => [...Array(9).keys()].filter(i => !(m >> i & 1) && !dead(m | 1 << i));
+function choose(m){                                              // perfect when winning; otherwise most safe squares left
+  const s = safeMoves(m); if (!s.length) return [...Array(9).keys()].find(i => !(m >> i & 1));
+  const win = s.find(i => !wins(m | 1 << i)); if (win !== undefined) return win;
+  return s.reduce((b, i) => safeMoves(m | 1 << i).length > safeMoves(m | 1 << b).length ? i : b, s[0]);
+}
+const $ = id => document.getElementById(id);
+let m, human, turn, over, last, loser;
+function render(){
+  const lost = over ? LINES.find(L => L.every(i => m >> i & 1)) : null;
+  $('grid').innerHTML = [...Array(9).keys()].map(i => `<button type="button" data-i="${i}" aria-label="square ${i + 1}${m >> i & 1 ? ', X' : ''}"
+    class="${lost && lost.includes(i) ? 'bad' : i === last ? 'last' : ''}" ${m >> i & 1 || over ? 'disabled' : ''}>${m >> i & 1 ? 'X' : ''}</button>`).join('');
+  const yours = turn === human;
+  $('status').textContent = over ? (loser === human ? 'You made three in a row: you lose.' : 'The computer had to make three in a row: you win.')
+    : yours ? (safeMoves(m).length ? 'Your move.' : 'No safe squares left: whatever you do makes a line.') : '…';
+  $('odds').textContent = over ? '' : `From here, ${(wins(m) ? turn : 1 - turn) === human ? 'you' : 'the computer'} can force a win.`;
+  window.notakto = {mask: m, over, youLost: over && loser === human, turnIsYours: yours && !over};
+}
+function play(i){ if (over || m >> i & 1) return; m |= 1 << i; last = i;
+  if (dead(m)){ over = true; loser = turn; } turn = 1 - turn; render();
+  if (!over && turn !== human) setTimeout(() => play(choose(m)), 250); }
+$('grid').addEventListener('click', e => { const b = e.target.closest('button'); if (b && turn === human) play(+b.dataset.i); });
+function start(h){ m = 0; human = h; turn = 0; over = false; last = -1; loser = -1; render(); if (human !== 0) setTimeout(() => play(choose(m)), 250); }
+$('new').onclick = () => start(0); $('newc').onclick = () => start(1);
+window.notaktoApi = {wins, choose, dead, start};
+start(0);
+</script></body></html>
