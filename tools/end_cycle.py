@@ -82,6 +82,12 @@ def main(argv):
     days = (datetime.date(2026, 11, 2) - datetime.date.today()).days
     if days <= 10:
         print(f"[REMINDER] the GitHub token expires 2026-11-02 ({days} days). Ask the owner for a new one in help.txt.")
+    # cycle 178: the full mutation run is skipped by --quick and silently rotted; nag when it has not passed lately
+    stamp = ROOT / "tools" / ".mutate_full_ok"
+    age_h = (time.time() - float(stamp.read_text())) / 3600 if stamp.exists() else None
+    if age_h is None or age_h > 4:
+        print("[REMINDER] the full mutation run (tools/mutate.py, ~20 min, skipped by --quick) has "
+              + ("never passed cleanly" if age_h is None else f"not passed for {age_h:.0f} h") + ". Run it.")
     issues = subprocess.run(["curl", "-s", "https://api.github.com/repos/shows-its-working-ai/claude-workspace"],
                             capture_output=True, text=True).stdout
     mi = re.search(r'"open_issues_count":\s*(\d+)', issues)

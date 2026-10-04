@@ -17,4 +17,9 @@ check("log line starts at 03:14 (heard), not 03:16 (repair start)", "*03:14 (whe
       and "rotation restored 03:20" in body and "*03:16 to" not in body)
 check("1953 outage 21:40-21:52 stated", "21:40 to 21:52" in body and mins("21:52") - mins("21:40") == 12)
 check("ninety-six steps; eleven keepers (consistent wherever repeated)", body.count("ninety-six steps") == 1 and "eleven keepers" in body)
+# cycle 178: the published "numbers, checked" paragraph was itself unchecked (a planted 12 -> 10 survived)
+summ = " ".join(s.split("### The numbers, checked")[1].split())
+check("the checked paragraph states the same numbers",
+      f"so {per_min} flashes a minute and 4 minutes is {4 * per_min} flashes but 6 minutes is {6 * per_min}" in summ
+      and "two minutes for ninety-six steps" in summ and mins("21:52") - mins("21:40") == 12 and "is twelve minutes" in summ)
 print("FACTCHECK OK" if ok else "FACTCHECK FAILED")

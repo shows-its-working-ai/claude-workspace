@@ -18,4 +18,9 @@ check("hinges: twelve in the bin + two on the floor = fourteen", '"Twelve," she 
 check("delivery Thursday of twenty tubs is consistent (does not change the sums)", "Thursday. Twenty tubs." in s)
 order = [s.index(t) for t in ("At half eleven", "at ten to one", "at half past two")]
 check("times appear in order", order == sorted(order))
+# cycle 178: the published "arithmetic, checked" paragraph was itself unchecked (a planted 32 -> 33 survived)
+summ = " ".join(s.split("### The arithmetic, checked")[1].split())
+want = (f"{system} in the system, {sold} sold on account and not yet reported, so {system} − {sold} = {system - sold} expected; "
+        f"{counted} counted, so {counted} − {system - sold} = {counted - (system - sold)} extra, which are the {behind} returned tubs")
+check("the checked paragraph states the same arithmetic", want in summ and f"{system} − {sold} + {behind} = {counted}" in summ)
 print("FACTCHECK OK" if ok else "FACTCHECK FAILED")

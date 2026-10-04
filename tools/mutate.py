@@ -42,7 +42,8 @@ MUTATIONS = [
     ("night crossing: a choice points at a scene that doesn't exist", "writing/06-night-crossing/story.json",
      '["Try to sleep again", "sleep"]', '["Try to sleep again", "slep"]', "Night Crossing: story graph"),
     ("all 88: panels never draw their cells", "art/06-all-88/index.html",
-     "row.forEach((v, x) => { if (v) ctx.fillRect(x, t, 1, 1); })", "row.forEach((v, x) => { if (v && false) ctx.fillRect(x, t, 1, 1); })",
+     # cycle 178: cycle 144 replaced fillRect with a pixel buffer, so the old anchor vanished; plant it in the new code
+     "    ctx.putImageData(img, 0, 0);", "",
      "no blank canvases (as displayed, every page)"),
     ("slide: source link points at a folder that doesn't exist", "projects/07-slide/index.html",
      "tree/main/projects/07-slide", "tree/main/projects/07-slider", "every page links to its own tracked source"),
@@ -61,8 +62,13 @@ MUTATIONS = [
      "they caught 46", "they caught 47", "Essay 14: every number recomputed from the records"),
     # (cycle 103: "only the 4 rotations" survived but changed NOTHING: for these sizes every rotation-symmetric quiet
     #  pattern is also mirror-symmetric -- an equivalent mutant, and a fact worth noting. Replaced with an observable one.)
-    ("quiet patterns: symmetry test checks one mirror only", "art/08-quiet-patterns/index.html",
-     "return maps.map(f =>", "return [maps[0], maps[4]].map(f =>", "Quiet Patterns: page == Python, every pattern quiet"),
+    # cycle 178: since cycle 141 the candidates come from symmetricBasis (symmetric by construction), so weakening the
+    # one-by-one recheck to two mirrors changed nothing and survived: another equivalent mutant. Plant it where the
+    # work now happens: the basis loses vectors, so symmetric patterns go missing.
+    ("quiet patterns: symmetric basis keeps only its first vector", "art/08-quiet-patterns/index.html",
+     "    if (!v) basis.push(pr);\n  }\n  return basis;\n}\nfunction toggles",               # 2 copies; this is symmetricBasis's
+     "    if (!v && !basis.length) basis.push(pr);\n  }\n  return basis;\n}\nfunction toggles",
+     "Quiet Patterns: page == Python, every pattern quiet"),
     ("chiral: rotation generator replaced by a transpose", "art/08-quiet-patterns/chiral.py",
      "rot = lambda r, c: (c, n - 1 - r)", "rot = lambda r, c: (c, r)",
      "Quiet patterns: no chiral ones on a bounded board (n <= 100), torus control finds them"),
@@ -126,6 +132,27 @@ MUTATIONS = [
     ("against: the high drum's beats never scheduled", "art/16-against/index.html",
      "    for (let j = 0; j < q; j++) hit(ac, t0 + j * LOOP / q, false); }", "    }",
      "Against: merged rhythms == Python, beats counted in recordings"),
+    # --- cycle 178: every writing fact-check gets a planted slip (9 had none) ---
+    ("essay 07: a quoted figure 56 -> 65", "writing/07-the-scorecard.md",
+     "391 -> **56**", "391 -> **65**", "Essay 07: quotes found in journal + tally"),
+    ("poems 09: 30 steps -> 31", "writing/09-three-corrections.md",
+     "moves 8 cells left every 30 steps", "moves 8 cells left every 31 steps", "Poems 09: claims checked against journal"),
+    ("story 11: 32 counted -> 33", "writing/11-the-count.md",
+     "32 counted, so 32 − 28 = 4 extra", "33 counted, so 32 − 28 = 4 extra", "Story 11: arithmetic consistent"),
+    ("essay 12: about fifty checks -> ninety", "writing/12-break-it-on-purpose.md",
+     "There are about fifty of them now.", "There are about ninety of them now.", "Essay 12: quotes in the right cycle sections"),
+    ("story 13: 12 flashes a minute -> 10", "writing/13-the-log.md",
+     "so 12 flashes a minute", "so 10 flashes a minute", "Story 13: numbers consistent (outage >= 6 min)"),
+    ("essay 20: six sound pages -> five", "writing/20-what-a-test-cant-hear.md",
+     "When I wrote this I had made six things", "When I wrote this I had made five things",
+     "Essay 20: quotes in the right cycles, six sound pages then, every sound page says can't hear"),
+    ("story 24: the teacher's taps grouped wrong again", "writing/24-three-against-two.md",
+     "finger. Tap. Tap-tap-tap.", "finger. Tap-tap. Tap-tap.", "Story 24: the rhythm, the hands and the taps == against.json's 3 against 2"),
+    ("poems 25: 28,555 corners -> 28,565", "writing/25-folds.md",
+     "28,555 times", "28,565 times", "Poems 25: every fold/crease/corner number == dragon.json"),
+    ("essay 27: a quote softened", "writing/27-the-check-that-checks.md",
+     'that was a yes, "so it proved nothing"', 'that was a yes, "so it proved little"',
+     "Essay 27: five quotes in the right cycles; 'about a hundred'; 'only the last on purpose'"),
     ("rhythm: Bjorklund drops the leftover hits", "art/15-rhythm/index.html",
      "    b = a.length > m ? a.slice(m) : b.slice(m); a = na;", "    b = b.slice(m); a = na;",
      "Even Beats: page patterns == Python, 2k clicks per two loops"),
@@ -148,10 +175,9 @@ MUTATIONS = [
     ("freeze check: blind to blocking during load", "tools/check_freezes.py",
      "    window.__long.push(performance.now() - t0);", "",
      "no page freezes over 250 ms while loading"),
-    ("gliders: speed measurement back to rolled copies (the 0.7 s freeze)", "projects/06-gliders/index.html",
-     "for (let i = 0; i < n; i++) if (a[((i - d) % n + n) % n] !== b[i]){ ok = false; break; }",
-     "ok = roll(a, d).every((v, i) => v === b[i]);",
-     "no page freezes over 250 ms while loading"),
+    # (cycle 178: retired "gliders: speed measurement back to rolled copies". With the old code put back the page now
+    #  blocks only 97 ms (other speedups since cycle 142), so it no longer plants a freeze; the freeze check passing it
+    #  was correct. The check's own built-in controls (a planted 400 ms block, caught) prove it can see a freeze.)
     ("sandpile: settle on the page again (no worker)", "art/12-sandpile/index.html",
      "  if (worker) worker.postMessage(want); else draw({N: want, ...settle(want)});",
      "  draw({N: want, ...settle(want)});",
@@ -170,14 +196,14 @@ def run_check(name):
 
 # cycle 145: a killed run left a mutant in place (Pegs, diagonal jumps removed). Before mutating, the original bytes go
 # to INFLIGHT; they're removed after the restore. A leftover INFLIGHT means a run died mid-mutation: restore first.
-import json, base64
+import json, base64, time
 INFLIGHT = ROOT / "tools" / ".mutate_inflight.json"
 if INFLIGHT.exists():
     rec = json.loads(INFLIGHT.read_text(encoding="utf-8"))
     Path(rec["path"]).write_bytes(base64.b64decode(rec["orig"])); INFLIGHT.unlink()
     print(f"RESTORED a mutant left by an interrupted run: {rec['path']}")
 only = sys.argv[1:]
-caught, survivors, broken = [], [], []
+caught, survivors, broken, _baseline = [], [], [], {}
 # cycle 125: a check run against a MUTANT can rewrite data files (rect.py rewrote rect.json from a broken copy, and
 # that corrupted file survived the run). Snapshot every tracked file's state now; after each mutation, put back any
 # tracked file the check changed.
@@ -198,6 +224,12 @@ for label, f, find, repl, check in MUTATIONS:
         find, repl = find.replace("\n", "\r\n"), repl.replace("\n", "\r\n")   # cycle 95: files with CRLF on disk
     if text.count(find) != 1:
         broken.append(label); print(f"ANCHOR MISSING ({text.count(find)}x)  {label}"); continue
+    # cycle 178: a check that fails on the UNmutated code "catches" every mutant (a syntax error in factcheck_13 did
+    # exactly that). Require the clean baseline to pass first, once per check.
+    if check not in _baseline:
+        _baseline[check] = run_check(check); restore_side_effects()
+    if not _baseline[check]:
+        broken.append(label); print(f"BASELINE FAILS (check broken without any mutant)  {label}   [{check}]"); continue
     INFLIGHT.write_text(json.dumps({"path": str(path), "orig": base64.b64encode(orig).decode()}), encoding="utf-8")
     path.write_bytes(text.replace(find, repl).encode("utf-8"))
     try:
@@ -210,6 +242,10 @@ for label, f, find, repl, check in MUTATIONS:
     INFLIGHT.unlink(missing_ok=True)
     (survivors if passed else caught).append(label)
     print(f"{'SURVIVED' if passed else 'caught  '}  {label}   [{check}]", flush=True)
-print(f"\n{len(caught)} caught, {len(survivors)} survived, {len(broken)} anchors missing")
+print(f"\n{len(caught)} caught, {len(survivors)} survived, {len(broken)} anchors missing or baselines failing")
 if survivors: print("SURVIVORS (blind spots):", survivors)
+# cycle 178: the full run takes ~20 min and --quick skips it, so it rotted unnoticed (2 survivors, 1 lost anchor).
+# A complete, clean run leaves a timestamp; end_cycle nags when it is missing or old.
+if not only and not survivors and not broken:
+    (ROOT / "tools" / ".mutate_full_ok").write_text(str(time.time()), encoding="utf-8"); print("full run clean: timestamp written")
 print("MUTATION RUN DONE")

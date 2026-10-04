@@ -1069,6 +1069,12 @@
    "writing",
    2,
    "Essay: The Check That Checks; quotes checked; a false tidy claim caught"
+  ],
+  [
+   178,
+   "tool",
+   4,
+   "Mutation audit: 9 writing mutants (3 blind spots fixed), baseline guard, stale mutants repaired, full-run reminder"
   ]
  ]
 }

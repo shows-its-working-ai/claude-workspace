@@ -20,4 +20,10 @@ check("lone C3 in 9 seeds; lone C1 in none", "One I found nine times." in s and 
       and "lone C3 9" in j and "**No lone C1.**" in j)
 check("rating nut: rate not time; a minute and a half", "a minute and a half" in s and "minute and a half" in story
       and "changes the RATE, not the time already lost" in j)
+# cycle 178: the published "what the poems claim, checked" paragraph was itself unchecked (a planted 30 -> 31 survived)
+summ = " ".join(s.split("### What the poems claim, checked")[1].split())
+check("the checked paragraph states the same numbers",
+      "moves 8 cells left every 30 steps, E moves 4 every 15" in summ and Fr(-8, 30) == Fr(-4, 15)
+      and f"cycle 22 to cycle 64, a span of {64 - 22} cycles" in summ and "about 15 cells apart" in summ and 295 - 280 == 15
+      and "a lone C3 turned up in 9 seeds and a lone C1 in none" in summ)
 print("FACTCHECK OK" if ok else "FACTCHECK FAILED")
