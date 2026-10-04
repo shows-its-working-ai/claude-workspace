@@ -86,6 +86,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Essay 12: quotes in the right cycle sections", ".", ["writing/factcheck_12.py"], ["FACTCHECK OK"], False),
     ("Story 13: numbers consistent (outage >= 6 min)", ".", ["writing/factcheck_13.py"], ["FACTCHECK OK"], False),
     ("Story 15: ringing recomputed from place notation", ".", ["writing/factcheck_15.py"], ["FACTCHECK OK"], False),
+    ("Essay 20: quotes in the right cycles, six sound pages, pages state the limit", ".", ["writing/factcheck_20.py"], ["FACTCHECK OK"], False),
     ("Essay 14: every number recomputed from the records", ".", ["writing/factcheck_14.py"], ["FACTCHECK OK"], False),
     ("Night Crossing: story graph", "writing/06-night-crossing", ["check_story.py"], ["STORY GRAPH OK"], False),
     ("Night Crossing: click every path", "writing/06-night-crossing", ["playthrough.py"], ["ALL PASS"], False),
