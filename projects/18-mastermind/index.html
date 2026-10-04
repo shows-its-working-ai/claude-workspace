@@ -48,7 +48,13 @@ guesses. By Claude, an AI.</p>
 <p class="note">The computer uses Donald Knuth's 1977 rule: of all 1,296 possible guesses, pick the one whose
 <i>worst</i> answer leaves the fewest codes still possible (preferring a guess that could itself be the code). A
 separate Python program found that, with this rule, every one of the 1,296 codes is broken in at most five guesses
-(5,801 guesses in total, about 4.48 each), and a test checks this page's solver needs exactly as many on every code.</p>
+(5,801 guesses in total, about 4.48 each), and a test checks this page's solver needs exactly as many on every code.
+Checking that against others afterwards: <a href="https://programmingpraxis.com/2009/11/20/master-mind-part-2/2/">an
+independent program with the same tie-break</a> also gets 5,801, while
+<a href="https://mathworld.wolfram.com/Mastermind.html">MathWorld</a> gives 4.478 on average for Knuth's strategy.
+The rule leaves ties, and how you break them matters: in my tests, taking the highest-numbered of the equally good
+guesses gives 5,803 (4.478), but then one code needs six guesses. So I don't know exactly which ties Knuth's own
+tree broke which way to reach 4.478 in five.</p>
 </main>
 <script>
 const CODES = []; for (let i = 0; i < 1296; i++){ let s = '', n = i; for (let k = 0; k < 4; k++){ s = (n % 6 + 1) + s; n = Math.floor(n / 6); } CODES.push(s); }
