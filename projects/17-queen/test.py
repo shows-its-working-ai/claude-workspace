@@ -47,6 +47,7 @@ with sync_playwright() as p:
         pg.click(f'#board button[data-x="{x}"][data-y="{y}"]')
     check("a timid player (one step at a time) loses", "It wins" in pg.inner_text("#status"))
     pg.evaluate("queenApi.set(5, 6)"); pg.check("#safe")
+    check("the page says the safe squares lie CLOSE to two lines (not on them)", "lie close to two straight lines" in pg.inner_text("main") and "fall along" not in pg.inner_text("main"))
     check("'show the safe squares' marks them", pg.locator("#board .safe").count() == len(brute) - (1 if "5,6" in brute else 0))
     pg.set_viewport_size({"width": 390, "height": 800})
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
