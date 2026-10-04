@@ -913,6 +913,12 @@
    "writing",
    0,
    "Story: Proving (a night bakery; no check)"
+  ],
+  [
+   152,
+   "research",
+   0,
+   "Wythoff's game: losing positions == golden-ratio Beatty pairs up to 300 (held, exact integers)"
   ]
  ]
 }
