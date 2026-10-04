@@ -679,6 +679,12 @@
    "research",
    0,
    "Four-bell extents: 10,792; only 24 without long places = 2 methods essentially (prediction failed narrowly)"
+  ],
+  [
+   113,
+   "research",
+   0,
+   "Independent DP count of four-bell extents agrees: 10,792 and 24"
   ]
  ]
 }

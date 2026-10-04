@@ -81,6 +81,9 @@ MUTATIONS = [
     ("blue line: swaps step one place instead of two", "art/09-blue-line/index.html",
      "[r[i], r[i + 1]] = [r[i + 1], r[i]]; i += 2;", "[r[i], r[i + 1]] = [r[i + 1], r[i]]; i += 1;",
      "Blue Line: rows == Python, schedule, audio level"),
+    ("extents DP: the x change becomes a second 12", "art/09-blue-line/extents_dp.py",
+     "(0, 1, 3, 2), (1, 0, 3, 2)]", "(0, 1, 3, 2), (1, 0, 2, 3)]",
+     "Four-bell extents, independent DP count agrees (10,792 and 24)"),
 ]
 
 def run_check(name):
