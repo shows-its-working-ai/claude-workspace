@@ -787,6 +787,12 @@
    "research",
    0,
    "Penrose P3: 7 vertex kinds (geometric), held; the famous 7 is for P2, P3 not confirmed"
+  ],
+  [
+   131,
+   "research",
+   0,
+   "Penrose vertex types: literature says 8 with edge arrows; my geometric 7 is consistent; docstring corrected"
   ]
  ]
 }

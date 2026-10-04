@@ -1,7 +1,10 @@
 """Cycle 130: how many kinds of vertex (ring of diamonds around a point) appear in the P3 tiling?
 Pairs Robinson triangles into diamonds along their shared base, then for every vertex well inside the patch lists
 the diamonds around it as (shape, angle) in angular order, and canonicalises that ring up to rotation and mirror.
-Checks: angles around every interior vertex sum to 360; every diamond is two triangles of one kind."""
+Checks: angles around every interior vertex sum to 360; every diamond is two triangles of one kind.
+Cycle 131: the literature (de Bruijn) gives EIGHT vertex types for the rhombus tiling, counted with the
+matching-rule arrows on the edges. This classifies by shape and angle only and finds 7, so (presumably) one
+geometric ring covers two arrow-decorated types. Not resolved here which one."""
 import cmath, math
 from collections import Counter
 from penrose import wheel, subdivide
