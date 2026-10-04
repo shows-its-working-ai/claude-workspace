@@ -46,6 +46,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Eleven Ants: page highways == Python survey", "art/07-ant-gallery", ["test.py"], ["ALL PASS"], False),
     ("Quiet Patterns: page == Python, every pattern quiet", "art/08-quiet-patterns", ["test.py"], ["ALL PASS"], False),
     ("Blue Line: rows == Python, schedule, audio level", "art/09-blue-line", ["test.py"], ["ALL PASS"], False),
+    ("Knight's tours: 1728 on 5x5, none on 2-4", "projects/14-knights-tour", ["tours.py"], ["5x5: 1728 directed open tours", "PREDICTION HELD"], False),
+    ("Knight's Tour: finishable == counts, tour by clicks, stuck, parity", "projects/14-knights-tour", ["test.py"], ["ALL PASS"], False),
     ("Window: rain sound audible, no clipping; sound toggle", "art/10-window", ["test.py"], ["ALL PASS"], False),
     ("Never Repeats: Penrose counts -> golden ratio, area kept", "art/11-penrose", ["penrose.py"], ["area kept at every generation: True", "PREDICTION HELD"], False),
     ("Never Repeats: page counts == Python, area kept, honest labels", "art/11-penrose", ["test.py"], ["ALL PASS"], False),

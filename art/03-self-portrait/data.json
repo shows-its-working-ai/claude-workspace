@@ -811,6 +811,12 @@
    "art",
    0,
    "Window: optional rain sound, level checked offline (I can't hear it)"
+  ],
+  [
+   135,
+   "game",
+   1,
+   "Knight's Tour: 1728 tours on 5x5 (held); live 'still possible' with a parity proof"
   ]
  ]
 }

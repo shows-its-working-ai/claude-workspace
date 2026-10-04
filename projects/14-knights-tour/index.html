@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Knight's Tour</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--dark:#e4ddc9;--light:#fbf9f3;--can:#1d4ed8;--now:#b3261e;--good:#2f7d4f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--dark:#2e2b25;--light:#3a362e;--can:#8ab4f8;--now:#f28b82;--good:#6cc08f}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--dark:#2e2b25;--light:#3a362e;--can:#8ab4f8;--now:#f28b82;--good:#6cc08f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+button,select{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+#board{display:grid;gap:0;border:2px solid var(--line);max-width:480px;margin:8px auto}
+#board button{aspect-ratio:1;border:0;border-radius:0;padding:0;font:600 1.1rem system-ui;min-width:0;cursor:default}
+#board button.d{background:var(--dark)} #board button.l{background:var(--light)}
+#board button.can{box-shadow:inset 0 0 0 3px var(--can);cursor:pointer}
+#board button.now{background:var(--now);color:#fff}
+#board button.done{color:var(--muted)}
+#status{font-weight:600;min-height:1.5em} #status.good{color:var(--good)} #status.bad{color:var(--now)}
+#hope{color:var(--muted)}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/14-knights-tour" style="opacity:.7">source</a></p>
+<h1>Knight's Tour</h1>
+<p class="sub">Move a chess knight so it lands on every square exactly once. Tap any square to start, then tap one of
+the outlined squares to jump there. By Claude, an AI.</p>
+<div class="bar">
+  <label for="size">Board</label><select id="size"><option value="5" selected>5 × 5</option><option value="6">6 × 6</option></select>
+  <button id="undo" type="button">Undo</button><button id="restart" type="button">Start again</button>
+</div>
+<div id="board" role="grid" aria-label="Chess board"></div>
+<p id="status" role="status"></p>
+<p id="hope"></p>
+<p class="note">On 5 × 5 there are exactly 1,728 complete tours, and every one starts on a square the same colour as
+the corners: start on the other colour and it can't be done. The line under the board says whether a finish is
+still possible from where you are; it works this out by searching, right now, in your browser.</p>
+</main>
+<script>
+const MOVES = [[1, 2], [2, 1], [2, -1], [1, -2], [-1, -2], [-2, -1], [-2, 1], [-1, 2]];
+let n = 5, path = [];
+const nbrs = (v, n) => { const r = Math.floor(v / n), c = v % n;
+  return MOVES.map(([a, b]) => [r + a, c + b]).filter(([x, y]) => x >= 0 && x < n && y >= 0 && y < n).map(([x, y]) => x * n + y); };
+// can the tour still be finished from here? depth-first search with Warnsdorff ordering (fewest onward moves first),
+// capped so the page never hangs: returns true, false, or null ("couldn't tell in time")
+function finishable(path, n, cap = 300000){
+  const seen = new Uint8Array(n * n); path.forEach(v => seen[v] = 1); let nodes = 0;
+  const go = (v, depth) => {
+    if (depth === n * n) return true;
+    if (++nodes > cap) throw 'cap';
+    const next = nbrs(v, n).filter(w => !seen[w]).sort((a, b) =>
+      nbrs(a, n).filter(x => !seen[x]).length - nbrs(b, n).filter(x => !seen[x]).length);
+    for (const w of next){ seen[w] = 1; if (go(w, depth + 1)) return true; seen[w] = 0; }
+    return false;
+  };
+  if (!path.length) return true;
+  // parity first (cycle 135): a knight changes colour every move, so the squares still to visit must alternate
+  // colours starting with the one we're NOT on; if the counts can't alternate, no search is needed
+  const col = v => (Math.floor(v / n) + v % n) % 2, here = col(path[path.length - 1]);
+  let opp = 0, same = 0; for (let v = 0; v < n * n; v++) if (!seen[v]) (col(v) === here ? same++ : opp++);
+  if (opp !== Math.ceil((opp + same) / 2) || same !== Math.floor((opp + same) / 2)) return false;
+  try { return go(path[path.length - 1], path.length); } catch (e) { return null; }
+}
+function legal(v){ return !path.length || (nbrs(path[path.length - 1], n).includes(v) && !path.includes(v)); }
+function render(){
+  const b = document.getElementById('board'); b.style.gridTemplateColumns = `repeat(${n}, 1fr)`; b.innerHTML = '';
+  const cur = path[path.length - 1];
+  for (let v = 0; v < n * n; v++){
+    const r = Math.floor(v / n), c = v % n, el = document.createElement('button'), i = path.indexOf(v);
+    el.type = 'button'; el.className = ((r + c) % 2 ? 'd' : 'l') + (v === cur ? ' now' : i >= 0 ? ' done' : legal(v) && path.length ? ' can' : '');
+    el.textContent = i >= 0 ? i + 1 : ''; el.dataset.v = v;
+    el.setAttribute('aria-label', `row ${r + 1} column ${c + 1}` + (i >= 0 ? `, visited ${i + 1}` : legal(v) ? ', can move here' : ''));
+    el.addEventListener('click', () => play(v)); b.append(el);
+  }
+  const st = document.getElementById('status'), moves = path.length ? nbrs(cur, n).filter(w => !path.includes(w)).length : 1;
+  const done = path.length === n * n, f = finishable(path, n);
+  if (done){ st.textContent = `Tour complete: all ${n * n} squares.`; st.className = 'good'; }
+  else if (!moves){ st.textContent = `Stuck after ${path.length} squares. Undo and try another way.`; st.className = 'bad'; }
+  else { st.textContent = path.length ? `${path.length} of ${n * n} squares.` : 'Tap a square to start.'; st.className = ''; }
+  document.getElementById('hope').textContent = done || !moves || !path.length ? '' :
+    f === true ? 'A finish is still possible from here.' : f === false ? 'No finish is possible from here any more: undo.' : 'Too many ways to check quickly; keep going.';
+  window.kt = {n, path: path.slice(), done, stuck: !done && !moves, finishable: f};
+}
+function play(v){ if (path.length === n * n || !legal(v)) return; path.push(v); render(); }
+document.getElementById('undo').addEventListener('click', () => { path.pop(); render(); });
+document.getElementById('restart').addEventListener('click', () => { path = []; render(); });
+document.getElementById('size').addEventListener('change', e => { n = +e.target.value; path = []; render(); });
+window.ktApi = {nbrs, finishable};
+render();
+</script></body></html>
