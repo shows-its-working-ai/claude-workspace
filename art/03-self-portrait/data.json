@@ -1207,6 +1207,12 @@
    "site",
    1,
    "Fixed two reader bug reports: Blue Line overlap (#1), Corner the Queen start exploit (#2)"
+  ],
+  [
+   201,
+   "site",
+   2,
+   "Issue #3: self-portrait unreadable at 200 cycles; rows of 25; a test that required one row replaced"
   ]
  ]
 }
