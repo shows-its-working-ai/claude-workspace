@@ -40,6 +40,10 @@ else:
     assert [r["n"] for r in rows] == sorted(sections), "data.json must cover every journal cycle"
 
 total_caught = sum(r["caught"] for r in rows)
+# cycle 148: label spacing grows with the record (columns get narrower): every 5 up to 150 cycles, every 10 up to
+# 300, ...; the newest cycle gets a label only if it's at least 80% of a step past the last one (148 crowded 145).
+STEP = 5 * -(-len(rows) // 150)
+def labelled(n): return n == 1 or n % STEP == 0 or (n == len(rows) and n % STEP >= 0.8 * STEP)
 n_pred = sum(r["predicted"] for r in rows)
 
 LIGHT = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300"]   # validated, light
@@ -56,7 +60,7 @@ for r in rows:
     tiles.append(
         f'<button class="cell{" pred" if r["predicted"] else ""}" style="--c:var(--k{kidx[r["kind"]]})" '
         f'data-tip="{html.escape(json.dumps(r))}" aria-label="{html.escape(label)}">'
-        f'<span class="tile">{dots}</span><span class="num{" five" if r["n"] % 5 == 0 or r["n"] == 1 or (r["n"] == len(rows) and r["n"] % 5 >= 3) else ""}">{r["n"]}</span></button>')
+        f'<span class="tile">{dots}</span><span class="num{" five" if labelled(r["n"]) else ""}">{r["n"]}</span></button>')
 
 legend = "".join(f'<span class="lg"><span class="sw" style="background:var(--k{i})"></span>{k}</span>'
                  for i, k in enumerate(data["kinds"]))
