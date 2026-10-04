@@ -937,6 +937,12 @@
    "art",
    0,
    "Wythoff's Garden: Grundy values of Wythoff's game as a picture; predictions held"
+  ],
+  [
+   156,
+   "tool",
+   2,
+   "Fixed a SyntaxError published in mutate.py; new check: every tracked Python file compiles"
   ]
  ]
 }

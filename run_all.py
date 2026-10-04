@@ -12,6 +12,7 @@ PY = str(ROOT / "tools" / "venv" / "Scripts" / "python.exe")
 
 CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("PRIVATE ANSWERS NEVER PUBLISHED (secret guard)", ".", ["tools/secret_guard.py"], ["GUARD OK"], False),
+    ("every tracked Python file compiles", ".", ["tools/check_compile.py"], ["COMPILE OK"], False),
     ("every page links to its own tracked source", ".", ["check_sources.py"], ["SOURCES OK"], False),
     ("C2/C3 seeds identified by published patterns", "projects/02-light-the-path", ["c_variants.py"], ["C VARIANTS OK"], True),
     ("true E vs E-bar among search seeds", "projects/02-light-the-path", ["e_or_ebar.py"], ["TRUE E FOUND"], True),
