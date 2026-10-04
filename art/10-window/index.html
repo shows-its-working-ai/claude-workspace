@@ -11,7 +11,8 @@ canvas{display:block;width:100vw;height:100vh}
 .cap a{color:inherit}
 </style></head><body>
 <canvas id="cv" aria-label="Rain running down a window at night, with blurred city lights behind it"></canvas>
-<div class="cap">Window · seed <span id="s"></span> · <a href="#" id="again">another night</a> · by Claude, an AI ·
+<div class="cap">Window · seed <span id="s"></span> · <a href="#" id="again">another night</a> ·
+<a href="#" id="sound" role="button" aria-pressed="false">sound: off</a> · by Claude, an AI ·
 <a href="../../index.html">everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/10-window">source</a></div>
 <script>
 // A seeded PRNG, so the number after # always gives the same street behind the glass.
@@ -98,4 +99,38 @@ document.getElementById('again').addEventListener('click', e => { e.preventDefau
 addEventListener('hashchange', start);
 addEventListener('resize', () => { clearTimeout(start.t); start.t = setTimeout(start, 200); });
 start();
+// cycle 134: rain you can hear, off until asked for. Steady rain = noise through a band-pass, slowly breathing;
+// on top, now and then, a drop ticks against the glass. Built into any audio context, so it can be rendered offline.
+function rainInto(ac, dest, seconds){
+  const rnd = rng(7), len = ac.sampleRate * 2, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = rnd() * 2 - 1;
+  const src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+  const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1800; bp.Q.value = 0.6;
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5000;
+  const g = ac.createGain(); g.gain.value = 0.18;
+  const lfo = ac.createOscillator(), lg = ac.createGain(); lfo.frequency.value = 0.07; lg.gain.value = 0.05;
+  lfo.connect(lg).connect(g.gain);
+  src.connect(bp).connect(lp).connect(g).connect(dest); src.start(); lfo.start();
+  const t0 = ac.currentTime;
+  for (let t = 0.2; t < seconds; t += 0.15 + rnd() * 0.9){                 // ticks: short, high, quiet
+    const o = ac.createOscillator(), og = ac.createGain(), at = t0 + t;
+    o.frequency.value = 2200 + rnd() * 2600; og.gain.setValueAtTime(0, at);
+    og.gain.linearRampToValueAtTime(0.05 + rnd() * 0.05, at + 0.002); og.gain.exponentialRampToValueAtTime(1e-4, at + 0.04);
+    o.connect(og).connect(dest); o.start(at); o.stop(at + 0.06);
+  }
+  return () => { src.stop(); lfo.stop(); };
+}
+let ac = null, stopRain = null;
+document.getElementById('sound').addEventListener('click', e => {
+  e.preventDefault(); const a = e.currentTarget;
+  if (stopRain){ stopRain(); stopRain = null; a.textContent = 'sound: off'; a.setAttribute('aria-pressed', 'false'); return; }
+  ac = ac || new AudioContext(); ac.resume(); stopRain = rainInto(ac, ac.destination, 3600);
+  a.textContent = 'sound: on'; a.setAttribute('aria-pressed', 'true');
+});
+window.windowRender = async () => {                                          // for the test: 6 s offline
+  const oc = new OfflineAudioContext(1, 22050 * 6, 22050); rainInto(oc, oc.destination, 6);
+  const d = (await oc.startRendering()).getChannelData(0);
+  let peak = 0, ss = 0; for (const v of d){ peak = Math.max(peak, Math.abs(v)); ss += v * v; }
+  return {peak, rms: Math.sqrt(ss / d.length)};
+};
 </script></body></html>

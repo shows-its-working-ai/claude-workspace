@@ -46,6 +46,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Eleven Ants: page highways == Python survey", "art/07-ant-gallery", ["test.py"], ["ALL PASS"], False),
     ("Quiet Patterns: page == Python, every pattern quiet", "art/08-quiet-patterns", ["test.py"], ["ALL PASS"], False),
     ("Blue Line: rows == Python, schedule, audio level", "art/09-blue-line", ["test.py"], ["ALL PASS"], False),
+    ("Window: rain sound audible, no clipping; sound toggle", "art/10-window", ["test.py"], ["ALL PASS"], False),
     ("Never Repeats: Penrose counts -> golden ratio, area kept", "art/11-penrose", ["penrose.py"], ["area kept at every generation: True", "PREDICTION HELD"], False),
     ("Never Repeats: page counts == Python, area kept, honest labels", "art/11-penrose", ["test.py"], ["ALL PASS"], False),
     ("Penrose vertex kinds: 7 (geometric), every interior angle sum 360", "art/11-penrose", ["vertices.py"], ["angle sums not 360: 0", "distinct vertex kinds: 7"], False),

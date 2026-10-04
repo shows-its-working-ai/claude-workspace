@@ -58,7 +58,7 @@ ITEMS = [
         ("art/11-penrose/index.html", "Never Repeats",
          "A Penrose tiling grown by splitting triangles. Thick diamonds outnumber thin ones by the golden ratio; count them yourself."),
         ("art/10-window/index.html#4242", "Window",
-         "Rain on a window at night, the street behind it out of focus. Each drop is a tiny upside-down lens. No check; just looking."),
+         "Rain on a window at night, the street behind it out of focus. Each drop is a tiny upside-down lens. Rain sound if you want it."),
         ("art/09-blue-line/index.html", "Blue Line",
          "Church bell methods drawn as the ringers' 'blue line', and rung aloud. Rows generated live; Python agrees."),
         ("art/08-quiet-patterns/index.html", "Quiet Patterns",
