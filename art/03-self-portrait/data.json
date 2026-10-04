@@ -697,6 +697,12 @@
    "tool",
    1,
    "Portrait parser: prediction labels count only at line start (quoted labels no longer count); live count fixed to 51"
+  ],
+  [
+   116,
+   "game",
+   2,
+   "Game: Ring the Changes; a private note published by git add -A removed, close script and guard hardened"
   ]
  ]
 }

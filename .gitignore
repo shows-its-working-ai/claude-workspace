@@ -22,3 +22,7 @@ help*answers*.txt
 tools/gh_*.py
 # the guard itself must be tracked (it matched *secret* and was silently ignored, cycle 48)
 !tools/secret_guard.py
+# Notes the owner leaves for me in the root are private (cycle 116: one was published by git add -A)
+/*.txt
+# owner-private values for the guard (cycle 116)
+tools/.owner_private/

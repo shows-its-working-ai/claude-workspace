@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ring the Changes</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--accent:#1d4ed8;--bad:#b3261e;--good:#2f7d4f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ab4f8;--bad:#f28b82;--good:#6cc08f}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--accent:#8ab4f8;--bad:#f28b82;--good:#6cc08f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px;max-width:660px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.ch{font-family:ui-monospace,monospace;min-width:76px}
+.now{font:600 2.2rem ui-monospace,monospace;letter-spacing:.3em;margin:8px 0}
+#status{min-height:1.5em;font-weight:600}
+#status.bad{color:var(--bad)} #status.good{color:var(--good)}
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:4px;font-family:ui-monospace,monospace;max-width:600px}
+.rows span{padding:2px 6px;border:1px solid var(--line);border-radius:6px;background:var(--card);text-align:center}
+.rows span.cur{border-color:var(--accent);color:var(--accent);font-weight:600}
+label{color:var(--muted)}
+.note{color:var(--muted);font-size:.9rem;margin-top:20px;max-width:660px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/12-ring-the-changes" style="opacity:.7">source</a></p>
+<h1>Ring the Changes</h1>
+<p class="sub">Four bells start in order: 1234. Each turn, swap neighbouring bells to make a new order. Ring all 24
+orders exactly once and come back to 1234 to win. You can't ring an order twice. By Claude, an AI.</p>
+<div class="bar">
+  <label><input type="checkbox" id="hard"> Ringers' rule: no bell stays put for three rows running</label>
+</div>
+<div class="now" id="now" aria-live="polite">1234</div>
+<div class="bar" id="moves"></div>
+<div class="bar"><button id="undo" type="button">Undo</button><button id="reset" type="button">Start again</button>
+<span id="count"></span></div>
+<p id="status" role="status"></p>
+<div class="rows" id="rows"></div>
+<p class="note">There are 10,792 ways to win without the ringers' rule, and only 24 with it (two methods, started at
+different points). Both numbers come from two separate programs that agree; see Blue Line.
+Keys: 1 = swap 1st/2nd, 2 = 2nd/3rd, 3 = 3rd/4th, X = both outer pairs, U = undo.</p>
+</main>
+<script>
+const CHANGES = {"12": [[0, 1]], "23": [[1, 2]], "34": [[2, 3]], "x": [[0, 1], [2, 3]]};
+const LABEL = {"12": "swap 1·2", "23": "swap 2·3", "34": "swap 3·4", "x": "swap both"};
+const KEYS = {"1": "12", "2": "23", "3": "34", "x": "x"};
+const doChange = (row, ch) => { const r = row.split(''); for (const [a, b] of CHANGES[ch]) [r[a], r[b]] = [r[b], r[a]]; return r.join(''); };
+// some bell is in the same position in all three rows
+const still = (a, b, c) => [0, 1, 2, 3].some(p => a[p] === b[p] && b[p] === c[p]);
+let rows = ['1234'];
+const hard = () => document.getElementById('hard').checked;
+function legal(ch){
+  const nxt = doChange(rows[rows.length - 1], ch), n = rows.length;
+  if (n === 24){                                         // the 24th change must return to rounds
+    if (nxt !== '1234') return {ok: false, why: 'the last change has to come back to 1234'};
+    if (hard() && (still(rows[22], rows[23], nxt) || still(rows[23], nxt, rows[1]))) return {ok: false, why: 'a bell would stay put three rows running'};
+    return {ok: true, nxt};
+  }
+  if (n > 24) return {ok: false, why: 'finished'};
+  if (rows.includes(nxt)) return {ok: false, why: `${nxt} has already been rung`};
+  if (hard() && n >= 2 && still(rows[n - 2], rows[n - 1], nxt)) return {ok: false, why: 'a bell would stay put three rows running'};
+  return {ok: true, nxt};
+}
+function play(ch){
+  const L = legal(ch);
+  if (!L.ok){ setStatus(`Can't: ${L.why}.`, 'bad'); return false; }
+  rows.push(L.nxt); render(); return true;
+}
+function setStatus(t, cls){ const s = document.getElementById('status'); s.textContent = t; s.className = cls || ''; }
+function render(){
+  const cur = rows[rows.length - 1];
+  document.getElementById('now').textContent = cur;
+  const mv = document.getElementById('moves'); mv.innerHTML = '';
+  const won = rows.length === 25;
+  let any = false;
+  for (const ch of Object.keys(CHANGES)){
+    const b = document.createElement('button'); b.className = 'ch'; b.type = 'button'; b.dataset.ch = ch;
+    const L = legal(ch); b.textContent = LABEL[ch]; b.disabled = won || !L.ok; any = any || L.ok;
+    b.title = L.ok ? `makes ${L.nxt}` : L.why;
+    b.addEventListener('click', () => play(ch)); mv.append(b);
+  }
+  document.getElementById('count').textContent = `${Math.min(rows.length - 1, 24)} of 24 changes`;
+  const rs = document.getElementById('rows'); rs.innerHTML = '';
+  rows.forEach((r, i) => { const s = document.createElement('span'); s.textContent = r; if (i === rows.length - 1) s.className = 'cur'; rs.append(s); });
+  if (won) setStatus('Extent! Every order rung once, and back to rounds.', 'good');
+  else if (!any) setStatus('Stuck: every move repeats a row' + (hard() ? ' or breaks the rule' : '') + '. Undo and try another way.', 'bad');
+  else setStatus('');
+  window.rtc = {rows: rows.slice(), won, stuck: !won && !any};
+}
+document.getElementById('undo').addEventListener('click', () => { if (rows.length > 1){ rows.pop(); render(); } });
+document.getElementById('reset').addEventListener('click', () => { rows = ['1234']; render(); });
+document.getElementById('hard').addEventListener('change', () => { rows = ['1234']; render(); });
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (KEYS[k]) play(KEYS[k]);                              // play() itself refuses illegal moves, with a reason
+  if (k === 'u') document.getElementById('undo').click();
+});
+window.rtcApi = {legal: ch => legal(ch), CHANGES};
+render();
+</script></body></html>

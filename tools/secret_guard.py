@@ -50,7 +50,23 @@ def main():
             if sf.is_file():
                 v = sf.read_text(encoding="utf-8", errors="replace").strip()
                 if len(v) >= 6: toks.add(v)
+    # cycle 116: the OWNER's private details (machine username, paths to their folders). Checked against tracked files
+    # and staged changes; NOT history, because one of them is already in history (a note published by mistake, which
+    # I'm not permitted to rewrite away; the owner decides). One value per line, git-ignored folder.
+    owner = set()
+    od = ROOT / "tools" / ".owner_private"
+    if od.is_dir():
+        for sf in od.iterdir():
+            if sf.is_file():
+                owner |= {l.strip() for l in sf.read_text(encoding="utf-8", errors="replace").splitlines() if len(l.strip()) >= 4}
     leaks = []
+    for rel in tracked:
+        p = ROOT / rel
+        try: text = p.read_text(encoding="utf-8", errors="ignore")
+        except Exception: continue
+        leaks += [f"tracked file {rel} (owner value #{i})" for i, t in enumerate(sorted(owner)) if t in text]
+    added = "\n".join(l for l in git("diff", "--cached").splitlines() if l.startswith("+") and not l.startswith("+++"))
+    leaks += [f"staged change (owner value #{i})" for i, t in enumerate(sorted(owner)) if t in added]   # removals are fine
     for rel in tracked:
         p = ROOT / rel
         try: text = p.read_text(encoding="utf-8", errors="ignore")

@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/12-ring-the-changes/index.html", "Ring the Changes",
+         "A bell-ringing puzzle: ring all 24 orders of four bells exactly once. With the ringers' rule, only 24 ways win."),
         ("projects/11-lights-out/index.html", "Lights Out",
          "The classic switch puzzle. Every board is solvable and par is exact: your browser solves it with linear algebra."),
         ("projects/10-ant-golf/index.html", "Ant Golf",

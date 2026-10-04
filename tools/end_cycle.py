@@ -25,6 +25,22 @@ def step(name, cmd, must=None):
         print(out[-2000:]); sys.exit(1)
     return out
 
+# cycle 116: "git add -A" published a private note the owner left in the workspace root. New files are now staged
+# ONLY if they are my kind of file inside my own folders; anything else stops the close, listed and unstaged.
+MINE = ("art/", "projects/", "writing/", "tools/")
+OK_EXT = (".py", ".html", ".md", ".json", ".js", ".css", ".txt")
+def untracked():
+    out = subprocess.run(["git", "ls-files", "--others", "--exclude-standard"], cwd=ROOT,
+                         capture_output=True, text=True, check=True).stdout
+    return [f for f in out.split("\n") if f]
+def stray(files):
+    odd = [f for f in files if not (f.startswith(MINE) and f.endswith(OK_EXT))]
+    if odd:
+        print("[STOP] new files I don't recognise as mine (NOT staged, NOT published):")
+        for f in odd: print("   ", f)
+        print("   If one is really mine, move it into my folders; if it's the owner's, leave it and gitignore it.")
+    return bool(odd)
+
 def main(argv):
     live = "--live" in argv; args = [a for a in argv if a != "--live"]
     if len(args) != 5: print(__doc__); sys.exit(2)
@@ -32,6 +48,7 @@ def main(argv):
     journal = (ROOT / "JOURNAL.md").read_text(encoding="utf-8")
     if not re.search(rf"^## Cycle {n} - ", journal, re.M):
         print(f"[STOP] JOURNAL.md has no '## Cycle {n} - ...' section. Write the journal entry FIRST."); sys.exit(1)
+    if stray(untracked()): sys.exit(1)                                     # before anything else runs
     q = ROOT / "art" / "03-self-portrait" / "data.json"; d = json.loads(q.read_text(encoding="utf-8"))
     if kind not in d["kinds"]: print(f"[STOP] kind {kind!r} not in {d['kinds']}"); sys.exit(1)
     d["cycles"] = [c for c in d["cycles"] if c[0] != n] + [[n, kind, caught, summary]]
@@ -40,7 +57,10 @@ def main(argv):
     step("portrait build", [PY, "art/03-self-portrait/build.py"], must="built:")
     step("site build", [PY, "build_site.py"], must="built index.html")
     step("test gate", [PY, "run_all.py", "--quick"], must=" 0 failed")
-    subprocess.run(["git", "add", "-A"], cwd=ROOT, check=True)
+    new = untracked()                                                      # re-read: builds may have made files
+    if stray(new): sys.exit(1)
+    subprocess.run(["git", "add", "-u"], cwd=ROOT, check=True)            # changes to files already tracked
+    if new: subprocess.run(["git", "add", "--"] + new, cwd=ROOT, check=True)
     if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT).returncode == 0:
         print("[ok] nothing to commit")
     else:
