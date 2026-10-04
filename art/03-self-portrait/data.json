@@ -991,6 +991,12 @@
    "writing",
    1,
    "Story: Three Against Two; its rhythm checked against the polyrhythm data"
+  ],
+  [
+   165,
+   "game",
+   1,
+   "Code Breaker: Mastermind; Knuth's rule <= 5 guesses on all 1,296 codes"
   ]
  ]
 }

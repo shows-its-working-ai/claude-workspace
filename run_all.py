@@ -51,6 +51,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Nim: Bouton XOR rule == brute force (1,808 positions)", "projects/16-nim", ["nim.py"], ["disagreements: 0", "PREDICTION HELD"], False),
     ("Wythoff: losing positions == golden-ratio Beatty pairs (heaps <= 300)", "projects/16-nim", ["wythoff.py"], ["brute force 229, formula 229", "PREDICTION HELD"], False),
     ("Corner the Queen: safe squares == brute force, perfect replies, won by taps", "projects/17-queen", ["test.py"], ["ALL PASS"], False),
+    ("Mastermind: Knuth's rule breaks all 1,296 codes in <= 5 (Python)", "projects/18-mastermind", ["knuth.py"], ["max 5, average 4.4761 (5801/1296)", "PREDICTION HELD"], False),
+    ("Code Breaker: page solver == Python on every code, won and lost by clicks", "projects/18-mastermind", ["test.py"], ["ALL PASS"], False),
     ("Wythoff Grundy values: symmetric, zeros == golden pairs, g(x,0)=x", "art/14-wythoff", ["grundy.py"], ["PREDICTION HELD"], False),
     ("Wythoff's Garden: page Grundy values == Python", "art/14-wythoff", ["test.py"], ["ALL PASS"], False),
     ("Euclidean rhythms: Bjorklund == even-floor pattern up to rotation (136 pairs)", "art/15-rhythm", ["euclid.py"], ["mismatches: 0", "PREDICTION HELD"], False),

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Code Breaker</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--hole:#e7e3d8;
+  --c1:#c0392b;--c2:#a35c00;--c3:#2e7d32;--c4:#1565c0;--c5:#7b1fa2;--c6:#5d4037}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--hole:#2a2926}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--hole:#2a2926}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+button:disabled{opacity:.45;cursor:default}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+.peg{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;
+  color:#fff;font-weight:700;background:var(--hole);border:none;padding:0;min-height:0}
+.pal .peg{width:44px;height:44px}
+.row{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.fb{font-size:.9rem;color:var(--muted);margin-left:8px}
+.fb b{color:var(--fg)}
+#log{font-size:.95rem}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/18-mastermind" style="opacity:.7">source</a></p>
+<h1>Code Breaker</h1>
+<p class="sub">A secret code of four pegs, each one of six colours (repeats allowed). After each guess you're told how
+many pegs are the right colour in the right place, and how many more are the right colour in the wrong place. Ten
+guesses. By Claude, an AI.</p>
+<div class="bar pal" id="pal" aria-label="Colours: tap to add to your guess"></div>
+<div class="bar"><span>Your guess:</span><span id="cur"></span>
+  <button id="back" type="button">Undo peg</button><button id="go" type="button">Guess</button></div>
+<div id="board"></div>
+<p id="msg" aria-live="polite"></p>
+<div class="bar"><button id="new" type="button">New code</button><button id="watch" type="button">Watch the computer break this code</button></div>
+<div id="log" aria-live="polite"></div>
+<p class="note">The computer uses Donald Knuth's 1977 rule: of all 1,296 possible guesses, pick the one whose
+<i>worst</i> answer leaves the fewest codes still possible (preferring a guess that could itself be the code). A
+separate Python program found that, with this rule, every one of the 1,296 codes is broken in at most five guesses
+(5,801 guesses in total, about 4.48 each), and a test checks this page's solver needs exactly as many on every code.</p>
+</main>
+<script>
+const CODES = []; for (let i = 0; i < 1296; i++){ let s = '', n = i; for (let k = 0; k < 4; k++){ s = (n % 6 + 1) + s; n = Math.floor(n / 6); } CODES.push(s); }
+function score(g, s){                                            // [right place, right colour wrong place]
+  let b = 0; const cg = [0,0,0,0,0,0,0], cs = [0,0,0,0,0,0,0];
+  for (let i = 0; i < 4; i++){ if (g[i] === s[i]) b++; cg[g[i]]++; cs[s[i]]++; }
+  let m = 0; for (let c = 1; c <= 6; c++) m += Math.min(cg[c], cs[c]); return [b, m - b];
+}
+function best(cands){                                            // Knuth: minimise the worst case
+  if (cands.length === 1) return cands[0];
+  const inC = new Set(cands); let top = null;
+  for (const g of CODES){
+    const cnt = new Map(); let worst = 0;
+    for (const s of cands){ const k = score(g, s).join(); const v = (cnt.get(k) || 0) + 1; cnt.set(k, v); if (v > worst) worst = v; }
+    const key = [worst, inC.has(g) ? 0 : 1, g];
+    if (!top || key[0] < top[0] || key[0] === top[0] && (key[1] < top[1] || key[1] === top[1] && key[2] < top[2])) top = key;
+  }
+  return top[2];
+}
+const MEMO = new Map();                                        // candidate set -> Knuth's next guess
+function knuth(secret){                                          // -> [{guess, fb, left}] until solved
+  let cands = CODES, guess = '1122'; const steps = [];
+  for (;;){
+    const fb = score(guess, secret); cands = cands.filter(s => score(guess, s).join() === fb.join());
+    steps.push({guess, fb, left: cands.length}); if (fb[0] === 4) return steps;
+    const key = cands.join(); if (!MEMO.has(key)) MEMO.set(key, best(cands)); guess = MEMO.get(key);
+  }
+}
+const $ = id => document.getElementById(id);
+const peg = (c, tag = 'span') => `<${tag} class="peg" style="background:var(--c${c})" ${tag === 'button' ? `type="button" data-c="${c}" aria-label="colour ${c}"` : `aria-label="${c}"`}>${c}</${tag}>`;
+const fbText = ([b, w]) => `<span class="fb"><b>${b}</b> right place · <b>${w}</b> right colour, wrong place</span>`;
+let secret, guess, rows, over;
+$('pal').innerHTML = [1,2,3,4,5,6].map(c => peg(c, 'button')).join('');
+function render(){
+  $('cur').innerHTML = [0,1,2,3].map(i => guess[i] ? peg(guess[i]) : '<span class="peg"></span>').join(' ');
+  $('board').innerHTML = rows.map((r, i) => `<div class="row"><span style="width:1.6em">${i + 1}.</span>${[...r.g].map(c => peg(c)).join('')}${fbText(r.fb)}</div>`).join('');
+  $('go').disabled = guess.length !== 4 || over; $('back').disabled = !guess.length || over;
+  document.querySelectorAll('#pal button').forEach(b => b.disabled = over || guess.length === 4);
+  window.cb = {secret, rows: rows.map(r => ({g: r.g, fb: r.fb})), over};
+}
+function newGame(s){ secret = s || CODES[Math.floor(Math.random() * 1296)]; guess = ''; rows = []; over = false; $('msg').textContent = ''; $('log').innerHTML = ''; render(); }
+$('pal').addEventListener('click', e => { const b = e.target.closest('button'); if (b && guess.length < 4 && !over){ guess += b.dataset.c; render(); } });
+$('back').onclick = () => { guess = guess.slice(0, -1); render(); };
+$('go').onclick = () => {
+  const fb = score(guess, secret); rows.push({g: guess, fb}); guess = '';
+  if (fb[0] === 4){ over = true; $('msg').textContent = `Broken in ${rows.length}. ` + (rows.length <= 5 ? 'As good as the computer manages in the worst case.' : 'The computer never needs more than five.'); }
+  else if (rows.length === 10){ over = true; $('msg').innerHTML = `Out of guesses. The code was ${[...secret].map(c => peg(c)).join('')}`; }
+  render();
+};
+$('new').onclick = () => newGame();
+$('watch').onclick = () => {
+  const steps = knuth(secret);
+  $('log').innerHTML = steps.map((s, i) => `<div class="row"><span style="width:1.6em">${i + 1}.</span>${[...s.guess].map(c => peg(c)).join('')}${fbText(s.fb)}<span class="fb">→ ${s.left} possible code${s.left === 1 ? '' : 's'} left</span></div>`).join('')
+    + `<p>The computer needed ${steps.length}.</p>`;
+};
+window.cbApi = {score, knuth, newGame, CODES};
+newGame();
+</script></body></html>

@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/18-mastermind/index.html", "Code Breaker",
+         "Mastermind: four pegs, six colours, ten guesses. Then watch Knuth's rule break the same code; it never needs more than five."),
         ("projects/17-queen/index.html", "Corner the Queen",
          "Race a queen to the corner against a perfect opponent. The winning squares follow the golden ratio."),
         ("projects/16-nim/index.html", "Nim",
