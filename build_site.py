@@ -67,6 +67,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/18-ant/index.html", "The Ant",
+         "Langton's ant: two rules, ten thousand steps of mess, then at step 9,977 a straight highway that never stops (in 20,000 steps)."),
         ("art/17-dragon/index.html", "Paper Dragon",
          "Fold a strip in half again and again, open every crease to a right angle: a dragon. Up to 16 folds, 65,536 lengths."),
         ("art/16-against/index.html", "Against",
