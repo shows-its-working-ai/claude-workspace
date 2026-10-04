@@ -47,6 +47,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Eleven Ants: page highways == Python survey", "art/07-ant-gallery", ["test.py"], ["ALL PASS"], False),
     ("Quiet Patterns: page == Python, every pattern quiet", "art/08-quiet-patterns", ["test.py"], ["ALL PASS"], False),
     ("Blue Line: rows == Python, schedule, audio level", "art/09-blue-line", ["test.py"], ["ALL PASS"], False),
+    ("Pegs: every start solvable; 13,935 one-peg positions (Python)", "projects/15-pegs", ["pegs.py"], ["13935 of 32767", "PREDICTION HELD"], False),
+    ("Pegs: solvability == Python on all boards, every start won by taps", "projects/15-pegs", ["test.py"], ["ALL PASS"], False),
     ("Sandpile: order-independence, symmetry, conservation (Python)", "art/12-sandpile", ["sandpile.py"], ["PREDICTION HELD"], False),
     ("Sandpile: page == Python cell for cell, grains kept", "art/12-sandpile", ["test.py"], ["ALL PASS"], False),
     ("Knight's tours: 1728 on 5x5, none on 2-4", "projects/14-knights-tour", ["tours.py"], ["5x5: 1728 directed open tours", "PREDICTION HELD"], False),

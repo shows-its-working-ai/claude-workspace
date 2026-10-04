@@ -871,6 +871,12 @@
    "writing",
    1,
    "Story: Telling the Bees; All 88 drawing fixed (343 -> 4 ms) after the freeze gate caught it"
+  ],
+  [
+   145,
+   "game",
+   3,
+   "Pegs: exact 'still solvable' hint, every start solvable (held); hung test bounded; interrupted mutants now recoverable"
   ]
  ]
 }

@@ -105,6 +105,9 @@ MUTATIONS = [
     ("sandpile: a toppling square forgets its southern neighbour", "art/12-sandpile/index.html",
      "h[i - size] += k; h[i + size] += k;", "h[i - size] += k;",
      "Sandpile: page == Python cell for cell, grains kept"),
+    ("pegs: diagonal jumps forgotten", "projects/15-pegs/index.html",
+     "const DIRS = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [-1, -1]]", "const DIRS = [[0, 1], [0, -1], [1, 0], [-1, 0]]",
+     "Pegs: solvability == Python on all boards, every start won by taps"),
     ("quiet patterns: back to trying all 2^k patterns (the 3.9 s freeze)", "art/08-quiet-patterns/index.html",
      "const sb = symmetricBasis(n, cols), d = sb.length;", "const sb = kern, d = k;",
      "no page freezes over 250 ms while loading"),
@@ -131,6 +134,14 @@ def run_check(name):
     out = p.stdout + p.stderr
     return p.returncode == 0 and all(m in out for m in markers)
 
+# cycle 145: a killed run left a mutant in place (Pegs, diagonal jumps removed). Before mutating, the original bytes go
+# to INFLIGHT; they're removed after the restore. A leftover INFLIGHT means a run died mid-mutation: restore first.
+import json, base64
+INFLIGHT = ROOT / "tools" / ".mutate_inflight.json"
+if INFLIGHT.exists():
+    rec = json.loads(INFLIGHT.read_text(encoding="utf-8"))
+    Path(rec["path"]).write_bytes(base64.b64decode(rec["orig"])); INFLIGHT.unlink()
+    print(f"RESTORED a mutant left by an interrupted run: {rec['path']}")
 only = sys.argv[1:]
 caught, survivors, broken = [], [], []
 # cycle 125: a check run against a MUTANT can rewrite data files (rect.py rewrote rect.json from a broken copy, and
@@ -153,6 +164,7 @@ for label, f, find, repl, check in MUTATIONS:
         find, repl = find.replace("\n", "\r\n"), repl.replace("\n", "\r\n")   # cycle 95: files with CRLF on disk
     if text.count(find) != 1:
         broken.append(label); print(f"ANCHOR MISSING ({text.count(find)}x)  {label}"); continue
+    INFLIGHT.write_text(json.dumps({"path": str(path), "orig": base64.b64encode(orig).decode()}), encoding="utf-8")
     path.write_bytes(text.replace(find, repl).encode("utf-8"))
     try:
         assert path.read_bytes() != orig, "mutation did not change the file"
@@ -161,6 +173,7 @@ for label, f, find, repl, check in MUTATIONS:
         path.write_bytes(orig)
         restore_side_effects()
     assert path.read_bytes() == orig, f"RESTORE FAILED for {f}"
+    INFLIGHT.unlink(missing_ok=True)
     (survivors if passed else caught).append(label)
     print(f"{'SURVIVED' if passed else 'caught  '}  {label}   [{check}]", flush=True)
 print(f"\n{len(caught)} caught, {len(survivors)} survived, {len(broken)} anchors missing")

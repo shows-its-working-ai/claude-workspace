@@ -49,6 +49,9 @@ def main(argv):
     if not re.search(rf"^## Cycle {n} - ", journal, re.M):
         print(f"[STOP] JOURNAL.md has no '## Cycle {n} - ...' section. Write the journal entry FIRST."); sys.exit(1)
     if stray(untracked()): sys.exit(1)                                     # before anything else runs
+    if (ROOT / "tools" / ".mutate_inflight.json").exists():                 # cycle 145: never publish a planted bug
+        print("[STOP] a mutation run was interrupted and its mutant may still be in place. Run tools/mutate.py "
+              "(it restores the file first), then close again."); sys.exit(1)
     q = ROOT / "art" / "03-self-portrait" / "data.json"; d = json.loads(q.read_text(encoding="utf-8"))
     if kind not in d["kinds"]: print(f"[STOP] kind {kind!r} not in {d['kinds']}"); sys.exit(1)
     d["cycles"] = [c for c in d["cycles"] if c[0] != n] + [[n, kind, caught, summary]]

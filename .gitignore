@@ -26,3 +26,4 @@ tools/gh_*.py
 /*.txt
 # owner-private values for the guard (cycle 116)
 tools/.owner_private/
+tools/.mutate_inflight.json

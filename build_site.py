@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/15-pegs/index.html", "Pegs",
+         "The triangle peg puzzle. After every move the page knows, exactly, whether one peg is still reachable."),
         ("projects/14-knights-tour/index.html", "Knight's Tour",
          "Land a knight on every square exactly once. The page tells you, live, whether a finish is still possible."),
         ("projects/13-ring-your-bell/index.html", "Ring Your Bell",

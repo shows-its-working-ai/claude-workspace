@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pegs</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--peg:#8a4b20;--hole:#e4ddc9;--sel:#1d4ed8;--good:#2f7d4f;--bad:#b3261e}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--peg:#d9963a;--hole:#2e2b25;--sel:#8ab4f8;--good:#6cc08f;--bad:#f28b82}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--peg:#d9963a;--hole:#2e2b25;--sel:#8ab4f8;--good:#6cc08f;--bad:#f28b82}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:620px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer}
+#board{display:flex;flex-direction:column;align-items:center;gap:8px;margin:16px 0}
+.row{display:flex;gap:10px}
+.hole{width:48px;height:48px;border-radius:50%;border:2px solid var(--line);background:var(--hole);padding:0;cursor:pointer}
+.hole.peg{background:var(--peg);border-color:var(--peg)}
+.hole.sel{box-shadow:0 0 0 4px var(--sel)}
+.hole.to{border:3px dashed var(--sel)}
+#status{font-weight:600;min-height:1.5em} #status.good{color:var(--good)} #status.bad{color:var(--bad)}
+#hope{color:var(--muted);min-height:1.5em}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/15-pegs" style="opacity:.7">source</a></p>
+<h1>Pegs</h1>
+<p class="sub">Fifteen holes, fourteen pegs. Jump a peg over its neighbour into an empty hole, and the jumped peg comes
+off. Try to finish with just one. First tap the peg you want to remove to start. By Claude, an AI.</p>
+<div id="board" role="grid" aria-label="Triangle of 15 holes"></div>
+<p id="status" role="status"></p>
+<p id="hope"></p>
+<div class="bar"><button id="undo" type="button">Undo</button><button id="restart" type="button">Start again</button></div>
+<p class="note">After every move the page works out, exactly, whether one peg can still be reached from where you
+are (there are only 32,767 possible boards, so it simply checks). Whichever hole you start with, it can be done.</p>
+</main>
+<script>
+const HOLES = []; for (let r = 0; r < 5; r++) for (let c = 0; c <= r; c++) HOLES.push([r, c]);
+const IDX = new Map(HOLES.map(([r, c], i) => [r * 10 + c, i]));
+const DIRS = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [-1, -1]], JUMPS = [];
+HOLES.forEach(([r, c], i) => DIRS.forEach(([dr, dc]) => {
+  const o = IDX.get((r + dr) * 10 + c + dc), t = IDX.get((r + 2 * dr) * 10 + c + 2 * dc);
+  if (o !== undefined && t !== undefined && r + dr >= 0 && c + dc >= 0 && r + 2 * dr >= 0 && c + 2 * dc >= 0 && c + dc <= r + dr && c + 2 * dc <= r + 2 * dr) JUMPS.push([i, o, t]);
+}));
+const memo = new Map(), ones = b => { let n = 0; while (b){ b &= b - 1; n++; } return n; };
+function solvable(b){
+  if (ones(b) === 1) return true;
+  if (memo.has(b)) return memo.get(b);
+  let ok = false;
+  for (const [f, o, t] of JUMPS) if (b >> f & 1 && b >> o & 1 && !(b >> t & 1) && solvable(b & ~(1 << f) & ~(1 << o) | 1 << t)){ ok = true; break; }
+  memo.set(b, ok); return ok;
+}
+let board = 0, hist = [], sel = -1;
+function moves(b){ return JUMPS.filter(([f, o, t]) => b >> f & 1 && b >> o & 1 && !(b >> t & 1)); }
+function render(){
+  const el = document.getElementById('board'); el.innerHTML = '';
+  const targets = sel >= 0 ? moves(board).filter(m => m[0] === sel).map(m => m[2]) : [];
+  for (let r = 0; r < 5; r++){
+    const row = document.createElement('div'); row.className = 'row';
+    for (let c = 0; c <= r; c++){
+      const i = IDX.get(r * 10 + c), b = document.createElement('button'), peg = board >> i & 1;
+      b.className = 'hole' + (peg ? ' peg' : '') + (i === sel ? ' sel' : '') + (targets.includes(i) ? ' to' : '');
+      b.type = 'button'; b.dataset.i = i; b.setAttribute('aria-label', `row ${r + 1} hole ${c + 1}, ${peg ? 'peg' : 'empty'}`);
+      b.addEventListener('click', () => tap(i)); row.append(b);
+    }
+    el.append(row);
+  }
+  const st = document.getElementById('status'), hope = document.getElementById('hope'), n = ones(board);
+  if (!hist.length && board === 0){ st.textContent = 'Tap the peg to take out first.'; st.className = ''; hope.textContent = ''; }
+  else if (n === 1){ st.textContent = 'One peg left. Solved!'; st.className = 'good'; hope.textContent = ''; }
+  else if (!moves(board).length){ st.textContent = `No moves left: ${n} pegs remain.`; st.className = 'bad'; hope.textContent = ''; }
+  else { st.textContent = `${n} pegs left.`; st.className = '';
+         hope.textContent = solvable(board) ? 'One peg can still be reached from here.' : 'One peg can no longer be reached from here. Undo?'; }
+  window.pegs = {board, pegs: n, solvable: n > 0 ? solvable(board) : null, stuck: n > 1 && !moves(board).length};
+}
+function tap(i){
+  if (board === 0){ board = ((1 << 15) - 1) & ~(1 << i); hist = [0]; render(); return; }
+  if (sel >= 0){
+    const m = moves(board).find(([f, , t]) => f === sel && t === i);
+    if (m){ hist.push(board); board = board & ~(1 << m[0]) & ~(1 << m[1]) | 1 << m[2]; sel = -1; render(); return; }
+  }
+  sel = board >> i & 1 && moves(board).some(m => m[0] === i) ? i : -1; render();
+}
+document.getElementById('undo').addEventListener('click', () => { if (hist.length){ board = hist.pop(); sel = -1; render(); } });
+document.getElementById('restart').addEventListener('click', () => { board = 0; hist = []; sel = -1; render(); });
+window.pegsApi = {JUMPS, solvable, moves};
+render();
+</script></body></html>
