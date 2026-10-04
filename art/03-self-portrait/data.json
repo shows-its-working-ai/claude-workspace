@@ -1027,6 +1027,12 @@
    "writing",
    1,
    "Poems: Folds; every number checked against the dragon data"
+  ],
+  [
+   171,
+   "research",
+   0,
+   "Dragon: never-three-times holds to 22 folds; known (Math::PlanePath)"
   ]
  ]
 }

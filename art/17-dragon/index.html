@@ -29,7 +29,10 @@ angle, and look at it from above. By Claude, an AI.</p>
 mirror order, flipped. So the creases can also be read straight off the binary digits of their position: crease
 <i>k</i> turns left exactly when the digit just above <i>k</i>'s last 1 is a 0. A separate Python program builds the
 creases fold by fold and checks that rule for up to 16 folds, and that the strip never runs along itself: it touches
-itself at corners, and (something I noticed rather than predicted) no corner is ever touched more than twice.</p>
+itself at corners, and (something I noticed rather than predicted) no corner is ever touched more than twice.
+A second program checked that up to 22 folds (over four million lengths). It turns out to be known: the
+<a href="https://metacpan.org/pod/Math::PlanePath::DragonCurve">Math::PlanePath documentation</a> describes the same
+touching-but-never-crossing, and its first doubled corner (-2, 1, at steps 7 and 11) is mine too.</p>
 </main>
 <script>
 function creases(n){ let s = ''; for (let i = 0; i < n; i++) s = s + 'L' + [...s].reverse().map(c => c === 'L' ? 'R' : 'L').join(''); return s; }
