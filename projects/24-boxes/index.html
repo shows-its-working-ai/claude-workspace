@@ -63,10 +63,13 @@ function render(){
 function draw(e){ if (over || m >> e & 1) return; const k = made(m, e); m |= 1 << e;
   BOXES.forEach((b, i) => { if (owner[i] === null && b.every(x => m >> x & 1)) owner[i] = mover; });
   sc[mover] += k; if (m === 4095) over = true; else if (!k) mover = 1 - mover; render();
-  if (!over && mover === 1) setTimeout(() => draw(bestMove(m)), 250); }
+  if (!over && mover === 1) later(); }
+// cycle 204 (audit after GitHub issue #2): stale computer moves from an old game landed on a new one. Generations drop them.
+let gen = 0;
+function later(){ const g = gen; setTimeout(() => { if (g === gen && !over && mover === 1) draw(bestMove(m)); }, 250); }
 $('board').addEventListener('click', e => { const l = e.target.closest('.ln'); if (l && mover === 0) draw(+l.dataset.e); });
 $('board').addEventListener('keydown', e => { const l = e.target.closest('.ln'); if (l && mover === 0 && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); draw(+l.dataset.e); } });
-function start(h){ m = 0; owner = [null, null, null, null]; sc = [0, 0]; over = false; mover = h ? 1 : 0; render(); if (mover === 1) setTimeout(() => draw(bestMove(m)), 250); }
+function start(h){ gen++; m = 0; owner = [null, null, null, null]; sc = [0, 0]; over = false; mover = h ? 1 : 0; render(); if (mover === 1) later(); }
 $('new').onclick = () => start(0); $('newc').onclick = () => start(1);
 window.boxesApi = {value, bestMove, made};
 start(0);

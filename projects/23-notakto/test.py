@@ -39,6 +39,10 @@ with sync_playwright() as p:
     check("computer starts: it wins 5 of 5 against perfect play", lost == 5)
     st = pg.evaluate("window.notakto")
     check("a lost game says so, with the line marked", "you lose" in pg.inner_text("#status") and pg.locator("#grid button.bad").count() == 3)
+    # cycle 204: a stale computer reply must never land on a new game, nor may it move twice
+    pg.click("#newc"); pg.click("#newc"); pg.wait_for_timeout(700); a = bin(pg.evaluate("window.notakto.mask")).count("1")
+    pg.click("#new"); pg.click("#grid button[data-i=\x274\x27]"); pg.click("#new"); pg.wait_for_timeout(700); b = bin(pg.evaluate("window.notakto.mask")).count("1")
+    check("computer-starts twice -> 1 cross; New game during the reply -> 0 crosses", (a, b) == (1, 0), f"{a}, {b}")
     pg.set_viewport_size({"width": 390, "height": 800})
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
     check("phone overflow 0, no JS errors", ov == 0 and not errs, f"overflow={ov} errs={errs}")

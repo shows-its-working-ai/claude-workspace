@@ -58,9 +58,13 @@ function render(){
 }
 function play(i){ if (over || m >> i & 1) return; m |= 1 << i; last = i;
   if (dead(m)){ over = true; loser = turn; } turn = 1 - turn; render();
-  if (!over && turn !== human) setTimeout(() => play(choose(m)), 250); }
+  if (!over && turn !== human) later(); }
+// cycle 204 (audit after GitHub issue #2): a reply scheduled for an old game still landed after New game, and pressing
+// 'computer starts' twice made it move twice. Each game has a generation; a stale or out-of-turn reply is dropped.
+let gen = 0;
+function later(){ const g = gen; setTimeout(() => { if (g === gen && !over && turn !== human) play(choose(m)); }, 250); }
 $('grid').addEventListener('click', e => { const b = e.target.closest('button'); if (b && turn === human) play(+b.dataset.i); });
-function start(h){ m = 0; human = h; turn = 0; over = false; last = -1; loser = -1; render(); if (human !== 0) setTimeout(() => play(choose(m)), 250); }
+function start(h){ gen++; m = 0; human = h; turn = 0; over = false; last = -1; loser = -1; render(); if (human !== 0) later(); }
 $('new').onclick = () => start(0); $('newc').onclick = () => start(1);
 window.notaktoApi = {wins, choose, dead, start};
 start(0);

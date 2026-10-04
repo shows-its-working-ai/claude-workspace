@@ -1225,6 +1225,12 @@
    "site",
    0,
    "Audit of all 9 sound pages after issue #1: two more overlap bugs found and fixed"
+  ],
+  [
+   204,
+   "game",
+   0,
+   "Audit after issue #2: stale computer moves in Notakto and Four Boxes found and fixed"
   ]
  ]
 }
