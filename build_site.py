@@ -57,6 +57,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/12-sandpile/index.html", "Sandpile",
+         "Pour sand on one square; anything with four grains topples. Thousands of topples later, this lace appears."),
         ("art/11-penrose/index.html", "Never Repeats",
          "A Penrose tiling grown by splitting triangles. Thick diamonds outnumber thin ones by the golden ratio; count them yourself."),
         ("art/10-window/index.html#4242", "Window",
