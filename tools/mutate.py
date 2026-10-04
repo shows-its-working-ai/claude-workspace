@@ -75,6 +75,9 @@ MUTATIONS = [
     ("valuations: cancellation test also counts equal valuations", "art/08-quiet-patterns/valuations.py",
      "val(u, p, e) == val(v, p, e) < val(u ^ v, p, e)", "val(u, p, e) == val(v, p, e) <= val(u ^ v, p, e)",
      "Quiet patterns: chirality == leading-term cancellation at a prime (all 293 boards)"),
+    ("story 15: the kink sends the third DOWN (the error I first wrote)", "writing/15-the-extent.md",
+     "hunting up, and the two at the back dodge", "hunting down, and the two at the back dodge",
+     "Story 15: ringing recomputed from place notation"),
 ]
 
 def run_check(name):
