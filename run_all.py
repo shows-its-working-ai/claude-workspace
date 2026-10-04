@@ -71,6 +71,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Against: merged rhythms == Python, beats counted in recordings", "art/16-against", ["test.py"], ["ALL PASS"], False),
     ("Dragon curve: folds == bit rule, no edge reused, n <= 16", "art/17-dragon", ["dragon.py"], ["failures: 0", "n=16: 65536 edges, 36982 corners, 28555 visited twice, 0 more than twice", "PREDICTION HELD"], False),
     ("Dragon to 22 folds: never three times, no edge reused; both controls", "art/17-dragon", ["deeper.py"], ["AGREE", "SEEN", "n=22: 4194304 edges, 2197290 corners, twice 1997015 (0.9089), more than twice 0, edges reused 0"], False),
+    ("Truchet: two colours by corner parity, 1,000 tilings; wrong-model control seen", "art/20-truchet", ["truchet.py"], ["failures 0", "SEEN", "PREDICTION HELD"], False),
+    ("Two-Colour Tiles: every piece's pixel colour == region parity; tap turns one square", "art/20-truchet", ["test.py"], ["ALL PASS"], False),
     ("Ulam spiral: Euler's 40 primes, and they lie on one diagonal (start 41)", "art/19-spiral", ["spiral.py"], ["(1) 40 primes then 41^2 = 1681: True", "(2) positions on one line: True; that line is a diagonal: True", "primes up to 40,000: 4203", "PREDICTION HELD"], False),
     ("Prime Spiral: positions + primes == Python, Euler's 40 on a diagonal, 40 red pixels", "art/19-spiral", ["test.py"], ["ALL PASS"], False),
     ("Langton's ant: highway period 104, shift 2+2, from step 9,977", "art/18-ant", ["ant.py"], ["period 104, shift per period (-2, 2), highway from step 9977", "PREDICTION HELD"], False),

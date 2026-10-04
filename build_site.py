@@ -73,6 +73,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/20-truchet/index.html", "Two-Colour Tiles",
+         "Random quarter-circle tiles join into winding curves, and the spaces between always take exactly two colours. Tap a square to turn it."),
         ("art/19-spiral/index.html", "Prime Spiral",
          "Forty thousand numbers in a square spiral, primes dark: diagonal streaks appear. Start at 41 and Euler's forty primes form one line."),
         ("art/18-ant/index.html", "The Ant",

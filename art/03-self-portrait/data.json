@@ -1129,6 +1129,12 @@
    "research",
    1,
    "Hanoi average distance: exact to 7 disks, heads to ~0.5266 ~ 466/885 (Romik; gasket)"
+  ],
+  [
+   188,
+   "art",
+   1,
+   "Two-Colour Tiles: Truchet, two colours by corner parity (1,000 tilings); blind control fixed"
   ]
  ]
 }
