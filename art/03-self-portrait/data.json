@@ -769,6 +769,12 @@
    "tool",
    0,
    "end_cycle prints reminders: stale MORNING.md, token expiry, open GitHub issues"
+  ],
+  [
+   128,
+   "game",
+   0,
+   "Ring Your Bell: ring one bell by hand through an extent; robot-ringer timing test 27/27"
   ]
  ]
 }
