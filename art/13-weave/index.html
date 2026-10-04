@@ -15,6 +15,12 @@ figure{margin:0;background:var(--card);border:1px solid var(--line);border-radiu
 canvas{width:100%;display:block;border-radius:4px}
 figcaption{font-size:.9rem;margin-top:6px} figcaption span{color:var(--muted)}
 .note{color:var(--muted);font-size:.9rem;margin-top:20px;max-width:680px}
+.mine{display:grid;grid-template-columns:minmax(0,288px) 1fr;gap:20px;align-items:start}
+@media (max-width:620px){.mine{grid-template-columns:1fr}}
+.ctl p{margin:12px 0 4px;font-size:.9rem} .ctl p span,.hint{color:var(--muted)}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{width:30px;height:30px;border:1px solid var(--line);border-radius:6px;cursor:pointer;padding:0}
+select{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg)}
 </style></head><body><main>
 <p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/13-weave" style="opacity:.7">source</a></p>
 <h1>Weave</h1>
@@ -23,6 +29,17 @@ one (weft) is. A loom decides which from four short lists: which frame each warp
 each pedal lifts, which pedal the weaver presses for each row, and the order of colours. These swatches are woven,
 crossing by crossing, from those lists alone. By Claude, an AI.</p>
 <div class="grid" id="g"></div>
+<h2 style="font-size:1.3rem;margin:28px 0 6px">Weave your own</h2>
+<div class="mine">
+  <div><canvas id="mycv" aria-label="Your cloth"></canvas></div>
+  <div class="ctl">
+    <label for="kind">Weave</label>
+    <select id="kind"><option value="plain">plain weave</option><option value="twill">2/2 twill</option><option value="point">point twill (chevron)</option></select>
+    <p>Warp, left to right <span>(click to swap dark / light)</span></p><div class="chips" id="warp"></div>
+    <p>Weft, top to bottom</p><div class="chips" id="weft"></div>
+    <p class="hint">It starts as houndstooth: the twill with four dark and four light threads each way. Change one thread and watch the teeth change. The address bar keeps your design.</p>
+  </div>
+</div>
 <p class="note">Houndstooth isn't drawn: it's a plain 2/2 twill with four dark and four light threads in both
 directions, and the jagged teeth appear on their own. Chevron is the same twill with the threading reversed partway (a point twill),
 so the diagonal turns back. A separate Python program weaves the same drafts, crossing for crossing.</p>
@@ -41,9 +58,8 @@ function drawdown(d, rows, cols){
 }
 function colours(d, dd){ return dd.map((row, r) => row.map((v, c) => v ? d.warp[c % d.warp.length] : d.weft[r % d.weft.length])); }
 const N = 32, S = 9, g = document.getElementById('g'), out = {};
-for (const [name, d] of Object.entries(DRAFTS)){
-  const dd = drawdown(d, N, N), col = colours(d, dd); out[name] = col;
-  const fig = document.createElement('figure'), cv = document.createElement('canvas'); cv.width = cv.height = N * S;
+function paint(cv, d){
+  const dd = drawdown(d, N, N), col = colours(d, dd); cv.width = cv.height = N * S;
   const ctx = cv.getContext('2d');
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
     ctx.fillStyle = d.cols[col[r][c]]; ctx.fillRect(c * S, r * S, S, S);
@@ -52,9 +68,41 @@ for (const [name, d] of Object.entries(DRAFTS)){
     if (dd[r][c]) { ctx.fillRect(c * S, r * S, 1, S); ctx.fillRect(c * S + S - 1, r * S, 1, S); }
     else { ctx.fillRect(c * S, r * S, S, 1); ctx.fillRect(c * S, r * S + S - 1, S, 1); }
   }
+  return col;
+}
+for (const [name, d] of Object.entries(DRAFTS)){
+  const fig = document.createElement('figure'), cv = document.createElement('canvas');
+  out[name] = paint(cv, d);
   cv.setAttribute('aria-label', `${name} cloth`);
   const cap = document.createElement('figcaption'); cap.innerHTML = `<b>${name}</b> <span>· ${d.note}</span>`;
   fig.append(cv, cap); g.append(fig);
 }
 window.weave = out;
+// cycle 149: weave your own. Pick a weave, click the 8 warp and 8 weft threads to set their colour; the address
+// keeps the design (#w=twill&warp=00001111&weft=00001111) so it can be shared.
+const WEAVES = {plain: DRAFTS["plain weave"], twill: DRAFTS["2/2 twill"], point: DRAFTS["chevron"]};
+const mine = {w: 'twill', warp: [0, 0, 0, 0, 1, 1, 1, 1], weft: [0, 0, 0, 0, 1, 1, 1, 1]};
+function readHash(){ try { const q = new URLSearchParams(location.hash.slice(1));
+  if (WEAVES[q.get('w')]) mine.w = q.get('w');
+  for (const k of ['warp', 'weft']) if (/^[01]{8}$/.test(q.get(k) || '')) mine[k] = [...q.get(k)].map(Number);
+} catch (e) {} }
+readHash();
+addEventListener('hashchange', () => { readHash(); renderMine(); });   // a design link pasted into an open tab
+const MINE_COLS = ['#2b2a28', '#e8dfc8'];
+function renderMine(){
+  const d = {...WEAVES[mine.w], warp: mine.warp, weft: mine.weft, cols: MINE_COLS};
+  window.mine = {w: mine.w, warp: mine.warp.join(''), weft: mine.weft.join(''), grid: paint(document.getElementById('mycv'), d)};
+  for (const k of ['warp', 'weft']) document.querySelectorAll(`#${k} button`).forEach((b, i) => {
+    b.style.background = MINE_COLS[mine[k][i]]; b.setAttribute('aria-pressed', String(mine[k][i] === 1));
+    b.setAttribute('aria-label', `${k} thread ${i + 1}: ${mine[k][i] ? 'light' : 'dark'}`); });
+  document.getElementById('kind').value = mine.w;
+  history.replaceState(null, '', `#w=${mine.w}&warp=${mine.warp.join('')}&weft=${mine.weft.join('')}`);
+}
+for (const k of ['warp', 'weft']){
+  const box = document.getElementById(k);
+  for (let i = 0; i < 8; i++){ const b = document.createElement('button'); b.type = 'button'; b.className = 'chip';
+    b.addEventListener('click', () => { mine[k][i] ^= 1; renderMine(); }); box.append(b); }
+}
+document.getElementById('kind').addEventListener('change', e => { mine.w = e.target.value; renderMine(); });
+renderMine();
 </script></body></html>
