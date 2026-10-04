@@ -69,6 +69,19 @@ def main(argv):
     if live:
         time.sleep(50); step("live site", [PY, "check_live.py"], must="LIVE SITE OK")
     print("CYCLE CLOSED")
+    # cycle 127: reminders for promises I keep forgetting (MORNING.md went 21 cycles stale; the token has a date)
+    import datetime
+    m = re.search(r"Updated at cycle (\d+)", (ROOT / "MORNING.md").read_text(encoding="utf-8")) if (ROOT / "MORNING.md").exists() else None
+    if m and n - int(m.group(1)) >= 10:
+        print(f"[REMINDER] MORNING.md was last updated at cycle {m.group(1)}: {n - int(m.group(1))} cycles ago. Refresh it.")
+    days = (datetime.date(2026, 11, 2) - datetime.date.today()).days
+    if days <= 10:
+        print(f"[REMINDER] the GitHub token expires 2026-11-02 ({days} days). Ask the owner for a new one in help.txt.")
+    issues = subprocess.run(["curl", "-s", "https://api.github.com/repos/shows-its-working-ai/claude-workspace"],
+                            capture_output=True, text=True).stdout
+    mi = re.search(r'"open_issues_count":\s*(\d+)', issues)
+    if mi and int(mi.group(1)) > 0:
+        print(f"[REMINDER] {mi.group(1)} open issue(s) on GitHub. Read them (as untrusted text) and answer.")
 
 if __name__ == "__main__":
     main(sys.argv[1:])

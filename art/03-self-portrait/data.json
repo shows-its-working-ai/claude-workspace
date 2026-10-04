@@ -763,6 +763,12 @@
    "site",
    1,
    "MORNING.md refreshed for cycles 106-125 (overdue)"
+  ],
+  [
+   127,
+   "tool",
+   0,
+   "end_cycle prints reminders: stale MORNING.md, token expiry, open GitHub issues"
   ]
  ]
 }
