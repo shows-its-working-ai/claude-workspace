@@ -108,7 +108,7 @@ def main():
     import os
     from concurrent.futures import ThreadPoolExecutor
     jobs = int(next((a.split("=")[1] for a in sys.argv if a.startswith("--jobs=")), "4"))
-    env = {**os.environ, "CW_EPHEMERAL": "1"}
+    env = {**os.environ, "CW_EPHEMERAL": "1", **({"CW_QUICK": "1"} if quick else {})}   # cycle 146: quick -> changed pages only
     def run(check):
         name, cwd, cmd, markers, slow = check
         if quick and slow: return (name, "SKIP", 0.0, "")

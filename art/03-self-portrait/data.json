@@ -877,6 +877,12 @@
    "game",
    3,
    "Pegs: exact 'still solvable' hint, every start solvable (held); hung test bounded; interrupted mutants now recoverable"
+  ],
+  [
+   146,
+   "tool",
+   0,
+   "Quick gate times only changed pages (controls always); ~11 min close cut down"
   ]
  ]
 }

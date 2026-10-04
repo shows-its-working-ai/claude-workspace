@@ -11,6 +11,14 @@ args = sys.argv[1:]; limit = None
 if "--limit" in args: i = args.index("--limit"); limit = float(args[i + 1]); del args[i:i + 2]
 tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
 pages = args or [f for f in tracked if f.endswith(".html") and "template" not in f]
+# cycle 146: in the quick gate (CW_QUICK=1) only pages changed since the last commit are timed (plus the controls);
+# the full run times every page. 48 pages x 2 loads, alone, was most of an 11-minute gate.
+import os
+if not args and os.environ.get("CW_QUICK") == "1":
+    changed = subprocess.run(["git", "diff", "--name-only", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.split()
+    changed += subprocess.run(["git", "ls-files", "--others", "--exclude-standard"], cwd=ROOT, capture_output=True, text=True).stdout.split()
+    pages = [f for f in pages if f in changed] + [f for f in changed if f.endswith(".html") and f not in pages and "template" not in f]
+    print(f"quick mode: timing {len(pages)} changed page(s)")
 # cycle 142: Chrome's 'longtask' entries never arrived in the throwaway test profile, so under run_all this check
 # measured nothing (a mutant with a 3.9 s freeze survived). Measure directly instead, the same in any profile:
 #  - script blocking during load = time from document start to DOMContentLoaded (local files: parsing is ~instant);
@@ -51,7 +59,7 @@ with sync_playwright() as p:
     ctx.close()
 rows.sort(reverse=True)
 for worst, f, n in rows[:12]: print(f"{worst:8.0f} ms  ({n:2d} long tasks)  {f}")
-print(f"{len(rows)} pages; {sum(1 for r in rows if r[0] > 500)} block > 500 ms; worst {rows[0][0]:.0f} ms ({rows[0][1]})")
+print(f"{len(rows)} pages; {sum(1 for r in rows if r[0] > 500)} block > 500 ms; worst {rows[0][0]:.0f} ms ({rows[0][1]})" if rows else "0 pages to time")
 if limit is not None:
     bad = [f for w, f, _ in rows if w > limit]
     print("FREEZES OK" if not bad and controls_ok else f"FREEZES OVER {limit:.0f} ms (or controls failed): {bad}")
