@@ -43,6 +43,9 @@ with sync_playwright() as p:
         if want == "all": check(f"live run, robot on time: {r['onTime']}/{r['expected']} on time, mean error {r['meanErrMs']} ms",
                                 r["onTime"] == r["expected"] == 27 and r["extra"] == 0)
         else: check(f"live run, robot 100 ms late: 0 on time, {r['close']} near", r["onTime"] == 0 and r["close"] == 27, str(r))
+    # cycle 203: pressing Start again mid-run must not stack a second ringing (same bug as Blue Line, issue #1)
+    pg.click("#start"); pg.wait_for_timeout(200); pg.click("#start"); pg.wait_for_timeout(200); pg.click("#start")
+    check("pressing Start three times leaves exactly one ringing live", pg.evaluate("window.rybLive") == 1, str(pg.evaluate("window.rybLive")))
     pg.set_viewport_size({"width": 390, "height": 800})
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
     pg.set_viewport_size({"width": 900, "height": 900}); pg.screenshot(path=str(D / "look.png"), full_page=True)

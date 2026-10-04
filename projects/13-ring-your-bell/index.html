@@ -75,13 +75,17 @@ function strike(ac, t, bell, gain = 0.12){
     const o = ac.createOscillator(), g = ac.createGain();
     o.frequency.value = f0 * ratio; g.gain.setValueAtTime(0, t);
     g.gain.linearRampToValueAtTime(amp * gain, t + 0.004); g.gain.exponentialRampToValueAtTime(1e-4, t + dec);
-    o.connect(g).connect(ac.destination); o.start(t); o.stop(t + dec + 0.05);
+    o.connect(g).connect(bus && bus.context === ac ? bus : ac.destination); o.start(t); o.stop(t + dec + 0.05);
   }
 }
-let ac = null, run = null;
+// cycle 203 (found by auditing every sound page after GitHub issue #1): pressing Start again mid-run scheduled a
+// second full ringing on top of the first. Each run now plays through its own gain node, cut off when a new one starts.
+let ac = null, run = null, bus = null, live = 0;
 const $ = id => document.getElementById(id);
 function start(){
   ac = ac || new AudioContext(); ac.resume();
+  if (bus){ bus.gain.setValueAtTime(0, ac.currentTime); bus.disconnect(); live--; }
+  bus = ac.createGain(); bus.connect(ac.destination); live++; window.rybLive = live;
   const name = $('method').value, me = +$('bell').value, beat = +$('speed').value;
   const {rows: rs, strikes} = schedule(name, beat), t0 = ac.currentTime + 1.0;
   for (const s of strikes) if (s.bell !== me) strike(ac, t0 + s.t, s.bell);

@@ -68,7 +68,7 @@ function draw(){
 function hit(ac, t, low){
   const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = low ? 220 : 660;
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(low ? 0.3 : 0.2, t + 0.002); g.gain.exponentialRampToValueAtTime(1e-4, t + 0.09);
-  o.connect(g).connect(ac.destination); o.start(t); o.stop(t + 0.11);
+  o.connect(g).connect(bus && bus.context === ac ? bus : ac.destination); o.start(t); o.stop(t + 0.11);
 }
 const LOOP = 2.4;                                               // seconds per loop
 function schedule(ac, p, q, start, loops){                      // every hit of `loops` loops from `start`
@@ -76,10 +76,14 @@ function schedule(ac, p, q, start, loops){                      // every hit of 
     for (let i = 0; i < p; i++) hit(ac, t0 + i * LOOP / p, true);
     for (let j = 0; j < q; j++) hit(ac, t0 + j * LOOP / q, false); }
 }
-let ac = null, timer = null, nextLoop = 0, t0 = 0;
+// cycle 203 (audit after GitHub issue #1): Stop left up to a whole 2.4 s loop of beats already scheduled, so they rang on
+// after Stop and over a restart. Each play now goes through its own gain node, cut off on Stop.
+let ac = null, timer = null, nextLoop = 0, t0 = 0, bus = null, live = 0;
+const cut = () => { if (bus){ bus.gain.setValueAtTime(0, ac.currentTime); bus.disconnect(); bus = null; live--; } window.againstLive = live; };
 $('play').addEventListener('click', () => {
-  if (timer){ clearInterval(timer); timer = null; cur = -1; $('play').textContent = 'Play'; return draw(); }
-  ac = ac || new AudioContext(); ac.resume(); t0 = nextLoop = ac.currentTime + 0.05; $('play').textContent = 'Stop';
+  if (timer){ clearInterval(timer); timer = null; cut(); cur = -1; $('play').textContent = 'Play'; return draw(); }
+  ac = ac || new AudioContext(); ac.resume(); cut(); bus = ac.createGain(); bus.connect(ac.destination); live++; window.againstLive = live;
+  t0 = nextLoop = ac.currentTime + 0.05; $('play').textContent = 'Stop';
   timer = setInterval(() => {                                   // one loop ahead at a time; the hand follows the clock
     const p = +pS.value, q = +qS.value;
     if (ac.currentTime > nextLoop - 0.3){ schedule(ac, p, q, nextLoop, 1); nextLoop += LOOP; }

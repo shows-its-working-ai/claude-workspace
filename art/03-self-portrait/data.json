@@ -1219,6 +1219,12 @@
    "tool",
    0,
    "Button masher: 60 random actions on all 46 pages, 0 JS errors; control seen"
+  ],
+  [
+   203,
+   "site",
+   0,
+   "Audit of all 9 sound pages after issue #1: two more overlap bugs found and fixed"
   ]
  ]
 }

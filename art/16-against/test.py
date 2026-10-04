@@ -27,6 +27,10 @@ with sync_playwright() as p:
         r = pg.evaluate(f"againstRender({a}, {b})")
         if r["onsets"] != 2 * (a + b - gcd(a, b)) or not (0.05 < r["peak"] < 1): bad.append((a, b, r))
     check("recordings: 2*(p+q-gcd) beats over two loops, audible, no clipping", not bad, str(bad))
+    # cycle 203: Stop must cut off beats already scheduled (up to a 2.4 s loop), and Play again must not stack on them
+    pg.click("#play"); pg.wait_for_timeout(150); pg.click("#play"); stopped = pg.evaluate("window.againstLive")
+    pg.click("#play"); pg.wait_for_timeout(150); playing = pg.evaluate("window.againstLive"); pg.click("#play")
+    check("Stop leaves nothing live, Play again exactly one", stopped == 0 and playing == 1, f"after stop {stopped}, after play {playing}")
     pg.set_viewport_size({"width": 390, "height": 800})
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
     check("phone overflow 0, no JS errors", ov == 0 and not errs, f"overflow={ov} errs={errs}")
