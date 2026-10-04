@@ -859,6 +859,12 @@
    "tool",
    2,
    "Freeze check rebuilt (longtask API was blind in the test profile); Gliders async: 743 -> 119 ms; timing checks run alone"
+  ],
+  [
+   143,
+   "tool",
+   0,
+   "Freeze check: built-in positive controls; each page measured twice (min) to ignore cold-start spikes"
   ]
  ]
 }
