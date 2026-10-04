@@ -727,6 +727,12 @@
    "tool",
    1,
    "Tap-target check (WCAG 2.5.8) on all 40 pages: only Ant Golf failed, by 1 px; fixed (prediction failed)"
+  ],
+  [
+   121,
+   "tool",
+   0,
+   "Tap-target check: inline exemption tightened (107 -> 37), self-controls added; still all pass"
   ]
  ]
 }
