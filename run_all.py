@@ -53,6 +53,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Corner the Queen: safe squares == brute force, perfect replies, won by taps", "projects/17-queen", ["test.py"], ["ALL PASS"], False),
     ("Wythoff Grundy values: symmetric, zeros == golden pairs, g(x,0)=x", "art/14-wythoff", ["grundy.py"], ["PREDICTION HELD"], False),
     ("Wythoff's Garden: page Grundy values == Python", "art/14-wythoff", ["test.py"], ["ALL PASS"], False),
+    ("Euclidean rhythms: Bjorklund == even-floor pattern up to rotation (136 pairs)", "art/15-rhythm", ["euclid.py"], ["mismatches: 0", "PREDICTION HELD"], False),
+    ("Even Beats: page patterns == Python, 2k clicks per two loops", "art/15-rhythm", ["test.py"], ["ALL PASS"], False),
     ("Nim: perfect replies, XOR strategy wins by taps", "projects/16-nim", ["test.py"], ["ALL PASS"], False),
     ("Weave: drafts (plain = checkerboard, twill balanced, houndstooth period 8)", "art/13-weave", ["weave.py"], ["PREDICTION HELD", "checkerboard: True"], False),
     ("Weave: page == Python crossing for crossing", "art/13-weave", ["test.py"], ["ALL PASS"], False),
