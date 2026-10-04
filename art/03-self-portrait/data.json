@@ -931,6 +931,12 @@
    "tool",
    2,
    "tools/replace.py: exact edits that refuse to fail silently; cycle 153's missed rewording shipped"
+  ],
+  [
+   155,
+   "art",
+   0,
+   "Wythoff's Garden: Grundy values of Wythoff's game as a picture; predictions held"
   ]
  ]
 }

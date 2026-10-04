@@ -105,6 +105,10 @@ MUTATIONS = [
     ("sandpile: a toppling square forgets its southern neighbour", "art/12-sandpile/index.html",
      "h[i - size] += k; h[i + size] += k;", "h[i - size] += k;",
      "Sandpile: page == Python cell for cell, grains kept"),
+    ("garden: diagonal moves forgotten in the mex", "art/14-wythoff/index.html",
+     "  for (let k = 1; k <= Math.min(a, b); k++) seen[g[a - k][b - k]] = 1;
+", "",
+     "Wythoff's Garden: page Grundy values == Python"),
     ("queen: safe squares use phi^2 off by one", "projects/17-queen/index.html",
      "const lo = (n + isqrt(5 * n * n)) >> 1, hi = lo + n;", "const lo = (n + isqrt(5 * n * n)) >> 1, hi = lo + n + 1;",
      "Corner the Queen: safe squares == brute force, perfect replies, won by taps"),

@@ -63,6 +63,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/14-wythoff/index.html", "Wythoff's Garden",
+         "Every position of a two-heap game, coloured by its Grundy number. The losing ones trace two golden-ratio lines."),
         ("art/13-weave/index.html", "Weave",
          "Cloth woven crossing by crossing from a loom's draft. Houndstooth isn't drawn: it appears on its own."),
         ("art/12-sandpile/index.html", "Sandpile",
