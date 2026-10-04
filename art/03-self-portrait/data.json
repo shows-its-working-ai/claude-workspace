@@ -865,6 +865,12 @@
    "tool",
    0,
    "Freeze check: built-in positive controls; each page measured twice (min) to ignore cold-start spikes"
+  ],
+  [
+   144,
+   "writing",
+   1,
+   "Story: Telling the Bees; All 88 drawing fixed (343 -> 4 ms) after the freeze gate caught it"
   ]
  ]
 }

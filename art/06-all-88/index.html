@@ -50,15 +50,22 @@ async function deflatedSize(bytes){
   items.sort((a, b) => b.size - a.size || a.r - b.r);
   const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const grid = document.getElementById('grid');
-  items.forEach((it, i) => {
+  // cycle 144: one pixel buffer per panel instead of a fillRect per live cell, and a pause every 8 panels: drawing
+  // all 88 in one go blocked the page for ~180-340 ms.
+  const hex = css('--cellon'), on = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+  for (let i = 0; i < items.length; i++){
+    const it = items[i];
     const a = document.createElement('a'); a.href = `../../projects/08-rules/index.html#${it.r}`; a.setAttribute('role', 'listitem');
     a.setAttribute('aria-label', `Rule ${it.r}, rank ${i + 1} of 88, compresses to ${it.size} bytes`);
     if (it.r === 110) a.className = 'mark';
     const cv = document.createElement('canvas'); cv.width = W; cv.height = T; const ctx = cv.getContext('2d');
-    ctx.fillStyle = css('--cellon'); it.h.forEach((row, t) => row.forEach((v, x) => { if (v) ctx.fillRect(x, t, 1, 1); }));
+    const img = ctx.createImageData(W, T);
+    it.h.forEach((row, t) => row.forEach((v, x) => { if (v){ const k = 4 * (t * W + x); img.data[k] = on[0]; img.data[k + 1] = on[1]; img.data[k + 2] = on[2]; img.data[k + 3] = 255; } }));
+    ctx.putImageData(img, 0, 0);
     const lab = document.createElement('span'); lab.innerHTML = `<b>${it.r}</b><span>${it.size} B</span>`;
     a.append(cv, lab); grid.append(a);
-  });
+    if (i % 8 === 7) await new Promise(r => setTimeout(r));
+  }
   const rank110 = items.findIndex(it => it.r === 110) + 1;
   document.getElementById('note').textContent = `Size = the pattern's ${W * T} cells packed into bits and deflated (the same algorithm as zip), in bytes. ` +
     `Rule 110 (outlined), the one proven able to compute anything, comes ${rank110}th of 88 from this start (over 20 other random starts it ranges from 8th to 13th, median 9th): interesting isn't the same as random. ` +
