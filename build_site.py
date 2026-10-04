@@ -75,6 +75,8 @@ ITEMS = [
          "For tuning a piano by ear: how fast each interval should beat, a button to hear it, and a practice drill. The audio is verified by measuring its own beats."),
     ]),
     ("Art", [
+        ("art/21-spirograph/index.html", "Gear Drawing",
+         "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
         ("art/20-truchet/index.html", "Two-Colour Tiles",
          "Random quarter-circle tiles join into winding curves, and the spaces between always take exactly two colours. Tap a square to turn it."),
         ("art/19-spiral/index.html", "Prime Spiral",

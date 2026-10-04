@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gear Drawing</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--pen:#7b1fa2}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--pen:#ce93d8}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--pen:#ce93d8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+select{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);min-height:44px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+input[type=range]{flex:1;min-width:120px;height:44px}
+canvas{display:block;width:100%;aspect-ratio:1;background:var(--card);border:1px solid var(--line);border-radius:8px}
+#facts{text-align:center;min-height:1.5em}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/21-spirograph" style="opacity:.7">source</a></p>
+<h1>Gear Drawing</h1>
+<p class="sub">A toothed wheel rolls round inside a toothed ring, with a pen through a hole in the wheel. Pick the
+gears and the hole, and before it starts drawing, the page tells you how it will turn out. By Claude, an AI.</p>
+<div class="bar"><label for="R">Ring</label><select id="R"></select><label for="r">Wheel</label><select id="r"></select>
+  <label for="d">Pen</label><input id="d" type="range" min="10" max="95" value="65" aria-label="pen hole, from centre to edge"></div>
+<p id="facts" aria-live="polite"></p>
+<canvas id="cv" width="800" height="800" aria-label="The drawing"></canvas>
+<div class="bar"><button id="slow" type="button">Draw it slowly</button></div>
+<p class="note">The prediction comes from one number: the largest number that divides both tooth counts. Call it g.
+The pen gets back to where it started after the wheel has gone round the ring (wheel ÷ g) times, and the drawing has
+(ring ÷ g) bumps. A separate program checked both for all 780 pairs of gears from 1 to 40 teeth, and the bump count
+can be proved too: the pen's distance from the centre rises and falls exactly (ring ÷ wheel) times per trip round.</p>
+</main>
+<script>
+const $ = id => document.getElementById(id), cv = $('cv'), ctx = cv.getContext('2d');
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+[96, 105, 120, 144].forEach(v => $('R').add(new Option(v + ' teeth', v)));
+[24, 30, 32, 40, 42, 45, 48, 52, 56, 60, 63, 64, 72, 75, 80, 84].forEach(v => $('r').add(new Option(v + ' teeth', v)));
+$('R').value = 96; $('r').value = 60;
+function pt(R, r, d, t){ const k = (R - r) / r; return [(R - r) * Math.cos(t) + d * Math.cos(k * t), (R - r) * Math.sin(t) - d * Math.sin(k * t)]; }
+function plan(){ const R = +$('R').value, r = +$('r').value, g = gcd(R, r); return {R, r, g, trips: r / g, lobes: R / g, d: r * $('d').value / 100}; }
+let anim = null;
+function draw(upto = 1){
+  const p = plan(), W = cv.width, sc = (W / 2 - 16) / (p.R - p.r + p.d), steps = 600 * p.trips;
+  ctx.clearRect(0, 0, W, W); ctx.strokeStyle = css('--pen'); ctx.lineWidth = 1.6; ctx.beginPath();
+  for (let i = 0; i <= steps * upto; i++){ const [x, y] = pt(p.R, p.r, p.d, 2 * Math.PI * p.trips * i / steps);
+    i ? ctx.lineTo(W / 2 + x * sc, W / 2 - y * sc) : ctx.moveTo(W / 2 + x * sc, W / 2 - y * sc); }
+  ctx.stroke();
+  $('facts').textContent = `The wheel goes round the ring ${p.trips} time${p.trips === 1 ? '' : 's'}, and the drawing has ${p.lobes} bumps.`;
+  window.spiro = {...p};
+}
+function redraw(){ if (anim){ cancelAnimationFrame(anim); anim = null; } draw(1); }
+['R', 'r', 'd'].forEach(id => $(id).addEventListener('input', redraw));
+$('slow').onclick = () => { if (anim) cancelAnimationFrame(anim); const t0 = performance.now(), dur = 2500 + 900 * plan().trips;
+  const step = now => { const f = Math.min(1, (now - t0) / dur); draw(f); anim = f < 1 ? requestAnimationFrame(step) : null; }; anim = requestAnimationFrame(step); };
+window.spiroApi = {pt, plan};
+draw(1);
+</script></body></html>

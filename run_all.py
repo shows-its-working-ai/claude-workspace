@@ -73,6 +73,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Against: merged rhythms == Python, beats counted in recordings", "art/16-against", ["test.py"], ["ALL PASS"], False),
     ("Dragon curve: folds == bit rule, no edge reused, n <= 16", "art/17-dragon", ["dragon.py"], ["failures: 0", "n=16: 65536 edges, 36982 corners, 28555 visited twice, 0 more than twice", "PREDICTION HELD"], False),
     ("Dragon to 22 folds: never three times, no edge reused; both controls", "art/17-dragon", ["deeper.py"], ["AGREE", "SEEN", "n=22: 4194304 edges, 2197290 corners, twice 1997015 (0.9089), more than twice 0, edges reused 0"], False),
+    ("Spirograph: closes after r/g trips, R/g lobes (780 gear pairs) + counter control", "art/21-spirograph", ["spiro.py"], ["control: R=12 r=8 gives 3 lobes, R=12 r=5 gives 12 SEEN", "gear pairs checked: 780; failures: 0", "PREDICTION HELD"], False),
+    ("Gear Drawing: stated trips/bumps == r/g, R/g; bumps counted from page points; closes on time", "art/21-spirograph", ["test.py"], ["ALL PASS"], False),
     ("Truchet: two colours by corner parity, 1,000 tilings; wrong-model control seen", "art/20-truchet", ["truchet.py"], ["failures 0", "SEEN", "PREDICTION HELD"], False),
     ("Two-Colour Tiles: every piece's pixel colour == region parity; tap turns one square", "art/20-truchet", ["test.py"], ["ALL PASS"], False),
     ("Ulam spiral: Euler's 40 primes, and they lie on one diagonal (start 41)", "art/19-spiral", ["spiral.py"], ["(1) 40 primes then 41^2 = 1681: True", "(2) positions on one line: True; that line is a diagonal: True", "primes up to 40,000: 4203", "PREDICTION HELD"], False),
