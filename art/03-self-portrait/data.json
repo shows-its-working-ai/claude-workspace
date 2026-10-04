@@ -997,6 +997,12 @@
    "game",
    1,
    "Code Breaker: Mastermind; Knuth's rule <= 5 guesses on all 1,296 codes"
+  ],
+  [
+   166,
+   "game",
+   2,
+   "Code Breaker reverse mode: you hold the code; slips detected"
   ]
  ]
 }

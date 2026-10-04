@@ -7,7 +7,7 @@
   --c1:#c0392b;--c2:#a35c00;--c3:#2e7d32;--c4:#1565c0;--c5:#7b1fa2;--c6:#5d4037}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--hole:#2a2926}}
 :root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--hole:#2a2926}
-*{box-sizing:border-box}
+*{box-sizing:border-box} [hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
 main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
 a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
@@ -35,6 +35,16 @@ guesses. By Claude, an AI.</p>
 <p id="msg" aria-live="polite"></p>
 <div class="bar"><button id="new" type="button">New code</button><button id="watch" type="button">Watch the computer break this code</button></div>
 <div id="log" aria-live="polite"></div>
+<h2 style="font-size:1.25rem;margin:28px 0 6px">The other way round</h2>
+<p>Think of a code (write it down so you don't drift). I'll guess; you tell me how I did.</p>
+<div id="rboard"></div>
+<div class="bar" id="rask"><span>My guess:</span><span id="rguess"></span></div>
+<div class="bar" id="rform">
+  <label for="rb">Right place</label><select id="rb"></select>
+  <label for="rw">Right colour, wrong place</label><select id="rw"></select>
+  <button id="rgo" type="button">Tell me</button></div>
+<p id="rmsg" aria-live="polite"></p>
+<div class="bar"><button id="rnew" type="button">Start again</button></div>
 <p class="note">The computer uses Donald Knuth's 1977 rule: of all 1,296 possible guesses, pick the one whose
 <i>worst</i> answer leaves the fewest codes still possible (preferring a guess that could itself be the code). A
 separate Python program found that, with this rule, every one of the 1,296 codes is broken in at most five guesses
@@ -94,6 +104,32 @@ $('watch').onclick = () => {
   $('log').innerHTML = steps.map((s, i) => `<div class="row"><span style="width:1.6em">${i + 1}.</span>${[...s.guess].map(c => peg(c)).join('')}${fbText(s.fb)}<span class="fb">→ ${s.left} possible code${s.left === 1 ? '' : 's'} left</span></div>`).join('')
     + `<p>The computer needed ${steps.length}.</p>`;
 };
-window.cbApi = {score, knuth, newGame, CODES};
-newGame();
+// ---- the other way round (cycle 166): the player holds the code and scores my guesses ----
+function nextGuess(cands){ if (cands.length === 1296) return '1122';
+  const key = cands.join(); if (!MEMO.has(key)) MEMO.set(key, best(cands)); return MEMO.get(key); }
+for (let i = 0; i <= 4; i++){ $('rb').add(new Option(i, i)); $('rw').add(new Option(i, i)); }
+let rc, rg, rrows, rdone;
+function rRender(){
+  $('rboard').innerHTML = rrows.map((r, i) => `<div class="row"><span style="width:1.6em">${i + 1}.</span>${[...r.g].map(c => peg(c)).join('')}${fbText(r.fb)}</div>`).join('');
+  $('rguess').innerHTML = rdone ? '' : [...rg].map(c => peg(c)).join('');
+  $('rask').hidden = $('rform').hidden = rdone;
+  window.cbRev = {guess: rdone ? null : rg, left: rc.length, rows: rrows.length, done: rdone, msg: $('rmsg').textContent};
+}
+function rNew(){ rc = CODES; rg = '1122'; rrows = []; rdone = false; $('rmsg').textContent = ''; $('rb').value = 0; $('rw').value = 0; rRender(); }
+$('rgo').onclick = () => {
+  const fb = [+$('rb').value, +$('rw').value];
+  if (fb[0] + fb[1] > 4 || (fb[0] === 3 && fb[1] === 1)){
+    $('rmsg').textContent = fb[0] + fb[1] > 4 ? 'That adds up to more than four pegs.' : 'Three in the right place and one in the wrong place can\'t happen: the last peg would have nowhere else to go.';
+    return rRender();
+  }
+  rrows.push({g: rg, fb}); $('rmsg').textContent = '';
+  if (fb[0] === 4){ rdone = true; $('rmsg').textContent = `Got it in ${rrows.length}.`; return rRender(); }
+  rc = rc.filter(s => score(rg, s).join() === fb.join());
+  if (!rc.length){ rdone = true; $('rmsg').textContent = 'No code fits all of those answers, so one of them must have been a slip. Check your code against my guesses and start again.'; return rRender(); }
+  rg = nextGuess(rc); $('rb').value = 0; $('rw').value = 0;
+  $('rmsg').textContent = `${rc.length} code${rc.length === 1 ? '' : 's'} still possible.`; rRender();
+};
+$('rnew').onclick = rNew;
+window.cbApi = {score, knuth, newGame, CODES, rNew};
+newGame(); rNew();
 </script></body></html>
