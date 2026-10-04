@@ -847,6 +847,12 @@
    "art",
    0,
    "Sandpile settles in a Web Worker: page stays responsive (worst frame gap 4 ms at 2^17)"
+  ],
+  [
+   141,
+   "tool",
+   1,
+   "Freeze check across all pages: Quiet Patterns froze 3.9 s, now 0 (direct symmetric solve); gate at 1 s"
   ]
  ]
 }

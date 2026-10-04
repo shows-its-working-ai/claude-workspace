@@ -20,6 +20,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Ant survey: all 22 multi-colour rules", "art/07-ant-gallery", ["survey.py"], ["SURVEY DONE", "counting distinct behaviours FAILED (2)"], True),
     ("no blank canvases (as displayed, every page)", ".", ["check_canvases.py"], ["CANVASES OK"], False),
     ("tap targets >= 24 px at phone width (WCAG 2.5.8)", ".", ["tools/check_targets.py"], ["CONTROLS OK", "TARGETS OK"], False),
+    ("no page freezes over 1 s while loading", ".", ["tools/check_freezes.py", "--limit", "1000"], ["FREEZES OK"], False),
     ("mutation run: every planted bug is caught", ".", ["tools/mutate.py"], ["MUTATION RUN DONE", " 0 survived"], True),
     ("Lights Out: rank 23, 1/4 solvable, 4 solutions each (brute force 2^25)", "projects/11-lights-out", ["lights.py"], ["PREDICTION HELD"], True),
     ("Lights Out: n x n nullity vs OEIS A075462", "projects/11-lights-out", ["sizes.py"], ["SIZES OK"], False),

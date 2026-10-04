@@ -55,6 +55,20 @@ function kernel(n){                                  // GF(2) elimination on Big
   });
   return {cols, kern};
 }
+function symmetricBasis(n, cols){                    // quiet patterns constant on each D4 orbit of cells
+  const piv = new Map(), basis = [], seen = new Set();
+  for (let i = 0; i < n * n; i++){
+    if (seen.has(i)) continue;
+    const r = Math.floor(i / n), c = i % n, orb = new Set();
+    for (const [a, b] of [[r, c], [c, n-1-r], [n-1-r, n-1-c], [n-1-c, r], [r, n-1-c], [n-1-r, c], [c, r], [n-1-c, n-1-r]]) orb.add(a * n + b);
+    let x = 0n, v = 0n;
+    for (const j of orb){ seen.add(j); x |= 1n << BigInt(j); v ^= cols[j]; }
+    let pr = x;
+    while (v){ const h = hb(v); if (piv.has(h)){ const [bv, bp] = piv.get(h); v ^= bv; pr ^= bp; } else { piv.set(h, [v, pr]); break; } }
+    if (!v) basis.push(pr);
+  }
+  return basis;
+}
 function toggles(cols, x){ let b = 0n; cols.forEach((v, i) => { if (x >> BigInt(i) & 1n) b ^= v; }); return b; }
 function images(n, x){
   const cells = []; for (let i = 0; i < n * n; i++) if (x >> BigInt(i) & 1n) cells.push([Math.floor(i / n), i % n]);
@@ -67,9 +81,12 @@ const result = {}; let allQuiet = true, total = 0;
 const out = document.getElementById('out');
 for (const n of SIZES){
   const {cols, kern} = kernel(n), k = kern.length, sym = [];
-  for (let m = 1; m < 1 << k; m++){
-    let x = 0n; for (let j = 0; j < k; j++) if (m >> j & 1) x ^= kern[j];
-    if (images(n, x).every(y => y === x)) sym.push(x);
+  // cycle 141: no longer tries all 2^k quiet patterns (65,535 for 19x19, a 3.9 s freeze). Solve directly among
+  // patterns that are constant on symmetry orbits (the cycle-104/106 method), then list that small space.
+  const sb = symmetricBasis(n, cols), d = sb.length;
+  for (let m = 1; m < 1 << d; m++){
+    let x = 0n; for (let j = 0; j < d; j++) if (m >> j & 1) x ^= sb[j];
+    if (images(n, x).every(y => y === x)) sym.push(x);                      // still verified, one by one
   }
   result[n] = {nullity: k, symmetric: sym.map(String)};
   const h = document.createElement('h2'); h.textContent = `${n} × ${n}: ${2 ** k - 1} quiet patterns, ${sym.length} perfectly symmetric`;
