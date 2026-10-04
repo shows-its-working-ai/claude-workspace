@@ -26,6 +26,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Quiet patterns: no chiral ones on a bounded board (n <= 100), torus control finds them", "art/08-quiet-patterns", ["chiral.py"], ["cross-checks OK", "chiral sizes: none", "TORUS CONTROL OK"], False),
     ("Quiet patterns on rectangles: half-turn-only ones exist (3x5 first), torus control", "art/08-quiet-patterns", ["rect.py"], ["half-turn-only (chiral) rectangles: [(3, 5, 3, 2), (3, 17,", "TORUS CONTROL OK"], False),
     ("Quiet patterns: polynomial model == solver on all 820 boards up to 40x40", "art/08-quiet-patterns", ["algebra.py"], ["q_k(T_k) == J_k verified", "820 boards compared; mismatches: none", "PREDICTION HELD"], False),
+    ("Quiet patterns: chirality == leading-term cancellation at a prime (all 293 boards)", "art/08-quiet-patterns", ["valuations.py"], ["293 boards", "VALUATIONS OK"], False),
     ("site links + back links", ".", ["check_site.py"], ["ALL LINKS OK"], False),
     ("contrast (WCAG, both themes)", ".", ["tools/contrast.py", "."], ["0 failing pairs"], False),
     ("keyboard: Confluence + Beat Rates", ".", ["check_keyboard.py"], ["ALL PASS"], False),

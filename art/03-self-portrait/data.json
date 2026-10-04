@@ -649,6 +649,12 @@
    "research",
    0,
    "Polynomial model predicts symmetric quiet-pattern dims on all 820 boards (held); square case reduced, not proved"
+  ],
+  [
+   108,
+   "research",
+   0,
+   "Chirality = leading-term cancellation at a prime; u^2=v^2=uv=0 on all 293 boards"
   ]
  ]
 }

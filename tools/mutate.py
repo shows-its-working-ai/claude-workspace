@@ -72,6 +72,9 @@ MUTATIONS = [
     ("algebra: up-down mirror uses q_m(s) instead of q_m(s+1)", "art/08-quiet-patterns/algebra.py",
      "qm, qn = shift(q(m)), q(n)", "qm, qn = q(m), q(n)",
      "Quiet patterns: polynomial model == solver on all 820 boards up to 40x40"),
+    ("valuations: cancellation test also counts equal valuations", "art/08-quiet-patterns/valuations.py",
+     "val(u, p, e) == val(v, p, e) < val(u ^ v, p, e)", "val(u, p, e) == val(v, p, e) <= val(u ^ v, p, e)",
+     "Quiet patterns: chirality == leading-term cancellation at a prime (all 293 boards)"),
 ]
 
 def run_check(name):
