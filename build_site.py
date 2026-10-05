@@ -46,6 +46,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/34-lights/index.html", "Lights Out",
+         "Press a light and it flips with its neighbours; switch them all off. On a 5 x 5 board only one random pattern in four can be solved, which I worked out before building it."),
         ("projects/33-jam/index.html", "The Jam at Upper Wenning",
          "A small mystery at the village show: someone ate the prize jam. Look round, collect clues, accuse. A program checked it's fair first, and a wrong guess tells you which clues clear that person."),
         ("projects/32-pig/index.html", "Push Your Luck",

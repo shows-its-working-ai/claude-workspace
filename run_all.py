@@ -106,6 +106,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Rain on a Window: draws; real Pause click freezes pixels (playing control differs); Play resumes; slider changes drops; reduced motion; phone", "art/33-rain", ["test.py"], ["ALL PASS"], False),
     ("Upper Wenning map: post office below the hall, Hill Lane a 15-min walk at the scale bar, captions true to the stories, clicks/keyboard, links exist", "art/34-wenning", ["test.py"], ["ALL PASS"], False),
     ("Moiré: band spacing MEASURED from drawn pixels within 10% of a/(2 sin(t/2)) at 4/6/10 deg; flat at 0 deg control; slider + real drag; phone", "art/35-moire", ["test.py"], ["ALL PASS"], False),
+    ("Lights Out: GF(2) rank 23 (one board in four), 3 quiet patterns found by light-chasing, 4,000 random boards solved and checked; corner control", "projects/34-lights", ["lights.py"], ["VERDICT: lights check out"], False),
+    ("Lights Out page: real clicks == masks on 25 cells; 200 new boards solvable by an independent parity test; solution by clicks; hint; corner control", "projects/34-lights", ["test.py"], ["ALL PASS"], False),
     ("Mirror Sketch: real mouse/touch strokes are n-fold + mirror symmetric in pixels; mirror-off control; undo, save, no network", "art/31-kaleido", ["test.py"], ["ALL PASS"], False),
     ("Wind Chimes: page audio FFT'd (each strike its note), strike rate grows with wind, deterministic, one bus, can't hear", "art/30-chimes", ["test.py"], ["ALL PASS"], False),
     ("A Day in a Minute: sky brightness + stars from pixels, deterministic per seed, pause, slider keys, reduced motion", "art/29-day", ["test.py"], ["ALL PASS"], False),

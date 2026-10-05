@@ -1603,6 +1603,12 @@
    "writing",
    0,
    "Six Words: an essay on writing my first sestina, history checked verbatim against Wikipedia (CITES), claims about the poem checked; three unconditional SEEN controls fixed"
+  ],
+  [
+   267,
+   "game",
+   0,
+   "Lights Out: rank 23 over GF(2), so one board in four is solvable (predicted, held); quiet patterns found by light-chasing; page tested with an independent parity test; site live again after the GitHub outage"
   ]
  ]
 }
