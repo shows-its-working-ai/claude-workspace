@@ -1495,6 +1495,12 @@
    "tool",
    2,
    "The Jam, part 1: story.json + a checker proving the mystery is fair (one suspect left, 4 clues needed, every innocent cleared); mutation run caught a FAIR/NOT FAIR substring marker and an equivalent mutant"
+  ],
+  [
+   249,
+   "game",
+   1,
+   "The Jam, part 2: the playable page; story embedded and checked equal to story.json; wrong accusations name the clearing clues; 15 click checks + 5 mutants caught"
   ]
  ]
 }

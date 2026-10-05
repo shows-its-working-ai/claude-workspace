@@ -1,32 +1,116 @@
 {
-  "title": "The Jam at Upper Wenning",
-  "suspects": ["Mrs Adeyemi", "Mr Pask", "Bernard", "Lorna", "Hen"],
-  "culprit": "Mr Pask",
-  "default_window": [750, 820],
-  "places": {
-    "hall": {"name": "The village hall", "exits": ["committee", "kitchen", "stage", "carpark", "cloakroom"],
-             "text": "Trestle tables, marrows, the smell of tea. At twenty to two the judges unlocked the committee room to judge the jams, and found Mrs Okafor's prize damson jar scraped clean."},
-    "committee": {"name": "The committee room door", "exits": ["hall"], "clue": "keys",
-                  "text": "A card is pinned to the door in Hen's handwriting."},
-    "kitchen": {"name": "The kitchen", "exits": ["hall"], "clue": "rota",
-                "text": "The tea urn rota is taped to the fridge."},
-    "stage": {"name": "The stage", "exits": ["hall"], "person": "Lorna", "clue": "photo",
-              "text": "Lorna is sorting entry cards."},
-    "carpark": {"name": "The car park", "exits": ["hall"], "person": "the vicar", "clue": "walk",
-                "text": "The vicar is loading folding chairs into a hatchback."},
-    "cloakroom": {"name": "The cloakroom", "exits": ["hall"], "clue": "spoon",
-                  "text": "Coats on pegs. A tweed jacket has something in its pocket."}
+ "title": "The Jam at Upper Wenning",
+ "suspects": [
+  "Mrs Adeyemi",
+  "Mr Pask",
+  "Bernard",
+  "Lorna",
+  "Hen"
+ ],
+ "culprit": "Mr Pask",
+ "default_window": [
+  750,
+  820
+ ],
+ "places": {
+  "hall": {
+   "name": "The village hall",
+   "exits": [
+    "committee",
+    "kitchen",
+    "stage",
+    "carpark",
+    "cloakroom"
+   ],
+   "text": "Trestle tables, marrows, the smell of tea. At twenty to two the judges unlocked the committee room to judge the jams, and found Mrs Okafor's prize damson jar scraped clean."
   },
-  "clues": {
-    "keys": {"title": "Who has a key", "text": "KEYS TO THIS ROOM: Mr Pask, Hen, Bernard. NOBODY ELSE. (The jams were locked in here at half past twelve.)",
-             "access": ["Mr Pask", "Hen", "Bernard"]},
-    "rota": {"title": "The urn rota", "text": "1:00 to 1:45, tea urn: BERNARD. (Bernard never leaves the urn. Ask anyone.)",
-             "busy": {"Bernard": [780, 825]}},
-    "photo": {"title": "Lorna's photo", "text": "Lorna shows you a photo on her phone of the jam table, taken through the committee room window at 1:15. The damson jar is full.",
-              "window_start": 795},
-    "walk": {"title": "The vicar's walk", "text": "The vicar says Hen was at the post office until half past one and then walked back with him, arriving at a quarter to two.",
-             "busy": {"Hen": [720, 825]}},
-    "spoon": {"title": "A sticky teaspoon", "text": "In the pocket of the tweed jacket (Mr Pask's) is a teaspoon with damson on it. Mr Pask says anyone could have put it there. He's right: on its own, it proves nothing.",
-              "points_at": "Mr Pask"}
+  "committee": {
+   "name": "The committee room door",
+   "exits": [
+    "hall"
+   ],
+   "clue": "keys",
+   "text": "A card is pinned to the door in Hen's handwriting.",
+   "action": "Read the card"
+  },
+  "kitchen": {
+   "name": "The kitchen",
+   "exits": [
+    "hall"
+   ],
+   "clue": "rota",
+   "text": "The tea urn rota is taped to the fridge.",
+   "action": "Read the rota"
+  },
+  "stage": {
+   "name": "The stage",
+   "exits": [
+    "hall"
+   ],
+   "person": "Lorna",
+   "clue": "photo",
+   "text": "Lorna is sorting entry cards.",
+   "action": "Talk to Lorna"
+  },
+  "carpark": {
+   "name": "The car park",
+   "exits": [
+    "hall"
+   ],
+   "person": "the vicar",
+   "clue": "walk",
+   "text": "The vicar is loading folding chairs into a hatchback.",
+   "action": "Talk to the vicar"
+  },
+  "cloakroom": {
+   "name": "The cloakroom",
+   "exits": [
+    "hall"
+   ],
+   "clue": "spoon",
+   "text": "Coats on pegs. A tweed jacket has something in its pocket.",
+   "action": "Check the jacket pocket"
   }
+ },
+ "clues": {
+  "keys": {
+   "title": "Who has a key",
+   "text": "KEYS TO THIS ROOM: Mr Pask, Hen, Bernard. NOBODY ELSE. (The jams were locked in here at half past twelve.)",
+   "access": [
+    "Mr Pask",
+    "Hen",
+    "Bernard"
+   ]
+  },
+  "rota": {
+   "title": "The urn rota",
+   "text": "1:00 to 1:45, tea urn: BERNARD. (Bernard never leaves the urn. Ask anyone.)",
+   "busy": {
+    "Bernard": [
+     780,
+     825
+    ]
+   }
+  },
+  "photo": {
+   "title": "Lorna's photo",
+   "text": "Lorna shows you a photo on her phone of the jam table, taken through the committee room window at 1:15. The damson jar is full.",
+   "window_start": 795
+  },
+  "walk": {
+   "title": "The vicar's walk",
+   "text": "The vicar says Hen was at the post office until half past one and then walked back with him, arriving at a quarter to two.",
+   "busy": {
+    "Hen": [
+     720,
+     825
+    ]
+   }
+  },
+  "spoon": {
+   "title": "A sticky teaspoon",
+   "text": "In the pocket of the tweed jacket (Mr Pask's) is a teaspoon with damson on it. Mr Pask says anyone could have put it there. He's right: on its own, it proves nothing.",
+   "points_at": "Mr Pask"
+  }
+ }
 }

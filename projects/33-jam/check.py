@@ -56,5 +56,9 @@ lax = json.loads(json.dumps(story)); del lax["clues"]["rota"]["busy"]
 print(f"control: a story where nothing clears Bernard passes (d): {audit(lax)[3]} {'SEEN' if not audit(lax)[3] else 'NOT SEEN'}")
 # cycle 248: this printed "FAIR" / "NOT FAIR" and the gate looked for "FAIR", which both contain; a Lorna-has-a-key
 # mutant survived. The verdict is now a distinct word and an unfair story exits 1.
-ok = a and b and c and d and never and not audit(broken)[1] and not audit(lax)[3]   # a blind control fails too ("NOT SEEN" contains "SEEN")
+import re
+emb = re.search(r'<script type="application/json" id="story">(.*?)</script>', (D / "index.html").read_text(encoding="utf-8"), re.S)
+same = bool(emb) and json.loads(emb.group(1).replace(r"<\/", "</")) == story
+print(f"the page's embedded story == story.json: {same}")
+ok = same and a and b and c and d and never and not audit(broken)[1] and not audit(lax)[3]   # a blind control fails too ("NOT SEEN" contains "SEEN")
 print("VERDICT: puzzle is fair" if ok else "VERDICT: UNFAIR"); sys.exit(0 if ok else 1)

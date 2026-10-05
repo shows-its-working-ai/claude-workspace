@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Jam at Upper Wenning</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--hot:#a3221c;--ok:#2e7d32;--jam:#6d2a5a}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--hot:#ff8a80;--ok:#81c784;--jam:#e3a3d4}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--hot:#ff8a80;--ok:#81c784;--jam:#e3a3d4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 Georgia,serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} h2{font-size:1.1rem;margin:0 0 6px;font-family:system-ui,sans-serif}
+.sub{color:var(--muted);margin:0 0 16px}
+button{font:15px/1.3 system-ui,sans-serif;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+button:disabled{opacity:.45;cursor:default}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#act{border-color:var(--jam);color:var(--jam);font-weight:600}
+#notes li{margin:6px 0} #notes .t{font-weight:700;font-family:system-ui,sans-serif;font-size:.9rem;color:var(--jam)}
+#notes:empty::before{content:"Nothing yet.";color:var(--muted)}
+#verdict{min-height:1.5em;font-weight:600}
+#verdict.no{color:var(--hot)} #verdict.yes{color:var(--ok)}
+.note{color:var(--muted);font-size:.9rem;margin-top:18px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font:.9rem system-ui,sans-serif"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/33-jam" style="opacity:.7">source</a></p>
+<h1>The Jam at Upper Wenning</h1>
+<p class="sub">A small mystery at the village show. Walk round, find out what you can, and name who ate the jam. You can
+accuse whenever you like; if you're wrong, you'll be told why. By Claude, an AI.</p>
+<div class="card"><h2 id="place"></h2><p id="text"></p><p id="said" style="font-style:italic"></p>
+<div class="row" id="moves"></div></div>
+<div class="card"><h2>Your notebook <span id="count" style="font-weight:400;color:var(--muted)"></span></h2><ul id="notes"></ul></div>
+<div class="card"><h2>Accuse someone</h2><div class="row" id="who"></div><p id="verdict" aria-live="polite"></p>
+<div class="row"><button id="again" type="button">Start again</button></div></div>
+<p class="note">Before this page existed, a program checked the story is fair: with every clue, exactly one person
+could have done it; no two clues are enough on their own; and every innocent person is cleared by something you can
+find. This page works out who is still possible the same way, from the same story file.</p>
+</main>
+<script type="application/json" id="story">@@STORY@@</script>
+<script>
+const S = JSON.parse(document.getElementById('story').textContent), $ = id => document.getElementById(id);
+const CLUES = Object.keys(S.clues).sort();
+const hhmm = m => `${(Math.floor(m / 60) + 11) % 12 + 1}:${String(m % 60).padStart(2, '0')}`;
+/* who is still possible, given a list of found clues: the same rule as check.py */
+function possible(found){
+  let [lo, hi] = S.default_window, access = null;
+  for (const k of found){ const c = S.clues[k]; if (c.window_start !== undefined) lo = Math.max(lo, c.window_start); if (c.access) access = c.access; }
+  return S.suspects.filter(p => {
+    if (access && !access.includes(p)) return false;
+    let free = [[lo, hi]];
+    for (const k of found){ const b = (S.clues[k].busy || {})[p]; if (!b) continue;
+      free = free.flatMap(([s, e]) => [[s, Math.min(e, b[0])], [Math.max(s, b[1]), e]]).filter(([s, e]) => s < e); }
+    return free.length > 0;
+  });
+}
+function combos(xs, r){ if (!r) return [[]]; const out = []; xs.forEach((x, i) => combos(xs.slice(i + 1), r - 1).forEach(c => out.push([x, ...c]))); return out; }
+/* the smallest set of clues that clears p (the first in check.py's order) */
+function clearing(p){ for (let r = 1; r <= CLUES.length; r++) for (const c of combos(CLUES, r)) if (!possible(c).includes(p)) return c; return null; }
+const orList = xs => xs.length > 1 ? xs.slice(0, -1).join(', ') + ' or ' + xs[xs.length - 1] : xs[0];
+const placeOf = k => Object.keys(S.places).find(q => S.places[q].clue === k);
+let at, found, solved;
+function draw(){
+  const P = S.places[at];
+  $('place').textContent = P.name; $('text').textContent = P.text;
+  $('said').textContent = P.clue && found.includes(P.clue) ? S.clues[P.clue].text : '';
+  const m = $('moves'); m.innerHTML = '';
+  if (P.clue && !found.includes(P.clue)){ const b = document.createElement('button'); b.id = 'act'; b.type = 'button'; b.textContent = P.action; b.onclick = () => look(P.clue); m.append(b); }
+  for (const e of P.exits){ const b = document.createElement('button'); b.type = 'button'; b.dataset.go = e; b.textContent = e === 'hall' ? 'Back to the hall' : `Go to ${S.places[e].name.replace(/^The /, 'the ')}`; b.onclick = () => go(e); m.append(b); }
+  $('notes').innerHTML = '';
+  for (const k of found){ const li = document.createElement('li'); li.dataset.clue = k; li.innerHTML = `<span class="t"></span><br>`; li.firstChild.textContent = S.clues[k].title; li.append(S.clues[k].text); $('notes').append(li); }
+  $('count').textContent = `(${found.length} of ${CLUES.length} clues)`;
+  for (const b of $('who').children) b.disabled = solved;
+  window.jam = {at, found: [...found], solved, possible: possible(found)};
+}
+function go(e){ at = e; draw(); }
+function look(k){ if (!found.includes(k)) found.push(k); draw(); }
+function accuse(p){
+  if (solved) return; const v = $('verdict');
+  if (p !== S.culprit){
+    const c = clearing(p), names = c.map(k => `“${S.clues[k].title}”` + (found.includes(k) ? '' : ` (not found yet: try ${S.places[placeOf(k)].name.replace(/^The /, 'the ')})`));
+    v.className = 'no'; v.textContent = `It wasn't ${p}. ${names.length > 1 ? 'Put together, ' + names.join(' and ') + ' clear them.' : names[0] + ' clears them.'}`;
+  } else {
+    const left = possible(found);
+    if (left.length === 1){ solved = true; v.className = 'yes'; v.textContent = `It was ${p}, and you can prove it with ${found.length} clue${found.length === 1 ? '' : 's'}. ${p} admits it was too good to wait for the judging.`; }
+    else { v.className = 'no'; v.textContent = `You might be right, but you can't prove it yet. ${orList(left.filter(q => q !== p))} could still have done it.`; }
+  }
+  draw();
+}
+function reset(){ at = 'hall'; found = []; solved = false; $('verdict').textContent = ''; $('verdict').className = ''; draw(); }
+for (const p of S.suspects){ const b = document.createElement('button'); b.type = 'button'; b.dataset.who = p; b.textContent = p; b.onclick = () => accuse(p); $('who').append(b); }
+$('again').onclick = reset; reset();
+</script></body></html>
