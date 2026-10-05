@@ -1313,8 +1313,14 @@
   [
    218,
    "writing",
-   1,
+   0,
    "Full mutation run 96/96; mutate.py rejects flags/empty filters; essay 37 A Year Off"
+  ],
+  [
+   219,
+   "writing",
+   0,
+   "Fix 218's caught count (self-noticed = 0); Three Small Poems"
   ]
  ]
 }
