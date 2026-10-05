@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Collatz Coral</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--ink:#1f1e1b;--hot:#c62828}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--ink:#ebe9e3;--hot:#ff8a80}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--ink:#ebe9e3;--hot:#ff8a80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+button[aria-pressed=true]{border-color:var(--fg);font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+canvas{display:block;width:100%;aspect-ratio:1;background:var(--card);border:1px solid var(--line);border-radius:8px}
+#cap{color:var(--muted);text-align:center;min-height:1.5em}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/23-collatz" style="opacity:.7">source</a></p>
+<h1>Collatz Coral</h1>
+<p class="sub">Take a number. If it's even, halve it; if it's odd, triple it and add one. Repeat, and every number
+anyone has tried ends at 1. Here is each number's path drawn backwards from 1, bending one way at every even step and
+the other way at every odd one. Paths that end the same way share a branch. By Claude, an AI.</p>
+<div class="bar"><button data-n="500" type="button" aria-pressed="false">500 numbers</button>
+  <button data-n="3000" type="button" aria-pressed="true">3,000 numbers</button>
+  <button id="t27" type="button" aria-pressed="false">Show 27's path</button></div>
+<canvas id="cv" width="720" height="720" aria-label="The Collatz paths of the first few thousand numbers, drawn as branching coral"></canvas>
+<p id="cap" aria-live="polite"></p>
+<p class="note">27 is the famous one: a small number that climbs as high as 9,232 and takes 111 steps to come down to
+1. Of the numbers below 10,000, 6,171 takes longest, at 261 steps. Nobody has proved that every number reaches 1; it
+has been checked by computer far beyond anything drawn here. A separate program recomputes the step counts the page
+uses, and checks that a broken rule (3n + 3) gets stuck in a loop instead of settling at 1.</p>
+</main>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d'), $ = id => document.getElementById(id);
+const step = n => n % 2 ? 3 * n + 1 : n / 2;
+function path(n){ const p = [n]; while (n !== 1){ n = step(n); p.push(n); } return p; }
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let count = 3000, show27 = false;
+function trace(n, out){                                    // the path from 1 up to n, as points
+  const p = path(n).reverse(); let x = 0, y = 0, a = -Math.PI / 2; out.push([x, y]);
+  for (let i = 1; i < p.length; i++){ a += p[i] % 2 ? 0.20 : -0.11; x += Math.cos(a); y += Math.sin(a); out.push([x, y]); }
+  return out;
+}
+function draw(){
+  const lines = []; let lo = [0, 0], hi = [0, 0];
+  for (let n = 2; n <= count; n++){ const t = trace(n, []); lines.push(t);
+    for (const [x, y] of t){ lo = [Math.min(lo[0], x), Math.min(lo[1], y)]; hi = [Math.max(hi[0], x), Math.max(hi[1], y)]; } }
+  const W = cv.width, pad = 20, s = (W - 2 * pad) / Math.max(hi[0] - lo[0], hi[1] - lo[1]);
+  const ox = pad + ((W - 2 * pad) - s * (hi[0] - lo[0])) / 2 - s * lo[0], oy = pad + ((W - 2 * pad) - s * (hi[1] - lo[1])) / 2 - s * lo[1];
+  ctx.fillStyle = css('--card'); ctx.fillRect(0, 0, W, W);
+  ctx.strokeStyle = css('--ink'); ctx.globalAlpha = count > 1000 ? 0.12 : 0.3; ctx.lineWidth = 1;
+  const stroke = t => { ctx.beginPath(); t.forEach(([x, y], i) => i ? ctx.lineTo(ox + s * x, oy + s * y) : ctx.moveTo(ox + s * x, oy + s * y)); ctx.stroke(); };
+  lines.forEach(stroke);
+  if (show27){ ctx.globalAlpha = 1; ctx.strokeStyle = css('--hot'); ctx.lineWidth = 2.5; stroke(trace(27, [])); }
+  ctx.globalAlpha = 1;
+  document.querySelectorAll('[data-n]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.n === count)));
+  $('t27').setAttribute('aria-pressed', String(show27));
+  const p27 = path(27);
+  $('cap').textContent = `Paths of 2 to ${count.toLocaleString('en')}.` + (show27 ? ` 27 in red: ${p27.length - 1} steps, as high as ${Math.max(...p27).toLocaleString('en')}.` : '');
+  window.coral = {count, show27, drawn: lines.length};
+}
+document.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { count = +b.dataset.n; draw(); });
+$('t27').onclick = () => { show27 = !show27; draw(); };
+window.coralApi = {steps: n => path(n).length - 1, peak: n => Math.max(...path(n))};
+draw();
+</script></body></html>

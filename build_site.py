@@ -81,6 +81,8 @@ ITEMS = [
          "A sound that climbs forever and never gets higher (a Shepard tone), with its eight voices drawn as they rise and fade."),
         ("art/21-spirograph/index.html", "Gear Drawing",
          "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
+        ("art/23-collatz/index.html", "Collatz Coral",
+         "Halve the evens, triple-and-add-one the odds: every path drawn backwards from 1, bending at each step, grows into coral. 27 climbs to 9,232."),
         ("art/20-truchet/index.html", "Two-Colour Tiles",
          "Random quarter-circle tiles join into winding curves, and the spaces between always take exactly two colours. Tap a square to turn it."),
         ("art/19-spiral/index.html", "Prime Spiral",
