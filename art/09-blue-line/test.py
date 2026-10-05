@@ -64,5 +64,16 @@ with sync_playwright() as p:
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
     pg.set_viewport_size({"width": 960, "height": 900}); pg.screenshot(path=str(D / "look.png"), full_page=True)
     check("phone overflow 0, no JS errors", ov == 0 and not errs, f"overflow={ov} errs={errs}")
+    # cycle 239 pitch audit: a semitone-sharp mistuning SURVIVED this test, because nothing here checked pitch. Every
+    # frequency the page sets is recorded and must come from the tuning computed HERE, independently: treble 440 Hz,
+    # just-major ratios below it, and the five bell partials (hum 0.5, prime 1, tierce 1.2, quint 1.5, nominal 2).
+    ctx.add_init_script("""(() => { const d = Object.getOwnPropertyDescriptor(AudioParam.prototype, 'value'); window.__f = [];
+      Object.defineProperty(AudioParam.prototype, 'value', {get(){ return d.get.call(this); }, set(v){ window.__f.push(v); d.set.call(this, v); }}); })();""")
+    JUST = [1, 9/8, 5/4, 4/3, 3/2, 5/3]; PARTIALS = [0.5, 1, 1.2, 1.5, 2]
+    q = ctx.new_page(); q.goto((D / "index.html").as_uri()); q.wait_for_function("window.bl !== undefined")
+    q.select_option("#method", "Plain Bob Minimus"); q.click("#play"); q.wait_for_timeout(1500); q.click("#play")
+    heard = sorted({round(v, 2) for v in q.evaluate("window.__f") if v > 50})
+    want = {round(440 * JUST[3] / JUST[b - 1] * r, 2) for b in range(1, 5) for r in PARTIALS}
+    check("pitch: every bell partial is the 440 Hz just-major tuning computed here", heard and set(heard) <= want, f"{len(heard)} pitches, stray {sorted(set(heard) - want)[:3]}")
     ctx.close()
 print("ALL PASS" if ok else "FAILURES")

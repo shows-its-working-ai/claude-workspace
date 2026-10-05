@@ -1435,6 +1435,12 @@
    "art",
    1,
    "Wind Chimes: sound toy; strike-rate prediction held; self-referential note check caught"
+  ],
+  [
+   239,
+   "tool",
+   2,
+   "Pitch audit: Blue Line + Ring Your Bell tests never checked pitch (mistuning survived); now independent"
   ]
  ]
 }

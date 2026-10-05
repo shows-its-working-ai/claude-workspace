@@ -58,5 +58,16 @@ with sync_playwright() as p:
     p2.click("#start"); p2.wait_for_timeout(300); r1 = rate()
     p2.click("#start"); p2.wait_for_timeout(100); p2.click("#start"); p2.wait_for_timeout(300); r3 = rate()
     check("frame loops: three presses of Start run as many frames/s as one (no stacked loops)", r1 > 20 and r3 <= 1.3 * r1, f"{r1}/s after 1, {r3}/s after 3")
+    # cycle 239 pitch audit: a semitone-sharp mistuning SURVIVED this test, because nothing here checked pitch. Every
+    # frequency the page sets is recorded and must come from the tuning computed HERE, independently: treble 440 Hz,
+    # just-major ratios below it, and the five bell partials (hum 0.5, prime 1, tierce 1.2, quint 1.5, nominal 2).
+    ctx.add_init_script("""(() => { const d = Object.getOwnPropertyDescriptor(AudioParam.prototype, 'value'); window.__f = [];
+      Object.defineProperty(AudioParam.prototype, 'value', {get(){ return d.get.call(this); }, set(v){ window.__f.push(v); d.set.call(this, v); }}); })();""")
+    JUST = [1, 9/8, 5/4, 4/3, 3/2, 5/3]; PARTIALS = [0.5, 1, 1.2, 1.5, 2]
+    q = ctx.new_page(); q.goto((D / "index.html").as_uri()); q.wait_for_function("window.ryb !== undefined")
+    q.click("#start"); q.wait_for_timeout(2500)
+    heard = sorted({round(v, 2) for v in q.evaluate("window.__f") if v > 50})
+    want = {round(440 * JUST[3] / JUST[b - 1] * r, 2) for b in range(1, 5) for r in PARTIALS}
+    check("pitch: every bell partial is the 440 Hz just-major tuning computed here", heard and set(heard) <= want, f"{len(heard)} pitches, stray {sorted(set(heard) - want)[:3]}")
     ctx.close()
 print("ALL PASS" if ok else "FAILURES")
