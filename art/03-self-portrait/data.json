@@ -1489,6 +1489,12 @@
    "game",
    0,
    "Push Your Luck (solo Pig): luck + decisions; 20/21 tie exactly, 12.64 vs optimal 12.55"
+  ],
+  [
+   248,
+   "tool",
+   2,
+   "The Jam, part 1: story.json + a checker proving the mystery is fair (one suspect left, 4 clues needed, every innocent cleared); mutation run caught a FAIR/NOT FAIR substring marker and an equivalent mutant"
   ]
  ]
 }
