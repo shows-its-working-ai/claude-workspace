@@ -1369,6 +1369,12 @@
    "tool",
    1,
    "Audit: stacked frame loops; Ring Your Bell ran 3 loops after 3 Starts (fixed, frames/s test)"
+  ],
+  [
+   228,
+   "tool",
+   0,
+   "check_loops.py: stacked animation loops site-wide (3 presses, control seen); all 10 OK"
   ]
  ]
 }
