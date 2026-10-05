@@ -91,13 +91,15 @@ function start(){
   for (const s of strikes) if (s.bell !== me) strike(ac, t0 + s.t, s.bell);
   run = {t0, me, rs, strikes, expected: strikes.filter(s => s.bell === me).map(s => s.t), taps: [], end: strikes[strikes.length - 1].t + beat};
   $('result').textContent = 'Listen for rounds, then come in...'; $('result').className = '';
-  requestAnimationFrame(tick);
+  const mine = run; requestAnimationFrame(() => tick(mine));
 }
-function tick(){
-  if (!run) return;
+// cycle 227: pressing Start again left the OLD frame loop running against the new run (3 presses = 3 loops, each
+// redrawing every frame until the end). Each loop now belongs to its run and stops when a newer run replaces it.
+function tick(mine){
+  if (!run || run !== mine) return;
   const el = ac.currentTime - run.t0, now = run.strikes.filter(s => s.t <= el).pop(), i = now ? now.row : 0;
   $('row').innerHTML = [...run.rs[i]].map(b => +b === run.me ? `<span class="me">${b}</span>` : b).join('');
-  if (el < run.end + 0.5) requestAnimationFrame(tick); else finish();
+  if (el < run.end + 0.5) requestAnimationFrame(() => tick(mine)); else finish();
 }
 function pull(){
   if (!run || !ac) return;

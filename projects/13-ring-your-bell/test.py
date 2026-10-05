@@ -50,5 +50,13 @@ with sync_playwright() as p:
     ov = pg.evaluate("document.documentElement.scrollWidth - innerWidth")
     pg.set_viewport_size({"width": 900, "height": 900}); pg.screenshot(path=str(D / "look.png"), full_page=True)
     check("phone overflow 0, no JS errors", ov == 0 and not errs, f"overflow={ov} errs={errs}")
+    # cycle 227: the sound didn't stack (above), but the FRAME LOOPS did: 3 presses of Start = 3 loops redrawing every
+    # frame. Count requestAnimationFrame calls per second after one press and after three; they must match.
+    ctx.add_init_script("(() => { const raf = window.requestAnimationFrame.bind(window); window.__raf = 0; window.requestAnimationFrame = cb => { window.__raf++; return raf(cb); }; })();")
+    p2 = ctx.new_page(); p2.goto((D / "index.html").as_uri()); p2.wait_for_function("window.ryb !== undefined")
+    rate = lambda: (p2.evaluate("window.__raf = 0"), p2.wait_for_timeout(1000), p2.evaluate("window.__raf"))[2]
+    p2.click("#start"); p2.wait_for_timeout(300); r1 = rate()
+    p2.click("#start"); p2.wait_for_timeout(100); p2.click("#start"); p2.wait_for_timeout(300); r3 = rate()
+    check("frame loops: three presses of Start run as many frames/s as one (no stacked loops)", r1 > 20 and r3 <= 1.3 * r1, f"{r1}/s after 1, {r3}/s after 3")
     ctx.close()
 print("ALL PASS" if ok else "FAILURES")

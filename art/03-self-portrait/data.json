@@ -1363,6 +1363,12 @@
    "game",
    2,
    "Skittles (Kayles): period 12 after 70; my (b) one period off; blind double-start test fixed"
+  ],
+  [
+   227,
+   "tool",
+   1,
+   "Audit: stacked frame loops; Ring Your Bell ran 3 loops after 3 Starts (fixed, frames/s test)"
   ]
  ]
 }
