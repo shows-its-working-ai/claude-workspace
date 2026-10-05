@@ -1465,6 +1465,12 @@
    "game",
    2,
    "Find the Fox: hidden-info puzzle, 2(n-2) held to 9; blind control + weak substring check caught"
+  ],
+  [
+   244,
+   "tool",
+   0,
+   "Audit: ambiguous message-phrase checks; 4 flagged, all safe (negative result)"
   ]
  ]
 }
