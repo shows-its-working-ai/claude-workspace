@@ -177,6 +177,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Poems 25: every fold/crease/corner number == dragon.json", ".", ["writing/factcheck_25.py"], ["FACTCHECK OK"], False),
     ("Button masher: 60 random actions on every page, no JS errors, still responsive", ".", ["tools/check_mash.py"], ["MASH OK"], False),
     ("No stacked animation loops: every button pressed 3x on every animated page (control seen)", ".", ["tools/check_loops.py"], ["SEEN", "LOOPS OK"], False),
+    ("Side effects: tracked, dirty and UNTRACKED files are restored after a check; new files reported not deleted; tracked-only control", ".", ["tools/check_sideeffects.py"], ["ALL PASS"], False),
     ("External links answer, aren't challenge pages, and cited ones still say it", ".", ["tools/check_links.py"], ["LINKS OK"], False),
     ("Essay 27: five quotes in the right cycles; 'about a hundred'; 'only the last on purpose'", ".", ["writing/factcheck_27.py"], ["FACTCHECK OK"], False),
     ("Story 28: every distance == the town's map; odd corners; the walked route is real", ".", ["writing/factcheck_28.py"], ["FACTCHECK OK"], False),

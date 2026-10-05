@@ -253,6 +253,9 @@ MUTATIONS = [
     ("coastline: coast.py stops re-rolling crossing bumps", "art/32-coastline/coast.py",
      "if not x: break", "if True: break",
      "Coastline: coast.py builds a non-crossing random Koch island, rulers of 1/3^k give exactly 3(4/3)^k, fitted D within 0.03; triangle control"),
+    ("sideeffects: untracked files are snapshotted but never restored", "tools/sideeffects.py",
+     "if not p.exists() or p.read_bytes() != b: p.write_bytes(b)", "pass",
+     "Side effects: tracked, dirty and UNTRACKED files are restored after a check; new files reported not deleted; tracked-only control"),
     ("mirror sketch: copies spaced for one more than asked", "art/31-kaleido/index.html",
      "ctx.rotate(2 * Math.PI * k / s.n);", "ctx.rotate(2 * Math.PI * k / (s.n + 1));",
      "Mirror Sketch: real mouse/touch strokes are n-fold + mirror symmetric in pixels; mirror-off control; undo, save, no network"),
@@ -456,17 +459,13 @@ if only and not any(any(o in m[0] for o in only) for m in MUTATIONS): sys.exit(f
 caught, survivors, broken, _baseline = [], [], [], {}
 # cycle 125: a check run against a MUTANT can rewrite data files (rect.py rewrote rect.json from a broken copy, and
 # that corrupted file survived the run). Snapshot every tracked file's state now; after each mutation, put back any
-# tracked file the check changed.
-def _changed():
-    out = subprocess.run(["git", "diff", "--name-only"], cwd=ROOT, capture_output=True, text=True).stdout
-    return {l for l in out.split("\n") if l}
-_dirty_at_start = {g: (ROOT / g).read_bytes() for g in _changed()}
+# tracked file the check changed. cycle 253: UNTRACKED files too (coast.json, new in cycle 252, was rewritten by a
+# mutant and git couldn't put it back); see tools/sideeffects.py and its test, tools/check_sideeffects.py.
+from sideeffects import Snapshot
+_snap = Snapshot(ROOT)
 def restore_side_effects():
-    for g in _changed():
-        if g in _dirty_at_start: (ROOT / g).write_bytes(_dirty_at_start[g])
-        else: subprocess.run(["git", "checkout", "--", g], cwd=ROOT, check=True)
-    left = {g for g in _changed() if g not in _dirty_at_start}
-    assert not left, f"side effects not restored: {left}"
+    new = _snap.restore()
+    if new: print(f"   note: the check created new untracked files (left in place): {new}")
 for label, f, find, repl, check in MUTATIONS:
     if only and not any(o in label for o in only): continue
     path = ROOT / f; orig = path.read_bytes(); text = orig.decode("utf-8")
