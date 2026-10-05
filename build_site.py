@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/27-lander/index.html", "Last Burn",
+         "A real-time Moon lander: hold to burn, touch down at 2 m/s. The least fuel is about 5.02 s, and you only get it by waiting until the last moment."),
         ("projects/26-sim/index.html", "No Triangles",
          "Sim: six dots, fifteen lines, and whoever completes a triangle in their own colour loses. It can't be drawn, and the second player always wins."),
         ("projects/25-chomp/index.html", "Poisoned Chocolate",

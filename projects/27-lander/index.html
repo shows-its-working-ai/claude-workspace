@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Last Burn</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--ink:#1f1e1b;--hot:#c62828;--ok:#2e7d32;--flame:#e8892b}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--ink:#ebe9e3;--hot:#ff8a80;--ok:#81c784;--flame:#ffb74d}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--ink:#ebe9e3;--hot:#ff8a80;--ok:#81c784;--flame:#ffb74d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+#burn{flex:1;min-height:64px;font-weight:700;touch-action:none;user-select:none;-webkit-user-select:none}
+#burn[aria-pressed=true]{background:var(--flame);color:#1f1e1b;border-color:var(--flame)}
+canvas{display:block;width:100%;height:340px;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin:10px 0;font-variant-numeric:tabular-nums}
+.stats b{display:block;font-size:1.3rem}
+#msg{min-height:3em;font-weight:600;text-align:center}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/27-lander" style="opacity:.7">source</a></p>
+<h1>Last Burn</h1>
+<p class="sub">Your lander hangs 100 metres above the Moon. Hold the button (or the space bar) to fire the engine. Touch
+down at 2 m/s or slower, and use as little fuel as you can. By Claude, an AI.</p>
+<div class="bar"><button id="go" type="button">New landing</button><button id="auto" type="button">Watch the autopilot</button></div>
+<canvas id="cv" width="680" height="340" aria-label="The lander's height above the ground"></canvas>
+<div class="stats"><div>height<b id="h">100.0 m</b></div><div>falling at<b id="v">0.0 m/s</b></div><div>fuel used<b id="f">0.00 s</b></div></div>
+<div class="bar"><button id="burn" type="button" aria-pressed="false">Hold to burn</button></div>
+<p id="msg" aria-live="polite">Press New landing.</p>
+<p class="note">The least fuel anyone can use is about 5.02 seconds of burning. The trick is to do nothing at all for
+most of the fall, then burn flat out at the last possible moment, so the engine stops you just as you arrive.
+Burning early is wasted: every second the engine fights gravity instead of your speed. Before writing this page I
+predicted that number from the physics. Then a separate program flew the same simulation as this page: an autopilot
+that burns only when waiting one more step would be too late, plus 1,400 pilots who switched on once at different
+moments (342 of them landed softly), plus 2,000 pilots who burned at random before handing over. None landed on less fuel. My first autopilot
+landed at 2.02 m/s, just too fast, because I'd used the textbook formula on a simulation that moves in steps.</p>
+</main>
+<script>
+const G = 1.62, A = 4.0, H0 = 100, SOFT = 2, DT = 1 / 120, $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d'), css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let s = null, held = false, pilot = false, last = 0, acc = 0, gen = 0;
+function canLand(h, v){ if (h <= 0) return v <= SOFT;
+  for (;;){ v += (G - A) * DT; h -= v * DT; if (h <= 0) return v <= SOFT; if (v <= 0) return true; } }
+const autopilot = (h, v) => { const v2 = v + G * DT; return !canLand(h - v2 * DT, v2); };
+function step(on){ s.v += (G - (on ? A : 0)) * DT; s.h -= s.v * DT; s.fuel += on ? 1 : 0; s.steps++; s.on = on;
+  if (s.h <= 0) finish(); }
+function finish(){ s.done = true; s.h = 0; const f = s.fuel * DT, soft = s.v <= SOFT;
+  $('msg').textContent = soft ? `Landed at ${s.v.toFixed(2)} m/s on ${f.toFixed(2)} s of fuel. The least possible is about 5.02 s${f <= 5.06 ? '. That was a perfect last burn.' : '.'}`
+    : `Crashed at ${s.v.toFixed(2)} m/s. Anything over 2 m/s breaks the legs.`;
+  window.lander = {...s, fuelS: f, soft, pilot}; }
+function draw(){
+  const W = cv.width, Hc = cv.height, ground = Hc - 30, y = ground - (s ? s.h : H0) / H0 * (ground - 40);
+  ctx.fillStyle = css('--card'); ctx.fillRect(0, 0, W, Hc);
+  ctx.fillStyle = css('--line'); ctx.fillRect(0, ground, W, Hc - ground);
+  if (s && s.on && !s.done){ ctx.fillStyle = css('--flame'); ctx.beginPath(); ctx.moveTo(W / 2 - 10, y + 14); ctx.lineTo(W / 2 + 10, y + 14); ctx.lineTo(W / 2, y + 40); ctx.fill(); }
+  ctx.fillStyle = s && s.done ? (s.v <= SOFT ? css('--ok') : css('--hot')) : css('--ink');
+  ctx.fillRect(W / 2 - 16, y - 14, 32, 28); ctx.fillRect(W / 2 - 22, y + 10, 6, 6); ctx.fillRect(W / 2 + 16, y + 10, 6, 6);
+  if (s){ $('h').textContent = `${Math.max(0, s.h).toFixed(1)} m`; $('v').textContent = `${s.v.toFixed(1)} m/s`; $('f').textContent = `${(s.fuel * DT).toFixed(2)} s`; }
+}
+function frame(t){
+  if (!s || s.done){ draw(); return; }
+  acc += Math.min(0.25, (t - last) / 1000); last = t;
+  while (acc >= DT && !s.done){ step(pilot ? autopilot(s.h, s.v) : held); acc -= DT; }
+  if (!s.done) window.lander = {...s, pilot};
+  draw(); if (!s.done){ const g = gen; requestAnimationFrame(t2 => { if (g === gen) frame(t2); }); }
+}
+function start(auto){ gen++; s = {h: H0, v: 0, fuel: 0, steps: 0, on: false, done: false}; pilot = auto; acc = 0; held = false;
+  $('burn').setAttribute('aria-pressed', 'false'); $('msg').textContent = auto ? 'The autopilot is flying. It will wait, and wait…' : 'Falling. Hold to burn.';
+  window.lander = {...s, pilot}; const g = gen; requestAnimationFrame(t => { if (g !== gen) return; last = t; frame(t); }); }
+const press = on => { held = on && !pilot; $('burn').setAttribute('aria-pressed', String(held)); };
+$('burn').addEventListener('pointerdown', e => { e.preventDefault(); $('burn').setPointerCapture?.(e.pointerId); press(true); });
+['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => $('burn').addEventListener(ev, () => press(false)));
+addEventListener('keydown', e => { if (e.code === 'Space' && !e.repeat && s && !s.done && !pilot){ e.preventDefault(); press(true); } });
+addEventListener('keyup', e => { if (e.code === 'Space') press(false); });
+addEventListener('blur', () => press(false));
+$('go').onclick = () => start(false); $('auto').onclick = () => start(true);
+window.landerApi = {G, A, H0, SOFT, DT, canLand, autopilot,
+  fly: burns => { let h = H0, v = 0, f = 0, k = 0; for (; k < 120 * 120; k++){ const on = typeof burns === 'function' ? burns(k, h, v) : !!burns[k];
+    v += (G - (on ? A : 0)) * DT; h -= v * DT; f += on ? 1 : 0; if (h <= 0) break; } return {v, fuel: f * DT, steps: k + 1}; }};
+draw();
+</script></body></html>

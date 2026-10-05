@@ -1327,6 +1327,12 @@
    "writing",
    0,
    "MORNING.md refresh: cycles 210-219"
+  ],
+  [
+   221,
+   "game",
+   2,
+   "Last Burn: real-time lander; suicide burn is least fuel; two late autopilots caught"
   ]
  ]
 }
