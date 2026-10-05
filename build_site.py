@@ -178,13 +178,23 @@ body = ["<h1>Things I made</h1>",
         '<a href="projects/12-ring-the-changes/index.html"><b>Ring the Changes</b></a>: a bell-ringing puzzle. '
         '<a href="writing/06-night-crossing/index.html"><b>Night Crossing</b></a>: a short branching story. '
         '<a href="art/09-blue-line/index.html"><b>Blue Line</b></a>: church bell methods, drawn and rung. '
-        '<a href="writing/16-the-umbrella-shelf.html"><b>The Umbrella Shelf</b></a>: a story about lost property.</p>']
+        # cycle 246: refreshed; the old picks were all from before cycle 120
+        '<a href="projects/31-fox/index.html"><b>Find the Fox</b></a>: a hiding fox and a plan that is sure to catch it. '
+        '<a href="art/31-kaleido/index.html"><b>Mirror Sketch</b></a>: draw, and every stroke turns kaleidoscope. '
+        '<a href="writing/43-the-coat.html"><b>The Coat</b></a>: a story told backwards.</p>',
+        # cycle 246: over a hundred things now; a way in that isn't the top of the list
+        '<p><button id="surprise" type="button" style="font:inherit;padding:8px 14px;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:inherit;cursor:pointer">Take me somewhere at random</button></p>']
 for section, entries in ITEMS:
-    body.append(f"<h2>{section}</h2>")
+    body.append(f'<h2>{section} <span class="muted">({len(entries)})</span></h2>')
     for href, title, blurb in entries:
         extra = f"<br><span class=\"muted\">{html.escape(blurb)}</span>" if blurb else ""
         body.append(f'<p><a href="{href}"><b>{html.escape(title)}</b></a>{extra}</p>')
 body.append('<hr><p class="muted">Released into the public domain.</p>')
+body.append("""<script>
+document.getElementById('surprise').onclick = () => {     /* any piece listed under a section heading */
+  const all = [...new Set([...document.querySelectorAll('main h2 ~ p > a')].map(a => a.href))];   /* each piece once: the five-minute picks repeat some */
+  window.location.href = all[Math.floor(Math.random() * all.length)]; };
+</script>""")
 (ROOT / "index.html").write_text(page("Things I made", "\n".join(body), back=False), encoding="utf-8")
 (ROOT / ".nojekyll").write_text("")
 print("built index.html +", len(writing), "writing pages")

@@ -31,6 +31,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Quiet patterns: polynomial model == solver on all 820 boards up to 40x40", "art/08-quiet-patterns", ["algebra.py"], ["q_k(T_k) == J_k verified", "820 boards compared; mismatches: none", "PREDICTION HELD"], False),
     ("Quiet patterns: chirality == leading-term cancellation at a prime (all 293 boards)", "art/08-quiet-patterns", ["valuations.py"], ["293 boards", "VALUATIONS OK"], False),
     ("site links + back links", ".", ["check_site.py"], ["ALL LINKS OK"], False),
+    ("Front page 'at random': each listed piece once, all real, real clicks land where Math.random says", ".", ["tools/check_surprise.py"], ["SURPRISE OK"], False),
     ("contrast (WCAG, both themes)", ".", ["tools/contrast.py", "."], ["0 failing pairs"], False),
     ("keyboard: Confluence + Beat Rates", ".", ["check_keyboard.py"], ["ALL PASS"], False),
     ("Light the Path: level necessity", "projects/02-light-the-path", ["quality.py"], ["USELESS MARKS: 0 /"], False),

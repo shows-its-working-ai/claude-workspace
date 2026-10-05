@@ -190,6 +190,9 @@ MUTATIONS = [
     ("hanoi map: the corner swap forgotten (long lines across the map)", "projects/22-hanoi/index.html",
      "const o = [0, 1, 2].filter(p => p !== s[d]); [perm[o[0]], perm[o[1]]] = [perm[o[1]], perm[o[0]]];", "",
      "Towers and Map: moves == Python, 3^n distinct dots, equal-length lines, solved in 2^n-1 by clicks"),
+    ("front page: 'at random' counts the five-minute picks twice", "index.html",   # the BUILT page: the check reads it, nothing rebuilds it
+     "  const all = [...new Set([...document.querySelectorAll('main h2 ~ p > a')].map(a => a.href))];", "  const all = [...document.querySelectorAll('main h2 ~ p > a')].map(a => a.href);",
+     "Front page 'at random': each listed piece once, all real, real clicks land where Math.random says"),
     ("loops check: Ring Your Bell's stacked loops, seen by the SITE-WIDE check alone", "projects/13-ring-your-bell/index.html",
      "  if (!run || run !== mine) return;", "  if (!run) return;",
      "No stacked animation loops: every button pressed 3x on every animated page (control seen)"),
