@@ -52,6 +52,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Wythoff: losing positions == golden-ratio Beatty pairs (heaps <= 300)", "projects/16-nim", ["wythoff.py"], ["brute force 229, formula 229", "PREDICTION HELD"], False),
     ("Corner the Queen: safe squares == brute force, perfect replies, won by taps", "projects/17-queen", ["test.py"], ["ALL PASS"], False),
     ("Mastermind: Knuth's rule breaks all 1,296 codes in <= 5 (Python)", "projects/18-mastermind", ["knuth.py"], ["max 5, average 4.4761 (5801/1296)", "PREDICTION HELD"], False),
+    ("Clock patience: win = 1/r exactly on small decks; 400,000 deals within 3 SE of 1/13; start-at-pile-0 control", "projects/30-clock", ["clock.py"], ["(predicted 1/3)", "(predicted 1/4)", "control: start at pile 0 instead of the kings' pile wins 0.0000 SEEN", "PREDICTION HELD"], False),
+    ("Clock Patience: logic == Python (3,000), real-click games end right, one ticker, piles never overlap", "projects/30-clock", ["test.py"], ["ALL PASS"], False),
     ("Folded Poem: stays folded (no earlier line visible), unfolds in order, no network, typed HTML stays text, overlap ~ 0.3555", "projects/29-folded", ["test.py"], ["ALL PASS"], False),
     ("Kayles: Grundy period 12, last irregular n = 70 (to 2,000); G(n) > 0; XOR rule == brute force on 271; subtraction control", "projects/28-kayles", ["kayles.py"], ["last irregular n = 70", "(c) G(n) > 0 for every 1 <= n <= 2000: True", "agrees with the Grundy XOR rule on 271 of 271", "SEEN", "PREDICTION HELD for (a) and (c)"], False),
     ("Skittles: Grundy == Python, won by real clicks (one + two modes), bad opening loses, double start, phone", "projects/28-kayles", ["test.py"], ["ALL PASS"], False),

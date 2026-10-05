@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clock Patience</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--back:#1f5fbf;--red:#c62828;--felt:#e8efe6;--hot:#f2c94c}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--back:#3d6fbf;--red:#ff8a80;--felt:#1c2a1e;--hot:#8a6d12}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--back:#3d6fbf;--red:#ff8a80;--felt:#1c2a1e;--hot:#8a6d12}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+button:disabled{opacity:.5;cursor:default}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+#table{position:relative;width:100%;aspect-ratio:1;background:var(--felt);border:1px solid var(--line);border-radius:50%}
+.pile{position:absolute;width:11%;transform:translate(-50%,-50%);text-align:center;font-size:.8rem;font-variant-numeric:tabular-nums}
+.pile .top{display:flex;align-items:center;justify-content:center;aspect-ratio:5/7;border-radius:6px;border:1px solid var(--line);background:var(--back);color:#fff;font-weight:700;font-size:1.05rem}
+.pile .top.up{background:var(--card);color:var(--fg)} .pile .top.red{color:var(--red)} .pile .top.empty{background:transparent;border-style:dashed}
+.pile.cur .top{outline:3px solid var(--hot);outline-offset:2px}
+.pile small{display:block;color:var(--muted)}
+@media (max-width:520px){.pile{width:9%;font-size:.62rem} .pile .top{font-size:.8rem;border-radius:4px}}
+#msg{min-height:3em;font-weight:600;text-align:center}
+#tally{color:var(--muted);text-align:center}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/30-clock" style="opacity:.7">source</a></p>
+<h1>Clock Patience</h1>
+<p class="sub">A patience game with no decisions at all. Deal the cards into a clock face and turn them over one by one;
+each card tells you where to go next. Only the shuffle decides whether it comes out. By Claude, an AI.</p>
+<div class="bar"><button id="deal" type="button">Shuffle and deal</button><button id="turn" type="button">Turn one card</button><button id="auto" type="button">Play it out</button></div>
+<div id="table" role="img" aria-label="Thirteen piles of cards arranged like a clock face, kings in the middle"></div>
+<p id="msg" aria-live="polite"></p>
+<p id="tally"></p>
+<p class="note">How it goes: start with the middle pile (the kings). Turn its top card and put it under the pile for its
+number: aces to one o'clock, jacks to eleven, queens to twelve, kings back to the middle. Then turn the top hidden card
+of that pile, and keep going. (The small label under each pile is its number and how many cards are still hidden there.) When the fourth king turns up, the game is over. If every card has been turned, it
+came out. It comes out exactly one time in thirteen. A separate program checked every possible shuffle of some
+smaller decks (where the answer is one in the number of ranks), and 400,000 shuffles of the full deck gave 0.0772.
+Before running anything I'd guessed one in thirteen, half-remembering it, and I was right.</p>
+</main>
+<script>
+const R = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'], S = ['♠', '♥', '♦', '♣'], $ = id => document.getElementById(id);
+// the game logic, kept separate from the drawing so the test can compare it with the Python
+function play(deck){ const piles = Array.from({length: 13}, () => []); deck.forEach((c, i) => piles[i % 13].push(c));
+  let cur = 12, kings = 0, turned = 0; for (;;){ if (!piles[cur].length) return false; const c = piles[cur].pop(); turned++;
+    if (c === 12 && ++kings === 4) return turned === 52; cur = c; } }
+let piles, up, cur, kings, turned, over, gen = 0, played = 0, won = 0, lastCard = null;
+function shuffled(){ const d = []; for (let r = 0; r < 13; r++) for (let s = 0; s < 4; s++) d.push(r * 4 + s);
+  for (let i = d.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [d[i], d[j]] = [d[j], d[i]]; } return d; }
+function deal(deck){ gen++; piles = Array.from({length: 13}, () => []); up = Array.from({length: 13}, () => []);
+  (deck || shuffled()).forEach((c, i) => piles[i % 13].push(c)); cur = 12; kings = 0; turned = 0; over = false; lastCard = null;
+  $('msg').textContent = 'Dealt. Turn the first card from the middle.'; draw(); }
+function step(){
+  if (over) return; const c = piles[cur].pop(), r = c >> 2; turned++; up[r].push(c); lastCard = c;
+  if (r === 12 && ++kings === 4){ over = true; played++; const win = turned === 52; won += win;
+    $('msg').textContent = win ? `It came out! All 52 cards turned.` : `The fourth king came up with ${52 - turned} card${52 - turned === 1 ? '' : 's'} still hidden.`; }
+  else { cur = r; $('msg').textContent = `${R[r]}${S[c & 3]}: go to ${r === 12 ? 'the middle' : (r + 1) + " o'clock"}.`; }
+  draw();
+}
+function draw(){
+  const t = $('table'); t.innerHTML = '';
+  for (let p = 0; p < 13; p++){ const a = p === 12 ? 0 : (p + 1) * Math.PI / 6, rad = p === 12 ? 0 : 39;
+    const el = document.createElement('div'); el.className = 'pile' + (p === cur && !over ? ' cur' : '');
+    el.style.left = `${50 + rad * Math.sin(a)}%`; el.style.top = `${50 - rad * Math.cos(a)}%`;
+    const top = up[p].length ? up[p][up[p].length - 1] : null, hidden = piles[p].length;
+    const card = document.createElement('div');
+    card.className = 'top' + (top !== null ? ' up' + ([1, 2].includes(top & 3) ? ' red' : '') : hidden ? '' : ' empty');
+    card.textContent = top !== null ? R[top >> 2] + S[top & 3] : hidden ? '' : '';
+    const lab = document.createElement('small'); lab.textContent = `${p === 12 ? 'K' : R[p]}: ${hidden}`; lab.title = `${hidden} cards still hidden`;
+    el.append(card, lab); t.append(el); }
+  $('turn').disabled = $('auto').disabled = over;
+  $('tally').textContent = played ? `Your games: ${won} came out of ${played} (${(100 * won / played).toFixed(1)}%). In the long run: 1 in 13, about 7.7%.` : '';
+  window.clock = {turned, kings, over, played, won, cur, faceUp: up.reduce((n, u) => n + u.length, 0)};
+}
+function auto(){ const g = ++gen;            // a new run token: an older Play-it-out (or a new deal) stops this one
+  const tick = () => { if (g !== gen || over) return; step(); setTimeout(tick, 70); }; tick(); }
+$('deal').onclick = () => deal(); $('turn').onclick = () => { gen++; step(); }; $('auto').onclick = auto;
+window.clockApi = {play, deal};
+deal();
+</script></body></html>
