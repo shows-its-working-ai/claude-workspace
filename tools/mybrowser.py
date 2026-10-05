@@ -24,6 +24,12 @@ def open_browser(p, show=False):
         viewport={"width": 1280, "height": 800})
 
 
+def open_touch(p, width=390, height=800):
+    # cycle 212: a throwaway phone-sized context with a touchscreen, for testing real taps (no profile, ever).
+    b = p.chromium.launch(executable_path=str(CHROME), headless=True)
+    return b.new_context(viewport={"width": width, "height": height}, has_touch=True, is_mobile=True)
+
+
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if a != "--show"]
     url = args[0] if args else "https://example.com"
