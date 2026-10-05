@@ -1441,6 +1441,12 @@
    "tool",
    2,
    "Pitch audit: Blue Line + Ring Your Bell tests never checked pitch (mistuning survived); now independent"
+  ],
+  [
+   240,
+   "writing",
+   0,
+   "Poems 42: Ordinary Things (no checks, nothing about checking; second rut noticed)"
   ]
  ]
 }
