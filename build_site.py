@@ -93,6 +93,8 @@ ITEMS = [
          "A sound that climbs forever and never gets higher (a Shepard tone), with its eight voices drawn as they rise and fade."),
         ("art/21-spirograph/index.html", "Gear Drawing",
          "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
+        ("art/31-kaleido/index.html", "Mirror Sketch",
+         "A kaleidoscope sketchpad: draw anything and every stroke is copied round the centre. This one is yours to make; it never leaves your browser."),
         ("art/30-chimes/index.html", "Wind Chimes",
          "Five chimes tuned to a pentatonic scale and a wind slider: a sound toy with nothing to learn and nothing to win. With sound."),
         ("art/29-day/index.html", "A Day in a Minute",

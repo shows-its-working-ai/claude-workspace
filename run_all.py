@@ -94,6 +94,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Gear Drawing: stated trips/bumps == r/g, R/g; bumps counted from page points; closes on time", "art/21-spirograph", ["test.py"], ["ALL PASS"], False),
     ("Truchet: two colours by corner parity, 1,000 tilings; wrong-model control seen", "art/20-truchet", ["truchet.py"], ["failures 0", "SEEN", "PREDICTION HELD"], False),
     ("Two-Colour Tiles: every piece's pixel colour == region parity; tap turns one square", "art/20-truchet", ["test.py"], ["ALL PASS"], False),
+    ("Mirror Sketch: real mouse/touch strokes are n-fold + mirror symmetric in pixels; mirror-off control; undo, save, no network", "art/31-kaleido", ["test.py"], ["ALL PASS"], False),
     ("Wind Chimes: page audio FFT'd (each strike its note), strike rate grows with wind, deterministic, one bus, can't hear", "art/30-chimes", ["test.py"], ["ALL PASS"], False),
     ("A Day in a Minute: sky brightness + stars from pixels, deterministic per seed, pause, slider keys, reduced motion", "art/29-day", ["test.py"], ["ALL PASS"], False),
     ("Maurer rose: n odd -> n petal tips, even -> 2n (n <= 12); closes after 360/gcd(360, d); |sin| control", "art/28-maurer", ["maurer.py"], ["n odd -> n, n even -> 2n: True", "closing steps == 360/gcd(360, d) for all d = 1..360: True", "SEEN", "PREDICTION HELD"], False),
