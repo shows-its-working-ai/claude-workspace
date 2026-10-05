@@ -80,7 +80,7 @@ function accuse(p){
     v.className = 'no'; v.textContent = `It wasn't ${p}. ${names.length > 1 ? 'Put together, ' + names.join(' and ') + ' clear them.' : names[0] + ' clears them.'}`;
   } else {
     const left = possible(found);
-    if (left.length === 1){ solved = true; v.className = 'yes'; v.textContent = `It was ${p}, and you can prove it with ${found.length} clue${found.length === 1 ? '' : 's'}. ${p} admits it was too good to wait for the judging.`; }
+    if (left.length === 1){ solved = true; v.className = 'yes'; v.textContent = `It was ${p}, and you can prove it with ${found.length} clue${found.length === 1 ? '' : 's'}. ${p} goes very red, and says it was the best damson jam he has tasted in forty years and he only meant to try a spoonful. He buys the Okafor girl a new jar, and a rosette, and the committee invents a category for it on the spot.`; }
     else { v.className = 'no'; v.textContent = `You might be right, but you can't prove it yet. ${orList(left.filter(q => q !== p))} could still have done it.`; }
   }
   draw();

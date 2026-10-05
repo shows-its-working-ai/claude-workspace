@@ -1,7 +1,7 @@
 """The Jam: REAL clicks through the page. Expected answers are written here by hand from the design (cycle 248's
 notes), not read from the page: with nothing found, accusing Pask can't be proved and all four others are named;
 Bernard is cleared by the photo AND the rota together; Hen by the walk; Adeyemi by the keys; after the card only
-Bernard and Hen are still possible; keys + rota + photo + walk proves it with 4 clues. Control: the spoon alone
+Bernard and Hen are still possible; keys + rota + photo + walk proves it with 4 clues; Pask's chutney story clears nobody. Control: the spoon alone
 proves nothing. Also: no dead buttons, Start again resets, phone width doesn't overflow, no JS errors."""
 import sys
 from pathlib import Path
@@ -20,7 +20,10 @@ with sync_playwright() as p:
     ctx = open_browser(p); pg = ctx.new_page(); errs = []
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto((D / "index.html").as_uri()); pg.wait_for_function("window.jam !== undefined")
-    check("starts in the hall with 5 ways out and no clue button", pg.evaluate("jam.at") == "hall" and pg.locator("#moves button").count() == 5 and pg.locator("#act").count() == 0)
+    check("starts in the hall: 5 ways out plus 'Talk to Mr Pask'", pg.evaluate("jam.at") == "hall" and pg.locator("#moves button[data-go]").count() == 5 and pg.inner_text("#act") == "Talk to Mr Pask")
+    pg.click("#act"); v = accuse(pg, "Mrs Adeyemi")
+    check("red herring: after Pask's chutney story, Mrs Adeyemi is STILL cleared by the keys", "Who has a key" in v and pg.evaluate("jam.found") == ["chutney"], v)
+    pg.click("#again")
     v = accuse(pg, "Mr Pask")
     check("Pask with nothing found: can't prove it, all four others named", "can't prove it yet" in v and all(q in v for q in ["Mrs Adeyemi", "Bernard", "Lorna", "Hen"]), v)
     v = accuse(pg, "Bernard")
@@ -36,10 +39,11 @@ with sync_playwright() as p:
     check("after the card: only Bernard and Hen still possible besides Pask", "can't prove it yet" in v and "Bernard" in v and "Hen" in v and "Lorna" not in v and "Adeyemi" not in v, v)
     check("a found clue is no longer 'not found yet'", "not found yet" not in accuse(pg, "Lorna"), pg.inner_text("#verdict"))
     for q in ["kitchen", "stage", "carpark"]: fetch(pg, q)
+    pg.click("#act")   # back in the hall: Pask's chutney story, the sixth clue
     texts = pg.inner_text("#notes")
-    check("notebook shows all 5 clues, counted", pg.locator("#notes li").count() == 5 and "(5 of 5 clues)" in pg.inner_text("#count") and "NOBODY ELSE" in texts and "tea urn: BERNARD" in texts)
+    check("notebook shows all 6 clues, counted", pg.locator("#notes li").count() == 6 and "(6 of 6 clues)" in pg.inner_text("#count") and "NOBODY ELSE" in texts and "tea urn: BERNARD" in texts)
     v = accuse(pg, "Mr Pask")
-    check("with every clue, accusing Pask SOLVES it", pg.evaluate("jam.solved") and v.startswith("It was Mr Pask") and "5 clues" in v, v)
+    check("with every clue, accusing Pask SOLVES it", pg.evaluate("jam.solved") and v.startswith("It was Mr Pask") and "6 clues" in v, v)
     check("after solving, the accuse buttons are disabled", all(pg.locator("#who button").nth(i).is_disabled() for i in range(5)))
     pg.click("#again")
     check("Start again: back in the hall, empty notebook, verdict cleared", pg.evaluate("jam") == {"at": "hall", "found": [], "solved": False, "possible": ["Mrs Adeyemi", "Mr Pask", "Bernard", "Lorna", "Hen"]} and pg.inner_text("#verdict") == "")

@@ -22,7 +22,9 @@
     "carpark",
     "cloakroom"
    ],
-   "text": "Trestle tables, marrows, the smell of tea. At twenty to two the judges unlocked the committee room to judge the jams, and found Mrs Okafor's prize damson jar scraped clean."
+   "text": "Trestle tables under bunting, the marrows in a row, the smell of stewed tea. At twenty to two the judges unlocked the committee room to judge the jams, and found that the damson jar entered by Mr Okafor's daughter, nine years old and very proud of it, had been scraped clean with a spoon. All five judges are here, and all five are being very polite to each other. Mr Pask is standing by the marrows with his arms folded.",
+   "clue": "chutney",
+   "action": "Talk to Mr Pask"
   },
   "committee": {
    "name": "The committee room door",
@@ -30,7 +32,7 @@
     "hall"
    ],
    "clue": "keys",
-   "text": "A card is pinned to the door in Hen's handwriting.",
+   "text": "A small room with one window and one lock. The jams sit in a row on a cloth, with one empty jar in the middle. A card is pinned to the door in Hen's handwriting.",
    "action": "Read the card"
   },
   "kitchen": {
@@ -39,7 +41,7 @@
     "hall"
    ],
    "clue": "rota",
-   "text": "The tea urn rota is taped to the fridge.",
+   "text": "The big urn ticks on the counter. Bernard, who is eighty-one, is pouring tea for a queue and not looking up. The urn rota is taped to the fridge.",
    "action": "Read the rota"
   },
   "stage": {
@@ -49,7 +51,7 @@
    ],
    "person": "Lorna",
    "clue": "photo",
-   "text": "Lorna is sorting entry cards.",
+   "text": "Lorna, who is nineteen and on the committee because nobody else under sixty would do it, is sorting entry cards into piles and scrolling through her phone.",
    "action": "Talk to Lorna"
   },
   "carpark": {
@@ -59,7 +61,7 @@
    ],
    "person": "the vicar",
    "clue": "walk",
-   "text": "The vicar is loading folding chairs into a hatchback.",
+   "text": "Gravel, drizzle, a hatchback with its boot open. The vicar is loading folding chairs into it, one at a time, carefully.",
    "action": "Talk to the vicar"
   },
   "cloakroom": {
@@ -68,7 +70,7 @@
     "hall"
    ],
    "clue": "spoon",
-   "text": "Coats on pegs. A tweed jacket has something in its pocket.",
+   "text": "Coats on pegs, smelling of rain. Mrs Adeyemi's raincoat, Bernard's anorak, Lorna's denim jacket, and a tweed jacket with something heavy in one pocket.",
    "action": "Check the jacket pocket"
   }
  },
@@ -84,7 +86,7 @@
   },
   "rota": {
    "title": "The urn rota",
-   "text": "1:00 to 1:45, tea urn: BERNARD. (Bernard never leaves the urn. Ask anyone.)",
+   "text": "1:00 to 1:45, tea urn: BERNARD. And underneath, in different pens: \"Bernard never leaves the urn.\" \"Can confirm.\" \"He really doesn't.\"",
    "busy": {
     "Bernard": [
      780,
@@ -99,7 +101,7 @@
   },
   "walk": {
    "title": "The vicar's walk",
-   "text": "The vicar says Hen was at the post office until half past one and then walked back with him, arriving at a quarter to two.",
+   "text": "The vicar says Hen was at the post office until half past one (she runs it, and Saturday is busy), then walked back up the hill with him, and they came in together at a quarter to two.",
    "busy": {
     "Hen": [
      720,
@@ -111,6 +113,11 @@
    "title": "A sticky teaspoon",
    "text": "In the pocket of the tweed jacket (Mr Pask's) is a teaspoon with damson on it. Mr Pask says anyone could have put it there. He's right: on its own, it proves nothing.",
    "points_at": "Mr Pask"
+  },
+  "chutney": {
+   "title": "Mr Pask's theory",
+   "text": "Mr Pask says, without being asked, that you should look at Mrs Adeyemi. \"Ask her about the chutney. 2011.\" He won't say what happened with the chutney. It is a story, not evidence, and it rules nobody out.",
+   "points_at": "Mrs Adeyemi"
   }
  }
 }
