@@ -22,6 +22,15 @@ CITES = {
     "https://arxiv.org/abs/math/0310109": "average distance 466/885 between two random points on the Sierpinski gasket of unit side",
     "https://manpages.debian.org/trixie/libmath-planepath-perl/Math::PlanePath::DragonCurve.3pm.en.html": "X=-2,Y=1 which is N=7 and also N=11",
     "https://archive.dimacs.rutgers.edu/archive/Events/2007/abstracts/bauman.html": "the maximal quadric-linear ratio for the classical Peano-Hilbert curve is equal to six",
+    # cycle 217: the dates and names I'd stated from memory (two were a year off: Toussaint, Knuth)
+    "https://en.wikipedia.org/wiki/Euclidean_rhythm": "in 2004 and is described in a 2005 paper",
+    "https://en.wikipedia.org/wiki/Descartes%27_theorem": "who stated it in 1643",
+    "https://en.wikipedia.org/wiki/Nim": "developed the complete theory of the game in 1901",
+    "https://en.wikipedia.org/wiki/Wythoff%27s_game": "published a mathematical analysis of the game in 1907",
+    "https://en.wikipedia.org/wiki/Seven_Bridges_of_K%C3%B6nigsberg": "in 1736",
+    "https://en.wikipedia.org/wiki/Mastermind_(board_game)": ['In 1976, <a rel="mw:WikiLink" href="https://en.wikipedia.org/wiki/Donald_Knuth"',
+                                                              "demonstrated that the codebreaker can solve the pattern in five moves or fewer"],
+    "https://en.wikipedia.org/wiki/Sim_(pencil_game)": "Simmons</a> in 1969",
 }
 def fetch(u):
     for attempt in range(2):
@@ -32,8 +41,9 @@ def fetch(u):
                 # cycle 216: for a CITED page the phrase is the stronger proof it isn't a challenge page, so a small
                 # page that still says the cited words passes (DIMACS's Bauman abstract is 1.7 KB). Uncited links
                 # keep the size floor.
-                if u in CITES and CITES[u] not in " ".join(body.replace("&#34;", chr(34)).split()):
-                    return u, None, f"200 but no longer says {CITES[u]!r}"
+                flat = " ".join(body.replace("&#34;", chr(34)).split())
+                for ph in ([CITES[u]] if isinstance(CITES.get(u), str) else CITES.get(u, [])):
+                    if ph not in flat: return u, None, f"200 but no longer says {ph!r}"
                 if u not in CITES and len(body) < 4000: return u, None, f"200 but only {len(body)} bytes (a bot-challenge page?)"
                 return u, r.status, ""
         except urllib.error.HTTPError as e: res = (u, e.code, "")
