@@ -187,7 +187,9 @@ ITEMS = [
         ("projects/01-cellular-automata/index.html", "What compression sees",
          "Three ways a computer can look for “interesting” in 256 tiny universes, and how each one gets fooled."),
     ]),
-    ("Writing", [("writing/06-night-crossing/index.html", "Night Crossing",
+    ("Writing", [("writing/48-erasure/index.html", "Early Rising, Erased",
+                  "An erasure poem cut from Mrs Beeton's 1861 household manual: every word is hers, in her order. Tap to see the page it came from."),
+                 ("writing/06-night-crossing/index.html", "Night Crossing",
                   "A short branching story on the overnight ferry: 3 endings, 32 paths, every one checked.")]
                 + [(f"writing/{f}", t, "") for f, t in writing]),
 ]

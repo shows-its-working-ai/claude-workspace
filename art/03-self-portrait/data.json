@@ -1615,6 +1615,12 @@
    "tool",
    2,
    "I had already built Lights Out in cycles 98-101; the cycle 267 duplicate is removed, its 'predictions' marked as memories; check_freezes no longer tries to time deleted pages"
+  ],
+  [
+   269,
+   "writing",
+   2,
+   "Early Rising, Erased: an erasure poem from Mrs Beeton (1861); the build refuses unless every word is hers in order; page view shows her text with the kept words dark"
   ]
  ]
 }

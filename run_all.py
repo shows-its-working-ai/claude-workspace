@@ -193,6 +193,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Poem 46 (The Night Porter): a true sestina, end-words turn 6-1-5-2-4-3, envoi holds all six; swapped-lines control", ".", ["writing/factcheck_46.py"], ["FACTCHECK OK"], False),
     ("Upper Wenning hangs together: every piece the map links to exists and links back to the map; Tuner control", ".", ["tools/check_village.py"], ["VILLAGE OK"], False),
     ("Essay 47 (Six Words): the shuffle visits every position (pair-swap control), seven times each, the kettle's three stanzas, rain line; history via CITES", ".", ["writing/factcheck_47.py"], ["FACTCHECK OK"], False),
+    ("Erasure 48: build finds every poem word in Beeton's text in order (refuses otherwise)", "writing/48-erasure", ["build.py"], ["erasure ok:"], False),
+    ("Early Rising, Erased: independent regex erasure check (swap control); page text IS the source; dark words == poem; real show/hide; lines kept", "writing/48-erasure", ["test.py"], ["ALL PASS"], False),
     ("Story 43: years run backwards; funeral after 2011; daughter's age works; the pockets add up, button elsewhere", ".", ["writing/factcheck_43.py"], ["FACTCHECK OK"], False),
     ("Story 41: the marrows add up (12 - 0.2, 12 - 0.1; second wins); five judges named; no backwards 'denser'", ".", ["writing/factcheck_41.py"], ["FACTCHECK OK"], False),
     ("Essay 40: the eight solved-opponent games among the thirteen (at the essay's commit); 213's note + The Lock correction", ".", ["writing/factcheck_40.py"], ["FACTCHECK OK"], False),
