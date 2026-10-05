@@ -1309,6 +1309,12 @@
    "research",
    2,
    "Memory audit: 7 dates sourced, Toussaint 2005->2004 and Knuth 1977->1976 fixed"
+  ],
+  [
+   218,
+   "writing",
+   1,
+   "Full mutation run 96/96; mutate.py rejects flags/empty filters; essay 37 A Year Off"
   ]
  ]
 }

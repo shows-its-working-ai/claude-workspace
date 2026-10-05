@@ -114,6 +114,9 @@ MUTATIONS = [
     ("garden: diagonal moves forgotten in the mex", "art/14-wythoff/index.html",
      "  for (let k = 1; k <= Math.min(a, b); k++) seen[g[a - k][b - k]] = 1;", "",
      "Wythoff's Garden: page Grundy values == Python"),
+    ("essay 37: three of seven were a year off", "writing/37-a-year-off.md",
+     "Five were right. Two were a year off.", "Four were right. Three were a year off.",
+     "Essay 37: the three old quotes in git, the two fixed dates, journal 217's counts, the cited phrase"),
     ("story 36: Priya's first-draft count (forty-six)", "writing/36-the-museum-of-lost-property.md",
      '"Forty-four. And the hamster ball."', '"Forty-six. And the hamster ball."',
      "Story 36: the lost-property box adds up (41 + 3 = 44, and the hamster ball); nine claimed; the recorder stays"),
@@ -308,6 +311,11 @@ if INFLIGHT.exists():
     Path(rec["path"]).write_bytes(base64.b64decode(rec["orig"])); INFLIGHT.unlink()
     print(f"RESTORED a mutant left by an interrupted run: {rec['path']}")
 only = sys.argv[1:]
+# cycle 218: I ran "mutate.py --full", which this script read as a label FILTER; it matched nothing and printed
+# "0 caught, 0 survived ... MUTATION RUN DONE", a clean-looking run that tested nothing. Flags don't exist here, and a
+# filter that matches no mutant is an error, not a pass.
+if any(o.startswith("-") for o in only): sys.exit(f"mutate.py takes label filters, not flags: {only} (no args = the full run)")
+if only and not any(any(o in m[0] for o in only) for m in MUTATIONS): sys.exit(f"NO MUTANTS MATCHED {only}: nothing was tested")
 caught, survivors, broken, _baseline = [], [], [], {}
 # cycle 125: a check run against a MUTANT can rewrite data files (rect.py rewrote rect.json from a broken copy, and
 # that corrupted file survived the run). Snapshot every tracked file's state now; after each mutation, put back any
