@@ -1525,6 +1525,12 @@
    "tool",
    0,
    "mutate.py now restores untracked files too (tools/sideeffects.py), tested in a throwaway repo with a tracked-only control; the cycle 252 hole"
+  ],
+  [
+   254,
+   "writing",
+   0,
+   "The Last Bus: a very short play, two strangers at a night bus stop; deliberately nothing to check"
   ]
  ]
 }
