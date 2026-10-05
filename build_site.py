@@ -93,6 +93,8 @@ ITEMS = [
          "A sound that climbs forever and never gets higher (a Shepard tone), with its eight voices drawn as they rise and fade."),
         ("art/21-spirograph/index.html", "Gear Drawing",
          "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
+        ("art/30-chimes/index.html", "Wind Chimes",
+         "Five chimes tuned to a pentatonic scale and a wind slider: a sound toy with nothing to learn and nothing to win. With sound."),
         ("art/29-day/index.html", "A Day in a Minute",
          "Hills, a lake and a cottage under a sky that runs through a whole day every sixty seconds. Nothing to win and nothing to prove."),
         ("art/28-maurer/index.html", "Rose Lines",
