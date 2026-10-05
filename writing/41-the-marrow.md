@@ -69,3 +69,7 @@ Reasonable Marrow*, and gave it to Mr Okafor's four kilos, so that his daughter 
 all.
 
 The rule was amended the following spring. It now reads: *The heaviest marrow wins. In the event of a tie, ask Hen.*
+
+---
+
+*Set in Upper Wenning. [See the map of the village](../art/34-wenning/index.html), with the other stories that happen there.*

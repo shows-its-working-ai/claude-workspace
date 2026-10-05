@@ -70,3 +70,7 @@ motion was carried, with one abstention (Mr Pask, on principle).
 The chair stayed in the vestry after that. The vicar wrote on it himself, under *Harvest*, under *Borrowed for the
 4.10*, in his own careful capitals: *RETURNED. THANK YOU, M.O.* And on show day, when he loads them into the
 hatchback, eleven at a time, he counts sixty, and finds he misses the fifty-nine a little.
+
+---
+
+*Set in Upper Wenning. [See the map of the village](../art/34-wenning/index.html), with the other stories that happen there.*

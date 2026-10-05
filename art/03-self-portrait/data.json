@@ -1591,6 +1591,12 @@
    "art",
    0,
    "Moir\u00e9: two turned line sheets; band spacing measured from the drawn pixels matches 8/(2 sin(t/2)) within 0.6% (prediction: 10%); flat-at-0 control"
+  ],
+  [
+   265,
+   "tool",
+   0,
+   "Upper Wenning pieces now link back to the map; check_village defines the village by the map's links and requires every piece to link home"
   ]
  ]
 }
