@@ -1237,6 +1237,12 @@
    "writing",
    2,
    "Essay: Twenty Minutes (what three reader issues taught; four more bugs found by auditing)"
+  ],
+  [
+   206,
+   "writing",
+   0,
+   "Full mutation run 83/83 clean; short story The Night Bridge"
   ]
  ]
 }
