@@ -24,6 +24,19 @@ def open_browser(p, show=False):
         viewport={"width": 1280, "height": 800})
 
 
+def shard(items):
+    # cycle 225: run_all splits the three whole-site checks (canvases, links, masher: 469 of 1,002 summed seconds)
+    # into shards via CW_SHARD="i/n"; each shard takes every n-th item. Unset = everything (the mutation run uses
+    # that). A shard that gets NOTHING fails, so a bad split can't pass by checking nothing.
+    import os
+    s = os.environ.get("CW_SHARD")
+    if not s: return items
+    i, n = map(int, s.split("/")); part = items[i::n]
+    print(f"shard {i}/{n}: {len(part)} of {len(items)}")
+    if not part: sys.exit(f"shard {i}/{n} got no items: nothing would be checked")
+    return part
+
+
 def open_touch(p, width=390, height=800):
     # cycle 212: a throwaway phone-sized context with a touchscreen, for testing real taps (no profile, ever).
     b = p.chromium.launch(executable_path=str(CHROME), headless=True)

@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "tools"))
-from mybrowser import open_browser
+from mybrowser import open_browser, shard
 from playwright.sync_api import sync_playwright
 
 bad = 0
@@ -12,7 +12,7 @@ with sync_playwright() as p:
     ctx = open_browser(p); pg = ctx.new_page()
     home = (ROOT / "index.html").as_uri()
     pg.goto(home)
-    links = pg.eval_on_selector_all("main a", "as => as.map(a => a.href)")
+    links = shard(pg.eval_on_selector_all("main a", "as => as.map(a => a.href)"))
     pg.set_viewport_size({"width": 390, "height": 800})
     print("home: overflow", pg.evaluate("document.documentElement.scrollWidth - innerWidth"), "| links", len(links))
     pg.set_viewport_size({"width": 1280, "height": 800})

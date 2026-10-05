@@ -179,6 +179,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
      ["A:", "B:", "C:", "E:", "G:", "catalogue types NOT found: ['D', 'F', 'H']"], True),
 ]
 
+SHARDED = {"check_canvases.py": 3, "check_site.py": 3, "tools/check_mash.py": 3}   # cycle 225
+
 def main():
     quick = "--quick" in sys.argv
     # cycle 124: checks run in parallel (--jobs N, default 4), each browser test in a throwaway profile.
@@ -190,6 +192,20 @@ def main():
         name, cwd, cmd, markers, slow = check
         if quick and slow: return (name, "SKIP", 0.0, "")
         t0 = time.time()
+        # cycle 225: the three whole-site checks were 469 of 1,002 summed seconds, and the 181 s canvas check set the
+        # wall-clock floor. They run as SHARDS (CW_SHARD="i/n", read by tools/mybrowser.shard), side by side; the
+        # check passes only if EVERY shard passes with all its markers. (mutate.py still runs them whole.)
+        n = SHARDED.get(cmd[0]) if len(cmd) == 1 else None
+        if n:
+            ps = [subprocess.Popen([PY] + cmd, cwd=ROOT / cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+                                   encoding="utf-8", errors="replace", env={**env, "CW_SHARD": f"{i}/{n}"}) for i in range(n)]
+            outs = [(q.communicate()[0], q.returncode) for q in ps]
+            bad = [(i, rc, [m for m in markers if m not in o], o) for i, (o, rc) in enumerate(outs) if rc != 0 or any(m not in o for m in markers)]
+            status = "PASS" if not bad else "FAIL"
+            why = "" if not bad else "; ".join(f"shard {i}/{n}: exit {rc}; missing {ms}; tail: " + o.strip()[-200:].replace("\n", " | ") for i, rc, ms, o in bad)
+            r = (name, status, time.time() - t0, why)
+            print(f"{status:4s} {r[2]:6.1f}s  {name} [{n} shards]" + (f"\n      {why}" if why else ""), flush=True)
+            return r
         p = subprocess.run([PY] + cmd, cwd=ROOT / cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", env=env)
         out = p.stdout + p.stderr
         missing = [m for m in markers if m not in out]
@@ -202,11 +218,16 @@ def main():
     # the mutation run EDITS other projects' files while it works, so it must never overlap another check: run it alone,
     # after the pool. (Running it in parallel would make innocent checks fail, or worse, pass against a mutant.)
     # cycle 142: timing checks also run alone: under a 4-way CPU contention Gliders read 318 ms vs 185 ms alone
-    alone = [c for c in CHECKS if "tools/mutate.py" in c[2] or "tools/check_freezes.py" in c[2]]
+    # cycle 225: --only=TEXT runs just the checks whose name contains TEXT (to test the sharded path by itself).
+    # Matching nothing is an error, not a pass (the cycle-218 lesson).
+    only = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--only=")), None)
+    todo = [c for c in CHECKS if only is None or only in c[0]]
+    if not todo: sys.exit(f"--only={only!r} matched no check: nothing was run")
+    alone = [c for c in todo if "tools/mutate.py" in c[2] or "tools/check_freezes.py" in c[2]]
     with ThreadPoolExecutor(max_workers=jobs) as ex:
-        pooled = dict(zip([c[0] for c in CHECKS if c not in alone], ex.map(run, [c for c in CHECKS if c not in alone])))
+        pooled = dict(zip([c[0] for c in todo if c not in alone], ex.map(run, [c for c in todo if c not in alone])))
     pooled.update({c[0]: run(c) for c in alone})
-    results = [pooled[c[0]] for c in CHECKS]          # report in CHECKS order
+    results = [pooled[c[0]] for c in todo]            # report in CHECKS order
     wall = time.time() - t_wall
     print(f"wall clock {wall:.0f}s with {jobs} workers")
     for f in ROOT.rglob("*.png"):           # tests leave screenshots; keep only deliberate keepsakes

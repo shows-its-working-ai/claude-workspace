@@ -7,11 +7,11 @@ import random, subprocess, sys
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from mybrowser import open_browser
+from mybrowser import open_browser, shard
 from playwright.sync_api import sync_playwright
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-files = sys.argv[1:] or sorted(f for f in subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "*.html"],
-        cwd=ROOT, capture_output=True, text=True).stdout.split() if (f.startswith("projects/") or f.startswith("art/")) and f.endswith("index.html"))
+files = sys.argv[1:] or shard(sorted(f for f in subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard", "*.html"],
+        cwd=ROOT, capture_output=True, text=True).stdout.split() if (f.startswith("projects/") or f.startswith("art/")) and f.endswith("index.html")))
 PICK = """(i) => { const els = [...document.querySelectorAll('button, [role=button], select, input[type=range], input[type=number], input[type=text], input[type=color], input[type=checkbox], canvas, svg')]
   .filter(e => !e.disabled && e.offsetParent !== null && !(e.tagName === 'A' && e.getAttribute('href') && e.getAttribute('href') !== '#'));
   if (!els.length) return null; const e = els[i % els.length];

@@ -12,14 +12,14 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")   # labels like B-bar
 from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "tools"))
-from mybrowser import open_browser
+from mybrowser import open_browser, shard
 from playwright.sync_api import sync_playwright
 MIN_FRACTION = 0.002
 # Deliberately (near-)empty at load, each with its reason. Anything else blank is a bug.
 ALLOW = {("projects/09-ant/index.html", 0): "starts as an empty grid on purpose; the ant is the only mark until Play"}
 ONLY = sys.argv[1:]                                   # optional: check only these pages (used by the mutation test)
 tracked = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
-pages = ONLY or [f for f in tracked if f.endswith(".html") and "template" not in f]
+pages = ONLY or shard([f for f in tracked if f.endswith(".html") and "template" not in f])
 MEASURE = """async ([a64, b64]) => {
   // fraction of pixels where the canvas (a) differs from an EMPTY copy of itself with identical CSS (b).
   // cycle 95, final design: b is the same canvas, same place, cleared; borders, corners, backgrounds and
