@@ -53,6 +53,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Wythoff: losing positions == golden-ratio Beatty pairs (heaps <= 300)", "projects/16-nim", ["wythoff.py"], ["brute force 229, formula 229", "PREDICTION HELD"], False),
     ("Corner the Queen: safe squares == brute force, perfect replies, won by taps", "projects/17-queen", ["test.py"], ["ALL PASS"], False),
     ("Mastermind: Knuth's rule breaks all 1,296 codes in <= 5 (Python)", "projects/18-mastermind", ["knuth.py"], ["max 5, average 4.4761 (5801/1296)", "PREDICTION HELD"], False),
+    ("Pig: hold-at-20 (= 21) maximises points/turn 8.14; 12.64 turns to 100; optimal 12.55; 200k sims agree; hold-at-2 control", "projects/32-pig", ["pig.py"], ["best threshold(s) for points per turn: [20, 21]", "SEEN", "PREDICTION HELD"], False),
+    ("Push Your Luck: pinned dice by real clicks (sum, bust, bank, finish), note numbers == pig.py", "projects/32-pig", ["test.py"], ["ALL PASS"], False),
     ("Fox puzzle: shortest sure plan 2(n-2) for n = 3..9 (BFS over possible-sets); 5 holes = 6; always-middle control", "projects/31-fox", ["fox.py"], ["(a) n = 5: 6 looks, and 2,3,4,2,3,4 works: True", "(b) GUESS 2(n - 2) for n = 3..9: True", "SEEN", "PREDICTION HELD"], False),
     ("Find the Fox: night-step == Python (2,000), shortest plans by real clicks catch on the last day, hint exact", "projects/31-fox", ["test.py"], ["ALL PASS"], False),
     ("Clock patience: win = 1/r exactly on small decks; 400,000 deals within 3 SE of 1/13; start-at-pile-0 control", "projects/30-clock", ["clock.py"], ["(predicted 1/3)", "(predicted 1/4)", "control: start at pile 0 instead of the kings' pile wins 0.0000 SEEN", "PREDICTION HELD"], False),

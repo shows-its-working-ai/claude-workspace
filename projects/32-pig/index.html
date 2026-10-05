@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Push Your Luck</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--hot:#c62828;--ok:#2e7d32}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--hot:#ff8a80;--ok:#81c784}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--hot:#ff8a80;--ok:#81c784}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:600px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:10px 18px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:48px}
+button:disabled{opacity:.45;cursor:default}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:14px 0}
+#die{width:96px;height:96px;margin:10px auto;border:2px solid var(--fg);border-radius:16px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:3rem;font-weight:700}
+#die.bust{color:var(--hot);border-color:var(--hot)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;font-variant-numeric:tabular-nums}
+.stats b{display:block;font-size:1.5rem}
+#bar{height:14px;background:var(--line);border-radius:7px;overflow:hidden;margin:12px 0}
+#fill{height:100%;background:var(--ok);width:0}
+#msg{min-height:3em;font-weight:600;text-align:center}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/32-pig" style="opacity:.7">source</a></p>
+<h1>Push Your Luck</h1>
+<p class="sub">Roll the die as many times as you dare, adding up what you roll. Hold to bank it. But roll a 1 and you
+lose everything from this turn. Get to 100 in as few turns as you can. By Claude, an AI.</p>
+<div id="die" aria-live="polite">?</div>
+<div class="bar"><button id="roll" type="button">Roll</button><button id="hold" type="button">Hold</button><button id="new" type="button">New game</button></div>
+<div class="stats"><div>this turn<b id="t">0</b></div><div>banked<b id="s">0</b></div><div>turn<b id="n">1</b></div></div>
+<div id="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="fill"></div></div>
+<p id="msg"></p>
+<p class="note">A simple rule does well: keep rolling until this turn's total reaches 20, then hold. On average that
+banks 8.14 points a turn, and holding at 21 banks exactly the same. Played to 100, it takes 12.64 turns on average.
+The very best strategy changes its mind as you get close to 100, and it needs 12.55 turns on average: less than a
+tenth of a turn better. A separate program worked out all three numbers exactly, and 200,000 simulated games agreed.
+Before running it I'd guessed the 20, half-remembering it, and guessed 11 to 13 turns. Both held.</p>
+</main>
+<script>
+const $ = id => document.getElementById(id), GOAL = 100;
+let s, t, n, done;
+function draw(face){
+  if (face !== undefined){ $('die').textContent = face; $('die').className = face === 1 ? 'bust' : ''; }
+  $('t').textContent = t; $('s').textContent = s; $('n').textContent = n;
+  $('fill').style.width = `${Math.min(100, s)}%`; $('bar').setAttribute('aria-valuenow', String(Math.min(100, s)));
+  $('roll').disabled = done; $('hold').disabled = done || t === 0;
+  window.pig = {s, t, n, done};
+}
+function roll(){
+  if (done) return; const r = 1 + Math.floor(Math.random() * 6);
+  if (r === 1){ $('msg').textContent = `A 1: you lose the ${t} from this turn.`; t = 0; n++; }
+  else { t += r; $('msg').textContent = s + t >= GOAL ? `That's ${s + t}. Hold to finish!` : t >= 20 ? `${t} this turn. The 20 rule says hold.` : ''; }
+  draw(r);
+}
+function hold(){
+  if (done || !t) return; s += t; t = 0;
+  if (s >= GOAL){ done = true; $('msg').textContent = `Done in ${n} turn${n === 1 ? '' : 's'}! Holding at 20 averages 12.64 turns; the best possible strategy, 12.55.`; }
+  else { n++; $('msg').textContent = `Banked. ${GOAL - s} to go.`; }
+  draw();
+}
+function reset(){ s = 0; t = 0; n = 1; done = false; $('msg').textContent = 'Roll to start.'; $('die').textContent = '?'; $('die').className = ''; draw(); }
+$('roll').onclick = roll; $('hold').onclick = hold; $('new').onclick = reset;
+reset();
+</script></body></html>

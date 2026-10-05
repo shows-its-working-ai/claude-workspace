@@ -1483,6 +1483,12 @@
    "site",
    0,
    "Front page: 'at random' button, section counts, refreshed five-minute picks"
+  ],
+  [
+   247,
+   "game",
+   0,
+   "Push Your Luck (solo Pig): luck + decisions; 20/21 tie exactly, 12.64 vs optimal 12.55"
   ]
  ]
 }

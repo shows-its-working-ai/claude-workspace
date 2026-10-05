@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/32-pig/index.html", "Push Your Luck",
+         "Solo Pig: roll as long as you dare, but a 1 wipes the turn. Reach 100 in as few turns as you can; the simple 'hold at 20' rule is within a tenth of a turn of perfect."),
         ("projects/31-fox/index.html", "Find the Fox",
          "A fox hides in a row of holes and moves next door every night. You can look in one hole a day: find a plan that is sure to catch it."),
         ("projects/30-clock/index.html", "Clock Patience",
