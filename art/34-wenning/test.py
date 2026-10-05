@@ -36,7 +36,7 @@ with sync_playwright() as p:
     pg.goto((D / "index.html").as_uri()); pg.wait_for_function("window.wenning !== undefined")
     note = pg.inner_text(".note")
     check("the page's readout matches", f"{km:.1f} km" in note and f"{round(fast)} to {round(slow)} minutes" in note, note[note.find('it'):][:60])
-    for key, title in [("hall", "The village hall"), ("post", "The post office")]:
+    for key, title in [("hall", "The village hall"), ("post", "The post office"), ("church", "St Wenna's"), ("shelter", "The bus shelter")]:
         pg.click(f'.place[data-place="{key}"]')
         check(f"a real click on '{key}' shows its caption", pg.evaluate("wenning.shown") == key and pg.inner_text("#cap h2") == title)
         for href in pg.eval_on_selector_all("#cap a", "as => as.map(a => a.href)"):

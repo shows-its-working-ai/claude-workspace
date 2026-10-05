@@ -187,6 +187,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Hex maze walk: always exits bottom-left/top-right, agrees with chain search (all 2x2..4x4)", "projects/20-hex", ["walk.py"], ["n=4: 65536 fillings walked; disagreements with brute force: 0", "PREDICTION HELD"], False),
     ("Essay 31: Hex walk numbers == walk.py; first version's failure in the journal", ".", ["writing/factcheck_31.py"], ["FACTCHECK OK"], False),
     ("Story 2 (The Tuner): equal-temperament beats, a fifth just under 1/s at middle C, thirds 7+/s over F3-F4; old 'about seven' control", ".", ["writing/factcheck_02.py"], ["FACTCHECK OK"], False),
+    ("Story 45 (The Folding Chairs): agrees with the map (15-min Hill Lane, shelter by the post office) and The Jam (Lorna 19, hatchback); chair count", ".", ["writing/factcheck_45.py"], ["FACTCHECK OK"], False),
     ("Story 43: years run backwards; funeral after 2011; daughter's age works; the pockets add up, button elsewhere", ".", ["writing/factcheck_43.py"], ["FACTCHECK OK"], False),
     ("Story 41: the marrows add up (12 - 0.2, 12 - 0.1; second wins); five judges named; no backwards 'denser'", ".", ["writing/factcheck_41.py"], ["FACTCHECK OK"], False),
     ("Essay 40: the eight solved-opponent games among the thirteen (at the essay's commit); 213's note + The Lock correction", ".", ["writing/factcheck_40.py"], ["FACTCHECK OK"], False),
