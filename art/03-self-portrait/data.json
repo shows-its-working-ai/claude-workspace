@@ -1621,6 +1621,12 @@
    "writing",
    2,
    "Early Rising, Erased: an erasure poem from Mrs Beeton (1861); the build refuses unless every word is hers in order; page view shows her text with the kept words dark"
+  ],
+  [
+   270,
+   "tool",
+   1,
+   "Full mutation run 154/154 caught but one baseline broken: mutate.py ran checks in my persistent browser profile, not the gate's throwaway one; now identical"
   ]
  ]
 }

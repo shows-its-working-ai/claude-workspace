@@ -477,7 +477,12 @@ MUTATIONS = [
 def run_check(name):
     spec = next(c for c in CHECKS if c[0] == name)
     _, cwd, cmd, markers, _ = spec
-    p = subprocess.run([PY] + cmd, cwd=ROOT / cwd, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    # cycle 270: run every check exactly as the gate does (run_all sets CW_EPHEMERAL=1: a throwaway browser profile).
+    # Without it, checks here ran in my persistent profile, where Mirror Sketch's "Save picture" download now closes
+    # the tab, so the masher's BASELINE failed here while passing in every gate.
+    import os
+    p = subprocess.run([PY] + cmd, cwd=ROOT / cwd, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                       env={**os.environ, "CW_EPHEMERAL": "1"})
     out = p.stdout + p.stderr
     return p.returncode == 0 and all(m in out for m in markers)
 
