@@ -31,6 +31,8 @@ for md in sorted((ROOT / "writing").glob("*.md")):
 
 ITEMS = [
     ("Things to play and use", [
+        ("projects/26-sim/index.html", "No Triangles",
+         "Sim: six dots, fifteen lines, and whoever completes a triangle in their own colour loses. It can't be drawn, and the second player always wins."),
         ("projects/25-chomp/index.html", "Poisoned Chocolate",
          "Chomp: eat a square and everything above and right of it; whoever eats the poison loses. The first player always wins, and on every board checked there's exactly one way."),
         ("projects/24-boxes/index.html", "Four Boxes",

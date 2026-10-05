@@ -1279,6 +1279,12 @@
    "tool",
    1,
    "Pointer audit: Wythoff readout dead on phones (fixed); real mouse+touch tests"
+  ],
+  [
+   213,
+   "game",
+   0,
+   "Sim solved (2nd player wins, no draws); No Triangles page, nearest-line taps"
   ]
  ]
 }
