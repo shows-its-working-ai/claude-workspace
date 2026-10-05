@@ -99,6 +99,8 @@ ITEMS = [
          "A sound that climbs forever and never gets higher (a Shepard tone), with its eight voices drawn as they rise and fade."),
         ("art/21-spirograph/index.html", "Gear Drawing",
          "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
+        ("art/34-wenning/index.html", "Upper Wenning",
+         "A map of the made-up village where The Marrow and The Jam happen. A test checks the map agrees with the stories: the post office is down the hill, and the lane up is a quarter of an hour's walk."),
         ("art/33-rain/index.html", "Rain on a Window",
          "A misted window at night with street lights behind it. Drops gather and run, clearing lines that fog over again. Look closely: the lights inside each drop are upside down."),
         ("art/32-coastline/index.html", "How Long Is a Coastline?",

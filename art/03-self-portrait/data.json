@@ -1555,6 +1555,12 @@
    "tool",
    0,
    "end_cycle crashed printing a failed step (U+FFFD on cp1252) and hid it; fixed with UTF-8 stdout, reproduced before/after; cycle 257 finished by hand; full mutation run clean 145/145"
+  ],
+  [
+   259,
+   "art",
+   1,
+   "Upper Wenning: a map of the village from The Marrow and The Jam, tested to agree with them (post office downhill, Hill Lane a 15-minute walk at the scale bar); gate caught a hash comparison missed in 256"
   ]
  ]
 }

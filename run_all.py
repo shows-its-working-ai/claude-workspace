@@ -104,6 +104,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Coastline: coast.py builds a non-crossing random Koch island, rulers of 1/3^k give exactly 3(4/3)^k, fitted D within 0.03; triangle control", "art/32-coastline", ["coast.py"], ["VERDICT: coast checks out"], False),
     ("How Long Is a Coastline?: page walk == coast.py on 9 rulers, presets by real clicks == Koch formula, slider, 60 km control, phone, no errors", "art/32-coastline", ["test.py"], ["ALL PASS"], False),
     ("Rain on a Window: draws; real Pause click freezes pixels (playing control differs); Play resumes; slider changes drops; reduced motion; phone", "art/33-rain", ["test.py"], ["ALL PASS"], False),
+    ("Upper Wenning map: post office below the hall, Hill Lane a 15-min walk at the scale bar, captions true to the stories, clicks/keyboard, links exist", "art/34-wenning", ["test.py"], ["ALL PASS"], False),
     ("Mirror Sketch: real mouse/touch strokes are n-fold + mirror symmetric in pixels; mirror-off control; undo, save, no network", "art/31-kaleido", ["test.py"], ["ALL PASS"], False),
     ("Wind Chimes: page audio FFT'd (each strike its note), strike rate grows with wind, deterministic, one bus, can't hear", "art/30-chimes", ["test.py"], ["ALL PASS"], False),
     ("A Day in a Minute: sky brightness + stars from pixels, deterministic per seed, pause, slider keys, reduced motion", "art/29-day", ["test.py"], ["ALL PASS"], False),

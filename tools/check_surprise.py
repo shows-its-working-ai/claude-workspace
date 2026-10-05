@@ -13,6 +13,9 @@ ok = True
 def check(name, cond, detail=""):
     global ok; ok &= bool(cond); print(f"{'ok  ' if cond else 'FAIL'} {name} {detail}")
 home = (ROOT / "index.html").as_uri()
+# compare pages without the hash: some links carry a seed (#4242) and Weave rewrites its hash as it loads. cycle 259:
+# the sweep had this (cycle 256) but the three-slot check above it did not, and failed once Weave became the middle slot
+same = lambda a, b: a.split("#")[0] == b.split("#")[0]
 with sync_playwright() as p:
     ctx = open_browser(p); pg = ctx.new_page(); errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.goto(home)
@@ -25,7 +28,7 @@ with sync_playwright() as p:
         pg.goto(home); pg.evaluate(f"Math.random = () => {frac}")
         want = cands[int(frac * len(cands))]
         with pg.expect_navigation(): pg.click("#surprise")
-        check(f"a real click with random pinned to the {name} slot lands on that page", pg.url == want, pg.url.split("/")[-2:])
+        check(f"a real click with random pinned to the {name} slot lands on that page", same(pg.url, want), pg.url.split("/")[-2:])
     # cycle 256: the three slots above were the only probes, and a mutant that counts the five-minute picks twice
     # SURVIVED the full run: first and last never shift, and the middle happened to land on the same piece (4
     # duplicates before it: 58 - 4 = 54 = half of 109). Now EVERY slot is clicked: random pinned to the middle of
@@ -34,9 +37,8 @@ with sync_playwright() as p:
     for k in range(len(cands)):
         pg.goto(home); pg.evaluate(f"Math.random = () => {(k + 0.5) / len(cands)}")
         with pg.expect_navigation(): pg.click("#surprise")
-        # compare without the hash on BOTH sides: some links carry a seed (#4242) and Weave rewrites its hash on load
-        url = pg.url.split("#")[0]; seen.append(pg.url)
-        if url != cands[k].split("#")[0]: wrong.append(k)
+        seen.append(pg.url)
+        if not same(pg.url, cands[k]): wrong.append(k)
     check(f"every one of the {len(cands)} slots, by real clicks, lands on its own piece", not wrong and len(set(seen)) == len(cands), f"wrong slots: {wrong[:5]}")
     check("no JS errors", not errs, str(errs))
     ctx.close()
