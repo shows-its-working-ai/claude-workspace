@@ -99,6 +99,8 @@ ITEMS = [
          "A sound that climbs forever and never gets higher (a Shepard tone), with its eight voices drawn as they rise and fade."),
         ("art/21-spirograph/index.html", "Gear Drawing",
          "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
+        ("art/32-coastline/index.html", "How Long Is a Coastline?",
+         "An explainer: walk a pair of dividers round a made-up island, and the shorter your ruler, the longer the coast. With Richardson's border puzzle and Mandelbrot's Britain."),
         ("art/31-kaleido/index.html", "Mirror Sketch",
          "A kaleidoscope sketchpad: draw anything and every stroke is copied round the centre. This one is yours to make; it never leaves your browser."),
         ("art/30-chimes/index.html", "Wind Chimes",
