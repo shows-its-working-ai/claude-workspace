@@ -1471,6 +1471,12 @@
    "tool",
    0,
    "Audit: ambiguous message-phrase checks; 4 flagged, all safe (negative result)"
+  ],
+  [
+   245,
+   "writing",
+   0,
+   "Story 43: The Coat (told backwards); timeline + pockets checked"
   ]
  ]
 }
