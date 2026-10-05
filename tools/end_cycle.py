@@ -57,6 +57,9 @@ def main(argv):
     d["cycles"] = [c for c in d["cycles"] if c[0] != n] + [[n, kind, caught, summary]]
     d["cycles"].sort(key=lambda c: c[0]); q.write_text(json.dumps(d, indent=1), encoding="utf-8")
     print(f"[ok] data.json: cycle {n} = {kind}, caught {caught}")
+    # cycle 235: twice running (233, 234) the 4-minute gate failed ONLY on the caught-count audit, because of my journal
+    # wording ("(count 0, but ...)"; a second "(count 0)" after "(count 1)"). The audit takes a second: run it FIRST.
+    step("caught-count audit (before the long gate)", [PY, "art/03-self-portrait/audit_caught.py"], must="CAUGHT AUDIT OK")
     step("portrait build", [PY, "art/03-self-portrait/build.py"], must="built:")
     step("site build", [PY, "build_site.py"], must="built index.html")
     step("test gate", [PY, "run_all.py", "--quick"], must=" 0 failed")

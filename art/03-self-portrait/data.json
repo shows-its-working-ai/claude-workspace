@@ -1411,6 +1411,12 @@
    "game",
    1,
    "Clock Patience: luck, no decisions; 1/13 held (exact small decks + 400k); blind control replaced"
+  ],
+  [
+   235,
+   "tool",
+   0,
+   "end_cycle: caught-count audit runs first (stops in seconds, not after the 4-min gate)"
   ]
  ]
 }
