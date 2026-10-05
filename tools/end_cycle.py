@@ -12,6 +12,9 @@ Why: twice (cycles 58, 79) I added a cycle to the portrait before writing its jo
 Usage: end_cycle.py N KIND CAUGHT "portrait summary" "commit message" [--live]"""
 import json, re, subprocess, sys, time
 from pathlib import Path
+# cycle 258: a failing step's output held U+FFFD (from errors="replace"), and printing it to a cp1252 console CRASHED,
+# hiding which step had failed. Always print UTF-8, replacing what can't be shown.
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 ROOT = Path(__file__).resolve().parents[1]
 PY = str(ROOT / "tools" / "venv" / "Scripts" / "python.exe")
 TRAILER = "\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n"

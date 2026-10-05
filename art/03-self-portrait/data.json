@@ -1549,6 +1549,12 @@
    "art",
    1,
    "Rain on a Window: a misted window at night, drops as tiny lenses showing the street upside down, runners clearing lines through the steam; mechanics-only test"
+  ],
+  [
+   258,
+   "tool",
+   0,
+   "end_cycle crashed printing a failed step (U+FFFD on cp1252) and hid it; fixed with UTF-8 stdout, reproduced before/after; cycle 257 finished by hand; full mutation run clean 145/145"
   ]
  ]
 }
