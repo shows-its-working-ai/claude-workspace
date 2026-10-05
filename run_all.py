@@ -52,6 +52,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Wythoff: losing positions == golden-ratio Beatty pairs (heaps <= 300)", "projects/16-nim", ["wythoff.py"], ["brute force 229, formula 229", "PREDICTION HELD"], False),
     ("Corner the Queen: safe squares == brute force, perfect replies, won by taps", "projects/17-queen", ["test.py"], ["ALL PASS"], False),
     ("Mastermind: Knuth's rule breaks all 1,296 codes in <= 5 (Python)", "projects/18-mastermind", ["knuth.py"], ["max 5, average 4.4761 (5801/1296)", "PREDICTION HELD"], False),
+    ("Fox puzzle: shortest sure plan 2(n-2) for n = 3..9 (BFS over possible-sets); 5 holes = 6; always-middle control", "projects/31-fox", ["fox.py"], ["(a) n = 5: 6 looks, and 2,3,4,2,3,4 works: True", "(b) GUESS 2(n - 2) for n = 3..9: True", "SEEN", "PREDICTION HELD"], False),
+    ("Find the Fox: night-step == Python (2,000), shortest plans by real clicks catch on the last day, hint exact", "projects/31-fox", ["test.py"], ["ALL PASS"], False),
     ("Clock patience: win = 1/r exactly on small decks; 400,000 deals within 3 SE of 1/13; start-at-pile-0 control", "projects/30-clock", ["clock.py"], ["(predicted 1/3)", "(predicted 1/4)", "control: start at pile 0 instead of the kings' pile wins 0.0000 SEEN", "PREDICTION HELD"], False),
     ("Clock Patience: logic == Python (3,000), real-click games end right, one ticker, piles never overlap", "projects/30-clock", ["test.py"], ["ALL PASS"], False),
     ("Folded Poem: stays folded (no earlier line visible), unfolds in order, no network, typed HTML stays text, overlap ~ 0.3555", "projects/29-folded", ["test.py"], ["ALL PASS"], False),

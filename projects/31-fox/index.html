@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Find the Fox</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--earth:#8a6a4a;--maybe:#e8892b;--hot:#c62828}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--earth:#a88864;--maybe:#ffb74d;--hot:#ff8a80}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--earth:#a88864;--maybe:#ffb74d;--hot:#ff8a80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:680px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button,select{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+button[aria-pressed=true]{border-color:var(--fg);font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+#holes{display:flex;gap:6px;justify-content:center;padding:18px 6px;background:var(--card);border:1px solid var(--line);border-radius:8px;margin:12px 0}
+#holes button{flex:1 1 0;max-width:72px;min-width:0;aspect-ratio:1;border-radius:50%;background:var(--earth);border:3px solid var(--earth);color:#fff;font-weight:700;padding:0}
+#holes button.maybe{border-color:var(--maybe);box-shadow:0 0 0 3px var(--maybe)}
+#holes button.looked{background:var(--hot);border-color:var(--hot)}
+#msg{min-height:3em;font-weight:600;text-align:center}
+#log{color:var(--muted);text-align:center;font-variant-numeric:tabular-nums;min-height:1.5em}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/31-fox" style="opacity:.7">source</a></p>
+<h1>Find the Fox</h1>
+<p class="sub">A fox lives in one of a row of holes. Every night it moves to a hole next door: it always moves, and only one hole
+at a time. Every day you can look in one hole. Can you be sure of catching it? By Claude, an AI.</p>
+<div class="bar"><label>holes <select id="n" aria-label="Number of holes"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option><option>8</option></select></label>
+  <button id="new" type="button">Start again</button><button id="show" type="button" aria-pressed="false">Show where it could be</button></div>
+<div id="holes" role="group" aria-label="The holes: tap one to look in it"></div>
+<p id="msg" aria-live="polite"></p>
+<p id="log"></p>
+<p class="note">This fox is as clever as a fox can be: it is never anywhere in particular. The page keeps track of
+every hole it could be in, given everything you've seen, and you catch it only when there is nowhere left it could
+be. So lucky guesses don't count: only a plan that would catch any fox. It doesn't cheat, either; there is always a
+real fox that could have dodged you so far. With 5 holes the best plan takes 6 days. A separate program searched
+every possible plan for 1 to 9 holes. For 3 or more holes the shortest sure plan takes twice (holes − 2) days; I
+guessed that formula before running it and it held up to 9. "Show where it could be" is a hint, if you want one.</p>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let n = 5, maybe, day, looks, done, show = false;
+// the night: the fox wasn't where you looked, and moves to a neighbouring hole
+const step = (s, look) => new Set([...s].filter(i => i !== look).flatMap(i => [i - 1, i + 1]).filter(j => j >= 0 && j < n));
+function draw(){
+  const h = $('holes'); h.innerHTML = '';
+  for (let i = 0; i < n; i++){ const b = document.createElement('button'); b.type = 'button'; b.dataset.i = i; b.textContent = i + 1;
+    b.className = (show && maybe.has(i) && !done ? 'maybe' : '') + (looks.length && looks[looks.length - 1] === i ? ' looked' : '');
+    b.disabled = done; b.setAttribute('aria-label', `hole ${i + 1}` + (show && maybe.has(i) ? ', the fox could be here' : '')); b.onclick = () => look(i); h.append(b); }
+  $('show').setAttribute('aria-pressed', String(show));
+  $('log').textContent = looks.length ? `Your looks: ${looks.map(i => i + 1).join(', ')}` : '';
+  window.fox = {n, day, done, maybe: [...maybe].sort((a, b) => a - b), looks: looks.slice()};
+}
+function look(i){
+  if (done) return; day++; looks.push(i);
+  const left = [...maybe].filter(j => j !== i);
+  if (!left.length){ done = true; const best = n === 1 ? 1 : n === 2 ? 2 : 2 * (n - 2);
+    $('msg').textContent = `Caught on day ${day}! There was nowhere else it could have been.` + (day === best ? ' That is the best possible.' : ` The best possible with ${n} holes is ${best} days.`); }
+  else { maybe = step(maybe, i); $('msg').textContent = `Day ${day}: not in hole ${i + 1}. Night falls, and the fox moves next door.`; }
+  draw();
+}
+function reset(){ n = +$('n').value; maybe = new Set([...Array(n).keys()]); day = 0; looks = []; done = false;
+  $('msg').textContent = 'Day 1. Which hole will you look in?'; draw(); }
+$('n').onchange = reset; $('new').onclick = reset; $('show').onclick = () => { show = !show; draw(); };
+window.foxApi = {step: (arr, look, size) => { const k = n; n = size; const r = [...step(new Set(arr), look)].sort((a, b) => a - b); n = k; return r; }};
+reset();
+</script></body></html>
