@@ -17,6 +17,7 @@ for f in files:
 # cycle 173: pages I cite as evidence must still SAY the thing. A 200 alone proved nothing for metacpan, which
 # answered 200 with a 3 KB bot-challenge page; a body-size floor and these phrases catch that.
 CITES = {
+    "https://en.wikipedia.org/wiki/Sestina": ["around 1200", "Lo ferm voler", "retrogradatio cruciata", "backward crossing", "tornada", "Ye Goatherd Gods", "dubious structural expressiveness", "grandmother"],
     "https://en.wikipedia.org/wiki/Coastline_paradox": ["approximately 1.25 for the west coast of Great Britain", "636–638", "approximately 2,800", "approximately 3,400", "1,214"],
     "https://programmingpraxis.com/2009/11/20/master-mind-part-2/2/": "5801",
     "https://mathworld.wolfram.com/Mastermind.html": "4.478",

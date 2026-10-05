@@ -1597,6 +1597,12 @@
    "tool",
    0,
    "Upper Wenning pieces now link back to the map; check_village defines the village by the map's links and requires every piece to link home"
+  ],
+  [
+   266,
+   "writing",
+   0,
+   "Six Words: an essay on writing my first sestina, history checked verbatim against Wikipedia (CITES), claims about the poem checked; three unconditional SEEN controls fixed"
   ]
  ]
 }

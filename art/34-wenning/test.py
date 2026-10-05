@@ -19,7 +19,8 @@ rings = [(int(e), float(cx), float(cy), float(rx), float(ry)) for e, cx, cy, rx,
          re.findall(r'data-elev="(\d+)" cx="([\d.]+)" cy="([\d.]+)" rx="([\d.]+)" ry="([\d.]+)"', html)]
 def elev(x, y): return max([e for e, cx, cy, rx, ry in rings if ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1] + [40])
 at = {k: tuple(map(float, v.split(","))) for k, v in re.findall(r'data-place="(\w+)" data-elev-at="([\d.,]+)"', html)}
-check("control: 120 m at the hilltop, the 40 m floor at a map corner", len(rings) == 4 and elev(600, 140) == 120 and elev(5, 5) == 40, "SEEN")
+seen = len(rings) == 4 and elev(600, 140) == 120 and elev(5, 5) == 40
+check("control: 120 m at the hilltop, the 40 m floor at a map corner", seen, "SEEN" if seen else "NOT SEEN")
 check("the post office is lower than the hall ('back up the hill')", elev(*at["post"]) < elev(*at["hall"]), f"{elev(*at['post'])} m vs {elev(*at['hall'])} m")
 pts = [tuple(map(float, p.split(","))) for p in re.search(r'id="lane" points="([^"]+)"', html)[1].split()]
 check("Hill Lane runs from the post office to the hall", math.dist(pts[0], at["post"]) < 15 and math.dist(pts[-1], at["hall"]) < 30)

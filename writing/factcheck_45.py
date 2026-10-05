@@ -17,7 +17,8 @@ pts = [tuple(map(float, p.split(","))) for p in re.search(r'id="lane" points="([
 walk = lambda P: sum(math.dist(a, b) for a, b in zip(P, P[1:])) * 2 / 1000   # km: the scale bar is 100 units = 200 m
 fits = lambda km: km / 5 * 60 <= 15 <= km / 4 * 60
 check("'took a quarter of an hour' fits the map's Hill Lane at 4-5 km/h", "It took a quarter of an hour" in s and fits(walk(pts)), f"{walk(pts):.2f} km")
-check("control: a lane twice as long would NOT fit", not fits(2 * walk(pts)), "SEEN")
+longer = fits(2 * walk(pts))
+check("control: a lane twice as long would NOT fit", not longer, "NOT SEEN" if longer else "SEEN")
 at = {k: tuple(map(float, v.split(","))) for k, v in re.findall(r'data-place="(\w+)" data-elev-at="([\d.,]+)"', m)}
 check("the shelter is at the bottom of Hill Lane, by the post office (on the map)", "at the bottom of Hill Lane, by the post office" in s
       and math.dist(at["shelter"], pts[0]) < 60 and math.dist(at["shelter"], at["post"]) < 60, f"{math.dist(at['shelter'], pts[0]):.0f} units from the lane's foot")
