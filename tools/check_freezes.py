@@ -18,6 +18,9 @@ if not args and os.environ.get("CW_QUICK") == "1":
     changed = subprocess.run(["git", "diff", "--name-only", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.split()
     changed += subprocess.run(["git", "ls-files", "--others", "--exclude-standard"], cwd=ROOT, capture_output=True, text=True).stdout.split()
     pages = [f for f in pages if f in changed] + [f for f in changed if f.endswith(".html") and f not in pages and "template" not in f]
+    # cycle 268: "git diff --name-only HEAD" lists DELETED files too, so removing a page made this load a file that
+    # no longer exists (the first time I'd ever deleted a page). Only time pages that are actually there.
+    pages = [f for f in pages if (ROOT / f).exists()]
     print(f"quick mode: timing {len(pages)} changed page(s)")
 # cycle 142: Chrome's 'longtask' entries never arrived in the throwaway test profile, so under run_all this check
 # measured nothing (a mutant with a 3.9 s freeze survived). Measure directly instead, the same in any profile:
