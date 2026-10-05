@@ -87,6 +87,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Gear Drawing: stated trips/bumps == r/g, R/g; bumps counted from page points; closes on time", "art/21-spirograph", ["test.py"], ["ALL PASS"], False),
     ("Truchet: two colours by corner parity, 1,000 tilings; wrong-model control seen", "art/20-truchet", ["truchet.py"], ["failures 0", "SEEN", "PREDICTION HELD"], False),
     ("Two-Colour Tiles: every piece's pixel colour == region parity; tap turns one square", "art/20-truchet", ["test.py"], ["ALL PASS"], False),
+    ("Hilbert curve: unit steps, every cell once, |dp|^2 <= 6|di| on all pairs to 64x64; row-by-row control", "art/25-hilbert", ["hilbert.py"], ["(a) unit steps and every cell exactly once, orders 1-6: True", "(b) GUESS bound 6 holds on every pair, orders 1-6: True; worst at 64x64: 5.6199", "control: row-by-row, cells 63 and 64: ratio 3970 SEEN", "PREDICTION HELD"], False),
+    ("One Long Line: path == Python, real click/tap lights the right cells, Hilbert blob vs row stripe", "art/25-hilbert", ["test.py"], ["ALL PASS"], False),
     ("Apollonian gasket: 169 circles to k=100, exactly tangent (Fractions), none overlap; wrong-rule control", "art/24-apollonian", ["apollo.py"], ["circles with curvature <= 100: 169", "new circles exactly tangent to their three parents: True", "no two circles overlap, all inside the outer one: True", "no circle made twice: True", "SEEN", "PREDICTION HELD"], False),
     ("Apollonian gasket: full quadruple search finds the same 169 curvatures", "art/24-apollonian", ["crosscheck.py"], ["CROSSCHECK OK"], False),
     ("Kissing Circles: curvatures == Python, tangent on canvas to 1,000, taps + caption arithmetic", "art/24-apollonian", ["test.py"], ["ALL PASS"], False),

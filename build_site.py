@@ -85,6 +85,8 @@ ITEMS = [
          "A sound that climbs forever and never gets higher (a Shepard tone), with its eight voices drawn as they rise and fade."),
         ("art/21-spirograph/index.html", "Gear Drawing",
          "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
+        ("art/25-hilbert/index.html", "One Long Line",
+         "The Hilbert curve visits every square once. Tap a square and its neighbours along the line light up as a compact blob, where row-by-row order gives a stripe."),
         ("art/24-apollonian/index.html", "Kissing Circles",
          "An Apollonian gasket: every gap between three touching circles holds one more, and every curvature is a whole number. Tap one to see its arithmetic."),
         ("art/23-collatz/index.html", "Collatz Coral",

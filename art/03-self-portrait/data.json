@@ -1291,6 +1291,12 @@
    "writing",
    0,
    "Story 36: The Museum of Lost Property (daytime, comic); count fixed + factcheck"
+  ],
+  [
+   215,
+   "art",
+   0,
+   "One Long Line: Hilbert curve locality (bound 6 held to 64x64); real-tap tests"
   ]
  ]
 }
