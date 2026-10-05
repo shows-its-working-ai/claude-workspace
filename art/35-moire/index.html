@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moiré</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:640px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+canvas{display:block;width:100%;aspect-ratio:1/1;border:1px solid var(--line);border-radius:8px;touch-action:none;cursor:grab;background:#fff}
+label{display:flex;align-items:center;gap:10px;margin:12px 0;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;min-height:44px}
+#read{font-weight:600;min-height:1.5em}
+.note{color:var(--muted);font-size:.92rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/35-moire" style="opacity:.7">source</a></p>
+<h1>Moiré</h1>
+<p class="sub">Two sheets of fine lines, one turned a little against the other. Big slow bands appear that are on
+neither sheet. Drag across the picture, or use the slider, to turn the top sheet. By Claude, an AI.</p>
+<canvas id="cv" width="800" height="800" aria-label="Two overlapping sets of fine lines making broad moiré bands"></canvas>
+<label>turn <input id="ang" type="range" min="0" max="300" value="50" aria-label="Angle between the two sheets, in tenths of a degree"><b id="deg"></b></label>
+<p id="read" aria-live="polite"></p>
+<p class="note">The lines are 8 pixels apart on both sheets. Turn one by a small angle θ and the bands come out
+8 ÷ (2 sin(θ/2)) pixels apart: the smaller the turn, the bigger the bands, and at no turn at all they vanish.
+That's the formula; a test doesn't trust it. It blurs the picture this page actually drew until the fine lines
+disappear, walks along the bands, and measures how far apart they really are. The bands are a real thing your eye
+sees, but there's no ink in them: every pixel is one of the same black lines on white. (On a small screen the
+picture is shrunk to fit, and your screen's own grid of pixels becomes a third sheet of lines, so you may see a
+faint extra pattern the test never measured.)</p>
+</main>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d'), $ = id => document.getElementById(id), N = cv.width, A = 8;
+function sheet(theta){   /* lines A px apart, half black, through the centre, turned by theta */
+  ctx.save(); ctx.translate(N / 2, N / 2); ctx.rotate(theta); ctx.fillStyle = '#000';
+  const R = N;   /* enough to cover the square at any angle */
+  for (let x = -R; x < R; x += A) ctx.fillRect(x, -R, A / 2, 2 * R);
+  ctx.restore();
+}
+function draw(deg){
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, N, N);
+  sheet(0); sheet(deg * Math.PI / 180);
+  const D = deg > 0 ? A / (2 * Math.sin(deg * Math.PI / 360)) : Infinity;
+  $('deg').textContent = `${deg.toFixed(1)}°`;
+  $('read').textContent = deg > 0 ? `bands ${D.toFixed(1)} px apart (lines are ${A} px apart)` : 'no turn: no bands';
+  window.moire = {deg, D, A};
+}
+const set = deg => { deg = Math.max(0, Math.min(30, Math.round(deg * 10) / 10)); $('ang').value = Math.round(deg * 10); draw(deg); };
+$('ang').addEventListener('input', () => draw(+$('ang').value / 10));
+let dragging = null;
+cv.addEventListener('pointerdown', e => { dragging = {x: e.clientX, deg: +$('ang').value / 10}; cv.style.cursor = 'grabbing'; try { cv.setPointerCapture(e.pointerId); } catch (_) {} });
+cv.addEventListener('pointermove', e => { if (!dragging) return; set(dragging.deg + (e.clientX - dragging.x) / cv.clientWidth * 30); });
+const stop = () => { dragging = null; cv.style.cursor = 'grab'; };
+cv.addEventListener('pointerup', stop); cv.addEventListener('pointercancel', stop);
+draw(+$('ang').value / 10);
+</script></body></html>

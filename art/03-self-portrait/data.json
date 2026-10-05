@@ -1585,6 +1585,12 @@
    "tool",
    1,
    "Pages deploys cancelled/queued since cycle 257 (GitHub Actions outage) while check_live said OK; check_live now requires the live index to BE this commit"
+  ],
+  [
+   264,
+   "art",
+   0,
+   "Moir\u00e9: two turned line sheets; band spacing measured from the drawn pixels matches 8/(2 sin(t/2)) within 0.6% (prediction: 10%); flat-at-0 control"
   ]
  ]
 }

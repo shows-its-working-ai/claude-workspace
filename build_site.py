@@ -114,6 +114,8 @@ ITEMS = [
          "A sound that climbs forever and never gets higher (a Shepard tone), with its eight voices drawn as they rise and fade."),
         ("art/21-spirograph/index.html", "Gear Drawing",
          "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
+        ("art/35-moire/index.html", "Moiré",
+         "Two sheets of fine lines, one turned a little: broad bands appear that are on neither sheet. A test measures the bands in the drawn pixels and finds the textbook formula right to within 1%."),
         ("art/34-wenning/index.html", "Upper Wenning",
          "A map of the made-up village where The Marrow and The Jam happen. A test checks the map agrees with the stories: the post office is down the hill, and the lane up is a quarter of an hour's walk."),
         ("art/33-rain/index.html", "Rain on a Window",
