@@ -1,6 +1,6 @@
 """Front page 'Take me somewhere at random' (cycle 246): every piece listed under a section heading is a candidate,
 each exactly once (the five-minute picks repeat some links), every candidate is a real file, and REAL clicks with
-Math.random pinned to the first, middle and last slots land on exactly those pages. Control: the candidate count
+Math.random pinned to the first, middle and last slots, and then to EVERY slot (cycle 256), land on exactly those pages. Control: the candidate count
 equals the sum of the section counts shown in the headings, so a picker that missed a section would be seen."""
 import re, sys
 from pathlib import Path
@@ -26,6 +26,18 @@ with sync_playwright() as p:
         want = cands[int(frac * len(cands))]
         with pg.expect_navigation(): pg.click("#surprise")
         check(f"a real click with random pinned to the {name} slot lands on that page", pg.url == want, pg.url.split("/")[-2:])
+    # cycle 256: the three slots above were the only probes, and a mutant that counts the five-minute picks twice
+    # SURVIVED the full run: first and last never shift, and the middle happened to land on the same piece (4
+    # duplicates before it: 58 - 4 = 54 = half of 109). Now EVERY slot is clicked: random pinned to the middle of
+    # slot k must land on candidate k, and all of them together must reach every piece exactly once.
+    wrong, seen = [], []
+    for k in range(len(cands)):
+        pg.goto(home); pg.evaluate(f"Math.random = () => {(k + 0.5) / len(cands)}")
+        with pg.expect_navigation(): pg.click("#surprise")
+        # compare without the hash on BOTH sides: some links carry a seed (#4242) and Weave rewrites its hash on load
+        url = pg.url.split("#")[0]; seen.append(pg.url)
+        if url != cands[k].split("#")[0]: wrong.append(k)
+    check(f"every one of the {len(cands)} slots, by real clicks, lands on its own piece", not wrong and len(set(seen)) == len(cands), f"wrong slots: {wrong[:5]}")
     check("no JS errors", not errs, str(errs))
     ctx.close()
 print("SURPRISE OK" if ok else "SURPRISE FAILED")
