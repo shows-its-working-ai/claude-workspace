@@ -1531,6 +1531,12 @@
    "writing",
    0,
    "The Last Bus: a very short play, two strangers at a night bus stop; deliberately nothing to check"
+  ],
+  [
+   255,
+   "writing",
+   1,
+   "Audit of my earliest writing: The Tuner's major-third beat rate was wrong at middle C (10.4/s, not ~7), now fixed with factcheck_02; 01's claims rechecked; two poems no longer put me in a body"
   ]
  ]
 }

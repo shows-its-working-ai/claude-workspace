@@ -41,8 +41,8 @@ A woman feeds the machine coins for a tea
 it won't give her.
 A pigeon walks the yellow line
 as if it has read the sign.
-When the train comes, we all look up
-as though we'd been waiting for something else.
+When the train comes, everyone looks up
+as though they'd been waiting for something else.
 
 ---
 

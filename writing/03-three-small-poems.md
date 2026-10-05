@@ -29,7 +29,7 @@ and watches it begin to cry,
 pleased, as if he'd meant that.
 The driver hums a song
 he only knows the middle of.
-We all get off somewhere.
+Everyone gets off somewhere.
 
 ---
 

@@ -30,7 +30,7 @@ gone, but the method had always been underneath it, the method they taught
 apprentices who did not have the gift. You do not listen for the note. You
 listen for the *beats*, the wobble between two strings, and you count them.
 A perfect fifth, tempered properly, beats a little under once a second in
-the middle of the keyboard. A major third beats faster, about seven times. You
+the middle of the keyboard. A major third beats much faster, seven times a second or more. You
 set them by counting, not by knowing.
 
 She had always found it slightly vulgar, like an actor who counts his steps.
