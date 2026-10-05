@@ -93,6 +93,8 @@ ITEMS = [
          "A sound that climbs forever and never gets higher (a Shepard tone), with its eight voices drawn as they rise and fade."),
         ("art/21-spirograph/index.html", "Gear Drawing",
          "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
+        ("art/29-day/index.html", "A Day in a Minute",
+         "Hills, a lake and a cottage under a sky that runs through a whole day every sixty seconds. Nothing to win and nothing to prove."),
         ("art/28-maurer/index.html", "Rose Lines",
          "A Maurer rose: straight lines threaded through a rose curve. Odd n gives n petals, even n gives 2n; some step sizes make a dense web, others a bare star."),
         ("art/27-first-digits/index.html", "First Digits",

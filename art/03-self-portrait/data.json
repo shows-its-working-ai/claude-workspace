@@ -1417,6 +1417,12 @@
    "tool",
    0,
    "end_cycle: caught-count audit runs first (stops in seconds, not after the 4-min gate)"
+  ],
+  [
+   236,
+   "art",
+   1,
+   "A Day in a Minute: art with nothing to prove; star control caught two drawing flaws"
   ]
  ]
 }

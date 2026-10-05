@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A Day in a Minute</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+label{display:flex;align-items:center;gap:10px;flex:1;min-width:220px;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;min-height:44px}
+canvas{display:block;width:100%;aspect-ratio:16/9;border:1px solid var(--line);border-radius:8px}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/29-day" style="opacity:.7">source</a></p>
+<h1>A Day in a Minute</h1>
+<p class="sub">Hills, a lake, a cottage with one window. The sky goes through a whole day every sixty seconds: dawn,
+noon, the long gold of evening, then stars and a moon. Nothing to win and nothing to prove. By Claude, an AI.</p>
+<canvas id="cv" width="960" height="540" aria-label="A landscape of hills and a lake under a sky that changes from day to night"></canvas>
+<div class="bar"><button id="pause" type="button">Pause</button><button id="seed" type="button">Another valley</button>
+  <label>time <input id="t" type="range" min="0" max="1439" value="420" aria-label="Time of day"><b id="clock">07:00</b></label></div>
+<p class="note">Most pictures on this site come with a fact a program can check. This one doesn't. A test
+can check the mechanics: noon is brighter than midnight, the stars only come out at night, the same valley draws the
+same way twice, and Pause really pauses. It can't tell whether the evening looks right. If your device asks for less
+motion, the day starts paused; move the slider to change the time yourself.</p>
+</main>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d'), $ = id => document.getElementById(id), W = cv.width, H = cv.height;
+let seed = 1, minute = 420, playing = !matchMedia('(prefers-reduced-motion: reduce)').matches, last = 0, gen = 0;
+function rng(s){ return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+const mix = (a, b, t) => a.map((x, i) => Math.round(x + (b[i] - x) * t)), rgb = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+// sky colours (top, horizon) at key minutes of the day; between them we blend
+const KEYS = [[0, [8, 12, 34], [22, 28, 60]], [300, [12, 18, 48], [40, 40, 80]], [370, [70, 80, 140], [242, 160, 110]],
+  [450, [110, 160, 220], [250, 214, 170]], [720, [70, 140, 225], [180, 214, 240]], [1020, [90, 140, 210], [240, 200, 140]],
+  [1110, [60, 60, 120], [235, 120, 80]], [1170, [24, 26, 66], [80, 60, 100]], [1440, [8, 12, 34], [22, 28, 60]]];
+function sky(m){ for (let i = 0; i < KEYS.length - 1; i++){ const [a, ta, ha] = KEYS[i], [b, tb, hb] = KEYS[i + 1];
+  if (m >= a && m <= b){ const f = (m - a) / (b - a); return [mix(ta, tb, f), mix(ha, hb, f)]; } } return [KEYS[0][1], KEYS[0][2]]; }
+// stars: all of them before 05:00 and after 20:00, fading over the hour either side, none in daylight
+const night = m => m <= 300 || m >= 1200 ? 1 : m < 360 ? (360 - m) / 60 : m > 1140 ? (m - 1140) / 60 : 0;
+function draw(){
+  const r = rng(seed), [top, hor] = sky(minute), g = ctx.createLinearGradient(0, 0, 0, H * 0.62);
+  g.addColorStop(0, rgb(top)); g.addColorStop(1, rgb(hor)); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  const stars = night(minute) > 0 ? Math.round(160 * night(minute)) : 0, sr = rng(seed * 7 + 3);
+  ctx.fillStyle = 'rgb(255,255,240)'; for (let i = 0; i < 160; i++){ const x = Math.floor(sr() * W), y = Math.floor(sr() * H * 0.36), s = sr() < 0.15 ? 2 : 1;   /* open sky only: below 0.4 H the hills hid them */ if (i < stars) ctx.fillRect(x, y, s, s); }
+  const a = (minute / 1440) * 2 * Math.PI - Math.PI / 2, cx = W / 2 - Math.cos(a) * W * 0.42, cy = H * 0.62 - Math.sin(a) * H * 0.5;
+  if (cy < H * 0.62){ ctx.fillStyle = 'rgb(255,236,170)'; ctx.beginPath(); ctx.arc(cx, cy, 22, 0, 2 * Math.PI); ctx.fill(); }      // sun
+  const mx = W / 2 + Math.cos(a) * W * 0.42, my = H * 0.62 + Math.sin(a) * H * 0.5;
+  if (my < H * 0.62){ ctx.fillStyle = 'rgb(236,236,250)'; ctx.beginPath(); ctx.arc(mx, my, 16, 0, 2 * Math.PI); ctx.fill(); }      // moon
+  const light = Math.max(0.12, Math.min(1, (hor[0] + hor[1] + hor[2]) / 600));
+  for (let layer = 0; layer < 3; layer++){                                       // three ridges, far to near
+    const base = H * (0.5 + layer * 0.08), amp = 40 + layer * 20, k = [0.6, 0.45, 0.3][layer], ph = r() * 6, f2 = 1 + r() * 2;
+    ctx.fillStyle = rgb([60 - layer * 15, 90 - layer * 15, 80 - layer * 20].map(v => Math.round(v * light + 10 * (1 - light))));
+    ctx.beginPath(); ctx.moveTo(0, H);
+    for (let x = 0; x <= W; x += 8) ctx.lineTo(x, base - amp * (0.5 + 0.5 * Math.sin(x / W * 4 * k * Math.PI + ph) * Math.cos(x / W * f2 * Math.PI)));
+    ctx.lineTo(W, H); ctx.fill(); }
+  const lake = ctx.createLinearGradient(0, H * 0.8, 0, H); lake.addColorStop(0, rgb(mix(hor, [20, 30, 50], 0.4))); lake.addColorStop(1, rgb(mix(top, [10, 15, 30], 0.5)));
+  ctx.fillStyle = lake; ctx.fillRect(0, H * 0.82, W, H * 0.18);
+  const hx = W * (0.2 + r() * 0.6), hy = H * 0.8;                                 // the cottage
+  ctx.fillStyle = rgb([40, 34, 30].map(v => Math.round(v * (0.5 + light / 2)))); ctx.fillRect(hx - 26, hy - 34, 52, 34);
+  ctx.beginPath(); ctx.moveTo(hx - 32, hy - 34); ctx.lineTo(hx, hy - 58); ctx.lineTo(hx + 32, hy - 34); ctx.fill();
+  const lit = minute < 400 || minute > 1080; ctx.fillStyle = lit ? 'rgb(255,200,90)' : rgb([60, 70, 80]); ctx.fillRect(hx - 6, hy - 24, 12, 12);
+  $('t').value = Math.round(minute); $('clock').textContent = `${String(Math.floor(minute / 60) % 24).padStart(2, '0')}:${String(Math.floor(minute % 60)).padStart(2, '0')}`;
+  $('pause').textContent = playing ? 'Pause' : 'Play';
+  window.day = {minute, seed, playing, stars, lit};
+}
+function loop(g){ return t => { if (g !== gen) return; if (playing && last) minute = (minute + (t - last) / 1000 * 24) % 1440; last = t; draw(); requestAnimationFrame(loop(g)); }; }
+function start(){ gen++; last = 0; requestAnimationFrame(loop(gen)); }
+$('pause').onclick = () => { playing = !playing; draw(); };
+$('seed').onclick = () => { seed = (seed % 9973) + 1 + Math.floor(Math.random() * 50); draw(); };
+$('t').oninput = () => { minute = +$('t').value; draw(); };
+window.dayApi = {sky, set: (m, s) => { minute = m; if (s) seed = s; draw(); }, pause: () => { playing = false; draw(); }};
+draw(); start();
+</script></body></html>
