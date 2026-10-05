@@ -91,6 +91,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Gear Drawing: stated trips/bumps == r/g, R/g; bumps counted from page points; closes on time", "art/21-spirograph", ["test.py"], ["ALL PASS"], False),
     ("Truchet: two colours by corner parity, 1,000 tilings; wrong-model control seen", "art/20-truchet", ["truchet.py"], ["failures 0", "SEEN", "PREDICTION HELD"], False),
     ("Two-Colour Tiles: every piece's pixel colour == region parity; tap turns one square", "art/20-truchet", ["test.py"], ["ALL PASS"], False),
+    ("Maurer rose: n odd -> n petal tips, even -> 2n (n <= 12); closes after 360/gcd(360, d); |sin| control", "art/28-maurer", ["maurer.py"], ["n odd -> n, n even -> 2n: True", "closing steps == 360/gcd(360, d) for all d = 1..360: True", "SEEN", "PREDICTION HELD"], False),
+    ("Rose Lines: petals + closing steps == Python; real slider keys update drawing and caption", "art/28-maurer", ["test.py"], ["ALL PASS"], False),
     ("First digits of the site's own numbers: counts run; uniform-digit control fails chi-square (snapshot is the page's)", "art/27-first-digits", ["digits.py"], ["pages:", "chi-square vs Benford:", "control: uniform digits, same n:", "SEEN"], False),
     ("First Digits: page snapshot == digits.json, bars + Benford dots drawn right, note from the snapshot", "art/27-first-digits", ["test.py"], ["ALL PASS"], False),
     ("Overtones of C2: powers of 2 exact, 3rd +1.96, 5th -13.69, 7th -31.17, worst the 11th -48.68; ET fifth control", "art/26-overtones", ["overtones.py"], ["(a) 1, 2, 4, 8, 16 exact: True", "(b) 3rd G3 +1.96, 5th E4 -13.69, 7th Bb4 -31.17: True", "(c) worst is the 11th, F#5 -48.68: True", "SEEN", "PREDICTION HELD"], False),

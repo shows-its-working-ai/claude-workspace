@@ -1375,6 +1375,12 @@
    "tool",
    0,
    "check_loops.py: stacked animation loops site-wide (3 presses, control seen); all 10 OK"
+  ],
+  [
+   229,
+   "art",
+   1,
+   "Rose Lines (Maurer rose): petals n/2n, closes after 360/gcd; an equivalent mutant again"
   ]
  ]
 }

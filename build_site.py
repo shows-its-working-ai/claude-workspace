@@ -89,6 +89,8 @@ ITEMS = [
          "A sound that climbs forever and never gets higher (a Shepard tone), with its eight voices drawn as they rise and fade."),
         ("art/21-spirograph/index.html", "Gear Drawing",
          "A spirograph that tells you before it draws how many times the wheel will go round and how many bumps you'll get."),
+        ("art/28-maurer/index.html", "Rose Lines",
+         "A Maurer rose: straight lines threaded through a rose curve. Odd n gives n petals, even n gives 2n; some step sizes make a dense web, others a bare star."),
         ("art/27-first-digits/index.html", "First Digits",
          "Benford's law, tried on this site's own pages: every digit from 1 to 9 gets rarer, as it should, but 1 is too common, and I got the reason wrong."),
         ("art/26-overtones/index.html", "Hidden Notes",

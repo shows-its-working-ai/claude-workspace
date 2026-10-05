@@ -193,6 +193,14 @@ MUTATIONS = [
     ("skittles: a stale computer move lands on the new game", "projects/28-kayles/index.html",
      "function later(f){ const g = gen; setTimeout(() => { if (g === gen) f(); }, 450); }", "function later(f){ setTimeout(f, 450); }",
      "Skittles: Grundy == Python, won by real clicks (one + two modes), bad opening loses, double start, phone"),
+    # cycle 229: my first mutant here ("count tips over half a turn") SURVIVED because it was EQUIVALENT: a negative-r
+    # tip in [0, pi) lands at the direction of one in [pi, 2 pi), so half a turn already holds every tip (essay 35 again)
+    ("rose lines: tips counted ignoring the sign of r", "art/28-maurer/index.html",
+     "  for (let k = 0; k < 4 * n; k++){ const t = (2 * k + 1) * Math.PI / (2 * n), r = Math.sin(n * t);", "  for (let k = 0; k < 4 * n; k++){ const t = (2 * k + 1) * Math.PI / (2 * n), r = Math.abs(Math.sin(n * t));",
+     "Rose Lines: petals + closing steps == Python; real slider keys update drawing and caption"),
+    ("rose lines: closing steps use 180 instead of 360", "art/28-maurer/index.html",
+     "closes = d => 360 / gcd(360, d);", "closes = d => 180 / gcd(180, d);",
+     "Rose Lines: petals + closing steps == Python; real slider keys update drawing and caption"),
     ("first digits: Benford's dots use log10(1 + d) instead of log10(1 + 1/d)", "art/27-first-digits/index.html",
      "const BEN = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(d => Math.log10(1 + 1 / d))", "const BEN = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(d => Math.log10(1 + d) / 10)",
      "First Digits: page snapshot == digits.json, bars + Benford dots drawn right, note from the snapshot"),

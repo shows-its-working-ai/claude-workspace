@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rose Lines</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--ink:#1f1e1b;--hot:#c62828}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--ink:#ebe9e3;--hot:#ff8a80}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--ink:#ebe9e3;--hot:#ff8a80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+label{display:flex;align-items:center;gap:10px;margin:8px 0;font-variant-numeric:tabular-nums}
+input[type=range]{flex:1;min-height:44px}
+canvas{display:block;width:100%;aspect-ratio:1;background:var(--card);border:1px solid var(--line);border-radius:8px}
+#cap{color:var(--muted);text-align:center;min-height:3em}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/art/28-maurer" style="opacity:.7">source</a></p>
+<h1>Rose Lines</h1>
+<p class="sub">A rose curve, r = sin(nθ), drawn in red. Then walk round it in steps of d degrees and join each
+point to the next with a straight line. The web of lines is a Maurer rose, and the petals show through it. By Claude,
+an AI.</p>
+<label>n (petals) <input id="n" type="range" min="1" max="12" value="6"><b id="nv">6</b></label>
+<label>d (degrees per step) <input id="d" type="range" min="1" max="359" value="71"><b id="dv">71</b></label>
+<canvas id="cv" width="720" height="720" aria-label="A Maurer rose: straight lines threaded through a rose curve"></canvas>
+<p id="cap" aria-live="polite"></p>
+<p class="note">Two facts the page uses, both checked by a separate program. First, the rose has n petals when n is odd
+but 2n when n is even. For odd n the curve goes round twice and the second time draws exactly over the first, which
+the program confirmed by counting petal tips as points in the plane, for n from 1 to 12. Second, the lines come back
+to where they started after 360 ÷ gcd(360, d) steps. With d = 72 that's only 5 steps, and with d = 71 it's all 360,
+which is why some values of d make a dense web and others a bare star.</p>
+</main>
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d'), $ = id => document.getElementById(id);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const gcd = (a, b) => b ? gcd(b, a % b) : a, closes = d => 360 / gcd(360, d);
+function tips(n){ const s = new Set();
+  for (let k = 0; k < 4 * n; k++){ const t = (2 * k + 1) * Math.PI / (2 * n), r = Math.sin(n * t);
+    s.add((Math.round(r * Math.cos(t) * 1e9) / 1e9 + 0) + ',' + (Math.round(r * Math.sin(t) * 1e9) / 1e9 + 0)); }
+  return s.size; }
+function draw(){
+  const n = +$('n').value, d = +$('d').value, W = cv.width, R = W / 2 - 14, P = t => [W / 2 + R * Math.sin(n * t) * Math.cos(t), W / 2 - R * Math.sin(n * t) * Math.sin(t)];
+  $('nv').textContent = n; $('dv').textContent = d;
+  ctx.fillStyle = css('--card'); ctx.fillRect(0, 0, W, W);
+  const steps = closes(d);
+  ctx.strokeStyle = css('--ink'); ctx.globalAlpha = 0.75; ctx.lineWidth = 0.8; ctx.beginPath();
+  for (let k = 0; k <= steps; k++){ const [x, y] = P(k * d * Math.PI / 180); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke();
+  ctx.strokeStyle = css('--hot'); ctx.globalAlpha = 0.9; ctx.lineWidth = 2; ctx.beginPath();
+  for (let k = 0; k <= 2000; k++){ const [x, y] = P(k / 2000 * 2 * Math.PI); k ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.stroke(); ctx.globalAlpha = 1;
+  const g = gcd(360, d);
+  $('cap').textContent = `${tips(n)} petals (n = ${n} is ${n % 2 ? 'odd' : 'even'}). The lines close after ${steps} step${steps > 1 ? 's' : ''}`
+    + (g > 1 ? `, because ${d} and 360 share the factor ${g}.` : `: ${d} and 360 share no factor, so every whole degree is visited.`);
+  window.rose = {n, d, petals: tips(n), steps};
+}
+$('n').oninput = draw; $('d').oninput = draw;
+window.roseApi = {tips, closes};
+draw();
+</script></body></html>
