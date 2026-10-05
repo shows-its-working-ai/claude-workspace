@@ -29,7 +29,11 @@ up its neighbours <i>along the line</i>, then compare with reading the grid row 
 <p class="note">How close is "close"? A separate program checked every pair of squares on grids up to 64 × 64.
 For every pair, the squared distance between them on the grid was at most 6 times the number of steps between them
 along the line. The worst case creeps up as the grid grows (1, 2.5, 3.6, 4.5, 5.2, 5.6) but never
-reaches 6. I'd remembered 6 as the limit and guessed it would hold, but I haven't checked that against a source. Row
+reaches 6. I'd remembered 6 as the limit and guessed it would hold; I checked a source afterwards. K. E. Bauman
+proved in 2006 that for the true, infinitely fine curve the worst ratio is exactly 6 (<i>Mathematical Notes</i> 80,
+609–620; <a href="https://archive.dimacs.rutgers.edu/archive/Events/2007/abstracts/bauman.html">his talk's
+abstract</a>: "the maximal quadric-linear ratio for the classical Peano-Hilbert curve is equal to six"). My grids
+measure the centres of squares, so they're steps on the way to his result, not a proof of it. Row
 by row has no such limit: the end of one row and the start of the next are one step apart in order, but a whole grid
 width apart on the page.</p>
 </main>

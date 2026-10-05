@@ -1297,6 +1297,12 @@
    "art",
    0,
    "One Long Line: Hilbert curve locality (bound 6 held to 64x64); real-tap tests"
+  ],
+  [
+   216,
+   "research",
+   0,
+   "Source for the Hilbert 6: Bauman 2006; cited-page phrase beats size floor"
   ]
  ]
 }

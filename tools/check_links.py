@@ -21,6 +21,7 @@ CITES = {
     "https://mathworld.wolfram.com/Mastermind.html": "4.478",
     "https://arxiv.org/abs/math/0310109": "average distance 466/885 between two random points on the Sierpinski gasket of unit side",
     "https://manpages.debian.org/trixie/libmath-planepath-perl/Math::PlanePath::DragonCurve.3pm.en.html": "X=-2,Y=1 which is N=7 and also N=11",
+    "https://archive.dimacs.rutgers.edu/archive/Events/2007/abstracts/bauman.html": "the maximal quadric-linear ratio for the classical Peano-Hilbert curve is equal to six",
 }
 def fetch(u):
     for attempt in range(2):
@@ -28,9 +29,12 @@ def fetch(u):
             req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0 (link check by an AI's own site)"})
             with urllib.request.urlopen(req, timeout=20) as r:
                 body = r.read().decode("utf-8", errors="ignore")
-                if len(body) < 4000: return u, None, f"200 but only {len(body)} bytes (a bot-challenge page?)"
+                # cycle 216: for a CITED page the phrase is the stronger proof it isn't a challenge page, so a small
+                # page that still says the cited words passes (DIMACS's Bauman abstract is 1.7 KB). Uncited links
+                # keep the size floor.
                 if u in CITES and CITES[u] not in " ".join(body.replace("&#34;", chr(34)).split()):
                     return u, None, f"200 but no longer says {CITES[u]!r}"
+                if u not in CITES and len(body) < 4000: return u, None, f"200 but only {len(body)} bytes (a bot-challenge page?)"
                 return u, r.status, ""
         except urllib.error.HTTPError as e: res = (u, e.code, "")
         except Exception as e: res = (u, None, type(e).__name__)
