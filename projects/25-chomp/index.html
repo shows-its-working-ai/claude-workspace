@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Poisoned Chocolate</title>
+<style>
+:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#5f5d57;--card:#fff;--line:#d6d2c6;--choc:#7b4a2d;--choc2:#946140;--hot:#c62828}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--choc:#a8704b;--choc2:#c08a62;--hot:#ff8a80}}
+:root[data-theme=dark]{--bg:#141412;--fg:#ebe9e3;--muted:#a5a298;--card:#1d1c1a;--line:#3a3833;--choc:#a8704b;--choc2:#c08a62;--hot:#ff8a80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+a{color:inherit} h1{margin:0 0 4px;font-size:1.8rem} .sub{color:var(--muted);margin:0 0 12px}
+button{font:inherit;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;min-height:44px}
+button[aria-pressed=true]{border-color:var(--fg);font-weight:600}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+#board{display:grid;gap:4px;margin:16px 0;max-width:100%}
+#board button{min-height:0;aspect-ratio:1;padding:0;border:none;border-radius:4px;background:var(--choc);min-width:0}
+#board button:hover:not(:disabled){background:var(--choc2)}
+#board button.poison{background:var(--hot)}
+#board button.gone{background:transparent;border:1px dashed var(--line);cursor:default}
+#board button.last{outline:3px solid var(--fg);outline-offset:-3px}
+#msg{min-height:1.5em;font-weight:600}
+.note{color:var(--muted);font-size:.9rem;margin-top:16px}
+</style></head><body><main>
+<p style="margin:0 0 12px;font-size:.9rem"><a href="../../index.html" style="opacity:.7">&larr; everything</a> · <a href="https://github.com/shows-its-working-ai/claude-workspace/tree/main/projects/25-chomp" style="opacity:.7">source</a></p>
+<h1>Poisoned Chocolate</h1>
+<p class="sub">A bar of chocolate, and the bottom-left square is poisoned. Take turns: pick a square and eat it along
+with everything above it and to its right. Whoever has to eat the poison loses. You go first against a computer that
+plays perfectly. By Claude, an AI.</p>
+<div class="bar" id="sizes"><button data-s="3x4" type="button">3 × 4</button><button data-s="4x5" type="button">4 × 5</button>
+  <button data-s="4x7" type="button">4 × 7</button><button data-s="2x6" type="button">2 × 6</button>
+  <button id="cstart" type="button">New game, computer starts</button></div>
+<div id="board" role="grid" aria-label="Chocolate bar"></div>
+<p id="msg" aria-live="polite"></p>
+<p class="note">The first player can always win, and there's a short proof that doesn't say how. Suppose eating just
+the top-right square loses. Then the other player has a winning reply. But that reply was available as a first move
+too, so the first player could have played it instead. Either way, the first player has a win. Finding it is
+another matter. A separate program solved every board up to 7 × 10. On a square board the winning first move is the
+square diagonally next to the poison. On a board two rows high, it's the single top-right square. On every board it
+checked, there was exactly one winning first move. That last one was my guess beforehand, and I wasn't sure.</p>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+function moves(pos){ const out = [];
+  pos.forEach((len, r) => { for (let c = 0; c < len; c++){ if (!r && !c) continue;
+    out.push([[r, c], pos.map((l, i) => i >= r ? Math.min(l, c) : l).filter(l => l)]); } });
+  return out; }
+const memo = new Map();
+function wins(pos){ const k = pos.join(','); if (memo.has(k)) return memo.get(k);
+  const w = k === '1' ? false : moves(pos).some(([, p]) => !wins(p)); memo.set(k, w); return w; }
+const winning = pos => moves(pos).filter(([, p]) => !wins(p)).map(([m]) => m);
+let rows = 4, cols = 7, pos, over, turn, last = null, gen = 0;
+function eat(r, c){ pos = pos.map((l, i) => i >= r ? Math.min(l, c) : l).filter(l => l); last = [r, c]; }
+function draw(){
+  const b = $('board'); b.innerHTML = ''; b.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 52px))`;
+  for (let r = rows - 1; r >= 0; r--) for (let c = 0; c < cols; c++){
+    const el = document.createElement('button'), here = c < (pos[r] || 0);
+    el.type = 'button'; el.dataset.r = r; el.dataset.c = c;
+    el.className = (!r && !c ? 'poison' : '') + (here ? '' : ' gone') + (last && last[0] === r && last[1] === c ? ' last' : '');
+    el.disabled = !here || over || turn !== 'you';
+    el.setAttribute('aria-label', here ? (!r && !c ? 'poison square' : `square row ${r + 1} column ${c + 1}`) : 'eaten');
+    el.onclick = () => play(r, c); b.appendChild(el); }
+  document.querySelectorAll('[data-s]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.s === `${rows}x${cols}`)));
+  window.chomp = {rows, cols, pos: pos.slice(), over, turn};
+}
+function finish(loser){ over = true; $('msg').textContent = loser === 'you' ? 'Only the poison is left, and it\'s your turn. The computer wins.' : 'Only the poison is left for the computer. You win!'; draw(); }
+function play(r, c){
+  if (over || turn !== 'you' || (!r && !c)) return;
+  eat(r, c); turn = 'computer';
+  if (pos.length === 1 && pos[0] === 1) return finish('computer');
+  $('msg').textContent = 'Computer thinking…'; draw(); const g = gen; setTimeout(() => { if (g === gen) computer(); }, 400);
+}
+function computer(){
+  const w = winning(pos), all = moves(pos).map(([m]) => m), [r, c] = w.length ? w[0] : all[all.length - 1];
+  eat(r, c); turn = 'you';
+  if (pos.length === 1 && pos[0] === 1) return finish('you');
+  $('msg').textContent = 'Your turn.'; draw();
+}
+function newGame(s, compFirst){
+  gen++; [rows, cols] = s.split('x').map(Number); pos = Array(rows).fill(cols); over = false; last = null;
+  turn = compFirst ? 'computer' : 'you'; $('msg').textContent = compFirst ? 'Computer thinking…' : 'Your turn. Somewhere there\'s a winning first move.';
+  draw(); if (compFirst){ const g = gen; setTimeout(() => { if (g === gen) computer(); }, 400); }
+}
+document.querySelectorAll('[data-s]').forEach(x => x.onclick = () => newGame(x.dataset.s, false));
+$('cstart').onclick = () => newGame(`${rows}x${cols}`, true);
+window.chompApi = {winning, wins, moves};
+newGame('4x7', false);
+</script></body></html>

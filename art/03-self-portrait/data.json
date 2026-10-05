@@ -1249,6 +1249,12 @@
    "art",
    0,
    "Collatz Coral: 3 predictions held; page + 2 mutants caught"
+  ],
+  [
+   208,
+   "game",
+   2,
+   "Chomp solved to 7x10 (unique winning move); Poisoned Chocolate page"
   ]
  ]
 }
