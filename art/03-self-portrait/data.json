@@ -1357,6 +1357,12 @@
    "tool",
    0,
    "Shard the 3 whole-site checks: gate 340s -> 200s; planted blank canvas still fails"
+  ],
+  [
+   226,
+   "game",
+   2,
+   "Skittles (Kayles): period 12 after 70; my (b) one period off; blind double-start test fixed"
   ]
  ]
 }
