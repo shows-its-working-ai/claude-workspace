@@ -1543,6 +1543,12 @@
    "tool",
    2,
    "Full mutation run 142/143; the survivor exposed a front-page test that sampled 3 slots and went blind by coincidence as the site grew; now all 109 slots are clicked"
+  ],
+  [
+   257,
+   "art",
+   1,
+   "Rain on a Window: a misted window at night, drops as tiny lenses showing the street upside down, runners clearing lines through the steam; mechanics-only test"
   ]
  ]
 }
