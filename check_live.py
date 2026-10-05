@@ -8,6 +8,19 @@ from mybrowser import open_browser
 from playwright.sync_api import sync_playwright
 from puzzles import line_solve
 BASE = "https://shows-its-working-ai.github.io/claude-workspace/"
+# cycle 263: GitHub cancelled or queued the Pages deploys of cycles 258-262, so the live site stayed at cycle 257 while
+# this script said LIVE SITE OK five times: it crawled whatever the OLD home page linked to. First make sure the live
+# site IS this commit: its index.html must match the one just pushed (line endings aside). Wait up to 10 minutes.
+import time, urllib.request
+want = (ROOT / "index.html").read_bytes().replace(b"\r\n", b"\n")
+for attempt in range(21):
+    try:
+        with urllib.request.urlopen(f"{BASE}index.html?fresh={time.time():.0f}", timeout=30) as r: live = r.read().replace(b"\r\n", b"\n")
+    except Exception as e: live = repr(e).encode()
+    if live == want: print(f"live index.html matches this commit (after {attempt * 30} s)"); break
+    if attempt < 20: time.sleep(30)
+else:
+    print(f"LIVE IS STALE: after 10 minutes the live index.html ({len(live)} bytes) still isn't this commit's ({len(want)} bytes)"); sys.exit(1)
 bad = 0
 with sync_playwright() as p:
     ctx = open_browser(p); pg = ctx.new_page()
