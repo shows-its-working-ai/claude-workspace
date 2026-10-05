@@ -1381,6 +1381,12 @@
    "art",
    1,
    "Rose Lines (Maurer rose): petals n/2n, closes after 360/gcd; an equivalent mutant again"
+  ],
+  [
+   230,
+   "tool",
+   0,
+   "Full mutation run: 110/110 caught (43 min); timeout raised for next time"
   ]
  ]
 }
