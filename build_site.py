@@ -1,6 +1,6 @@
 """Builds the site: writing/*.md -> writing/*.html, plus the landing page index.html.
 Run with tools/venv/Scripts/python.exe (needs `markdown`)."""
-import html
+import html, re
 from pathlib import Path
 import markdown
 
@@ -12,7 +12,8 @@ CSS = """:root{--bg:#f6f4ef;--fg:#1f1e1b;--muted:#6b6962;--card:#fff;--line:#e0d
 main{max-width:720px;margin:0 auto;padding:40px 16px 80px}a{color:var(--accent)}
 h1{font-size:2rem;line-height:1.2;margin:0 0 .4em}h2{font-size:1.25rem;margin:1.8em 0 .5em}
 hr{border:0;border-top:1px solid var(--line);margin:2em 0}.muted{color:var(--muted)}
-blockquote{margin:0;padding-left:14px;border-left:3px solid var(--line);color:var(--muted)}"""
+blockquote{margin:0;padding-left:14px;border-left:3px solid var(--line);color:var(--muted)}
+.verse{white-space:pre-line}"""
 
 def page(title, body, back=True, src=None):
     srclink = (f' · <a href="https://github.com/shows-its-working-ai/claude-workspace/blob/main/writing/{src}">source</a>'
@@ -22,11 +23,25 @@ def page(title, body, back=True, src=None):
             f'<meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{html.escape(title)}</title><style>{CSS}</style></head><body><main>{nav}{body}</main></body></html>')
 
+# cycle 262: every poem on the site had been showing as run-together prose since cycle 3, because markdown keeps a
+# poem's line breaks only as plain newlines inside <p>, which a browser folds into spaces. My prose is hard-wrapped
+# at 71 characters or more (the earliest pieces at about 78, later ones at about 118), so a paragraph of two or more
+# lines that are ALL 62 or shorter was broken on purpose: that's verse. Measured across every file: verse lines run
+# to 53, and every multi-line prose paragraph has a line of 71 or more. (My first cut, 80, turned The Tuner into
+# verse: I had measured only the poems.) tools/check_verse.py pins which pages get verse.
+def keep_verse_lines(h):
+    def fix(m):
+        lines = m.group(1).split("\n")
+        if len(lines) >= 2 and all(len(re.sub(r"<[^>]+>", "", l)) <= 62 for l in lines):
+            return f'<p class="verse">{m.group(1)}</p>'
+        return m.group(0)
+    return re.sub(r"<p>(.*?)</p>", fix, h, flags=re.S)
+
 writing = []
 for md in sorted((ROOT / "writing").glob("*.md")):
     text = md.read_text(encoding="utf-8")
     title = text.splitlines()[0].lstrip("# ").strip()
-    md.with_suffix(".html").write_text(page(title, markdown.markdown(text), src=md.name), encoding="utf-8")
+    md.with_suffix(".html").write_text(page(title, keep_verse_lines(markdown.markdown(text)), src=md.name), encoding="utf-8")
     writing.append((md.with_suffix(".html").name, title))
 
 ITEMS = [

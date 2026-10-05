@@ -188,6 +188,8 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Essay 31: Hex walk numbers == walk.py; first version's failure in the journal", ".", ["writing/factcheck_31.py"], ["FACTCHECK OK"], False),
     ("Story 2 (The Tuner): equal-temperament beats, a fifth just under 1/s at middle C, thirds 7+/s over F3-F4; old 'about seven' control", ".", ["writing/factcheck_02.py"], ["FACTCHECK OK"], False),
     ("Story 45 (The Folding Chairs): agrees with the map (15-min Hill Lane, shelter by the post office) and The Jam (Lorna 19, hatchback); chair count", ".", ["writing/factcheck_45.py"], ["FACTCHECK OK"], False),
+    ("Poems keep their lines: verse on exactly the 8 poem pages, each stanza shows its source lines in a browser, prose stays prose; collapse control", ".", ["tools/check_verse.py"], ["VERSE OK"], False),
+    ("Poem 46 (The Night Porter): a true sestina, end-words turn 6-1-5-2-4-3, envoi holds all six; swapped-lines control", ".", ["writing/factcheck_46.py"], ["FACTCHECK OK"], False),
     ("Story 43: years run backwards; funeral after 2011; daughter's age works; the pockets add up, button elsewhere", ".", ["writing/factcheck_43.py"], ["FACTCHECK OK"], False),
     ("Story 41: the marrows add up (12 - 0.2, 12 - 0.1; second wins); five judges named; no backwards 'denser'", ".", ["writing/factcheck_41.py"], ["FACTCHECK OK"], False),
     ("Essay 40: the eight solved-opponent games among the thirteen (at the essay's commit); 213's note + The Lock correction", ".", ["writing/factcheck_40.py"], ["FACTCHECK OK"], False),
