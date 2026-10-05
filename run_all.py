@@ -163,6 +163,7 @@ CHECKS = [  # (name, working dir, script + args, required markers, slow?)
     ("Poems 29: Hex, Euler's forty, the ant, the crossed box == their pages' data", ".", ["writing/factcheck_29.py"], ["FACTCHECK OK"], False),
     ("Hex maze walk: always exits bottom-left/top-right, agrees with chain search (all 2x2..4x4)", "projects/20-hex", ["walk.py"], ["n=4: 65536 fillings walked; disagreements with brute force: 0", "PREDICTION HELD"], False),
     ("Essay 31: Hex walk numbers == walk.py; first version's failure in the journal", ".", ["writing/factcheck_31.py"], ["FACTCHECK OK"], False),
+    ("Story 39: the yoghurt count (4 -> 3, 2, 1, 0; four pots found, four lids)", ".", ["writing/factcheck_39.py"], ["FACTCHECK OK"], False),
     ("Poems 38: 27's climb, 169 circles + my 120 guess, Sim's 112,096 positions == the programs", ".", ["writing/factcheck_38.py"], ["FACTCHECK OK"], False),
     ("Essay 37: the three old quotes in git, the two fixed dates, journal 217's counts, the cited phrase", ".", ["writing/factcheck_37.py"], ["FACTCHECK OK"], False),
     ("Story 36: the lost-property box adds up (41 + 3 = 44, and the hamster ball); nine claimed; the recorder stays", ".", ["writing/factcheck_36.py"], ["FACTCHECK OK"], False),
